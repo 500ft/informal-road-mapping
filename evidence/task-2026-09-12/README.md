@@ -38,3 +38,10 @@ The case docstrings were first written with predictions (faint → miss, wide �
 
 ## Not done
 No imagery, no site, no Mongolia result; CR-08 unchanged. The failure classes feed CR-09's taxonomy; they do not replace field verification.
+
+## Review repair (CR-R03b, same day)
+Two defects the 2026-09-12 review found, both reproduced before fixing:
+1. **The score ignored the exported geometry.** Replacing every candidate's `endpoints_px` with an obviously wrong segment left pixel recall/precision unchanged — the metric measured the internal component mask, not what the extractor delivers. Added an exported-line layer (`score_lines`: rasterise each `endpoints_px` segment, recall/precision within 2 px). Negative control: the same substitution drops wide-corridor line recall 0.38 → 0.02.
+2. **The width claim was wrong.** "53 px width under 3× noise" — `width_px` is the component's minor-axis extent; for the curved corridor it is **54.7 px at zero noise** (the curve's transverse extent) against a 3 px road. Noise was not the cause. Corrected in the record, README and tests.
+
+What the line layer exposes: every curved corridor — including the favourable demo — passes the component layer and fails the exported line (low-SNR curve 0.10, hairpin 0.27, demo 0.35). Straight corridors pass both. The v1 record is preserved byte-unchanged as `results/extractor_stress_cases_baseline_2026-09-12.json`; a test asserts the v2 component-layer numbers equal it. 80 tests pass; the CLI-equals-record check is now itself a test.

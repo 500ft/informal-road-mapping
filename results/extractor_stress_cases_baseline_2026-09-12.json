@@ -1,7 +1,6 @@
 {
- "schema_version": 2,
- "produced_by": "python -m catanroads.stress_cases (analysis/catanroads/stress_cases.py, CR-R03b)",
- "supersedes": "results/extractor_stress_cases_baseline_2026-09-12.json (component-pixel layer only; kept unchanged as the baseline)",
+ "schema_version": 1,
+ "produced_by": "python -m catanroads.stress_cases (analysis/catanroads/stress_cases.py, CR-R03)",
  "extractor_defaults": {
   "disturb_thresh": 1.0,
   "ridge_sigmas": [
@@ -24,10 +23,6 @@
    "detected": true,
    "truth_pixels": 1637,
    "candidate_pixels": 1511,
-   "line_recall": 0.34697617593158214,
-   "line_precision": 0.4668335419274093,
-   "line_pixels": 799,
-   "line_ok": false,
    "doc": "The favourable demonstration scene itself, for scale.",
    "top_candidates": [
     {
@@ -51,8 +46,7 @@
      "mean_disturbance": 2.253,
      "n_pixels": 301
     }
-   ],
-   "note_width_px": "minor-axis extent of the component, not road width"
+   ]
   },
   "faint_corridor": {
    "n_candidates": 7,
@@ -63,10 +57,6 @@
    "detected": true,
    "truth_pixels": 768,
    "candidate_pixels": 466,
-   "line_recall": 0.9244791666666666,
-   "line_precision": 1.0,
-   "line_pixels": 224,
-   "line_ok": true,
    "doc": "A single straight corridor with strength near disturb_thresh=1.0 (default 1.15 on noise 0.3).",
    "top_candidates": [
     {
@@ -90,8 +80,7 @@
      "mean_disturbance": 1.295,
      "n_pixels": 90
     }
-   ],
-   "note_width_px": "minor-axis extent of the component, not road width"
+   ]
   },
   "wide_corridor": {
    "n_candidates": 1,
@@ -102,10 +91,6 @@
    "detected": true,
    "truth_pixels": 3328,
    "candidate_pixels": 3328,
-   "line_recall": 0.38461538461538464,
-   "line_precision": 1.0,
-   "line_pixels": 256,
-   "line_ok": false,
    "doc": "A 13-px-wide corridor (graded road at coarse resolution); ridge sigmas top out at 3 px.",
    "top_candidates": [
     {
@@ -115,8 +100,7 @@
      "mean_disturbance": 2.393,
      "n_pixels": 3328
     }
-   ],
-   "note_width_px": "minor-axis extent of the component, not road width"
+   ]
   },
   "crossing": {
    "n_candidates": 0,
@@ -127,13 +111,8 @@
    "detected": false,
    "truth_pixels": 1021,
    "candidate_pixels": 0,
-   "line_recall": 0.0,
-   "line_precision": null,
-   "line_pixels": 0,
-   "line_ok": false,
    "doc": "Two full-width corridors crossing at 90 degrees; they form one 8-connected component.",
-   "top_candidates": [],
-   "note_width_px": "minor-axis extent of the component, not road width"
+   "top_candidates": []
   },
   "short_segments": {
    "n_candidates": 0,
@@ -144,13 +123,8 @@
    "detected": false,
    "truth_pixels": 432,
    "candidate_pixels": 0,
-   "line_recall": 0.0,
-   "line_precision": null,
-   "line_pixels": 0,
-   "line_ok": false,
    "doc": "A corridor visible only as 9-px dashes with 7-px gaps (each dash < min_length_px=12).",
-   "top_candidates": [],
-   "note_width_px": "minor-axis extent of the component, not road width"
+   "top_candidates": []
   },
   "linear_confound_riverbank": {
    "n_candidates": 1,
@@ -163,10 +137,6 @@
    "detected": false,
    "truth_pixels": 0,
    "candidate_pixels": 768,
-   "line_recall": null,
-   "line_precision": 0.0,
-   "line_pixels": 252,
-   "line_ok": false,
    "doc": "A long, thin, high-disturbance feature that is NOT a road (river bank / fence line / field edge). Truth mask is empty by construction.",
    "top_candidates": [
     {
@@ -176,8 +146,7 @@
      "mean_disturbance": 2.404,
      "n_pixels": 768
     }
-   ],
-   "note_width_px": "minor-axis extent of the component, not road width"
+   ]
   },
   "speckle_only": {
    "n_candidates": 0,
@@ -188,13 +157,8 @@
    "detected": false,
    "truth_pixels": 0,
    "candidate_pixels": 0,
-   "line_recall": null,
-   "line_precision": null,
-   "line_pixels": 0,
-   "line_ok": false,
    "doc": "Isolated speckle (cloud shadow, bare-rock pixels) with no corridor; truth mask empty.",
-   "top_candidates": [],
-   "note_width_px": "minor-axis extent of the component, not road width"
+   "top_candidates": []
   },
   "low_snr": {
    "n_candidates": 1,
@@ -205,10 +169,6 @@
    "detected": true,
    "truth_pixels": 768,
    "candidate_pixels": 819,
-   "line_recall": 0.09765625,
-   "line_precision": 0.13524590163934427,
-   "line_pixels": 244,
-   "line_ok": false,
    "doc": "The demo's curved corridor under 3x the demo noise (sigma 0.9).",
    "top_candidates": [
     {
@@ -218,8 +178,7 @@
      "mean_disturbance": 2.531,
      "n_pixels": 819
     }
-   ],
-   "note_width_px": "minor-axis extent of the component, not road width"
+   ]
   },
   "gradient_background": {
    "n_candidates": 3,
@@ -233,10 +192,6 @@
    "detected": true,
    "truth_pixels": 768,
    "candidate_pixels": 1139,
-   "line_recall": 1.0,
-   "line_precision": 0.9014084507042254,
-   "line_pixels": 284,
-   "line_ok": true,
    "doc": "A smooth disturbance ramp 0..2.5 across the scene (regional bare-soil gradient) under a straight corridor; more than half the background exceeds disturb_thresh.",
    "top_candidates": [
     {
@@ -260,8 +215,7 @@
      "mean_disturbance": 1.608,
      "n_pixels": 16
     }
-   ],
-   "note_width_px": "minor-axis extent of the component, not road width"
+   ]
   },
   "tight_curve": {
    "n_candidates": 1,
@@ -272,10 +226,6 @@
    "detected": true,
    "truth_pixels": 413,
    "candidate_pixels": 413,
-   "line_recall": 0.26634382566585957,
-   "line_precision": 0.40310077519379844,
-   "line_pixels": 129,
-   "line_ok": false,
    "doc": "A hairpin: a half-ellipse corridor 128 px wide and ~20 px tall.",
    "top_candidates": [
     {
@@ -285,8 +235,7 @@
      "mean_disturbance": 5.245,
      "n_pixels": 413
     }
-   ],
-   "note_width_px": "minor-axis extent of the component, not road width"
+   ]
   }
  },
  "faint_strength_sweep": [
@@ -316,10 +265,5 @@
    "pixel_recall": 0.0
   }
  ],
- "curve_extent_without_noise": {
-  "width_px_noise_0": 54.74979664330675,
-  "true_road_thickness_px": 3,
-  "curve_peak_to_peak_px": 61.44
- },
- "note": "Synthetic constructions only. Two layers: component pixels (what the mask covered) and exported line (what endpoints_px delivers). width_px is component minor-axis extent, not road width."
+ "note": "Synthetic constructions only. No imagery, no site. Numbers describe the algorithm, not Mongolia."
 }

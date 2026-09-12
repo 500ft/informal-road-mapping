@@ -26,7 +26,7 @@ def test_committed_record_matches_live_run(live):
         rec = RECORD["cases"][name]
         assert s["n_candidates"] == rec["n_candidates"], name
         assert s["n_false_candidates"] == rec["n_false_candidates"], name
-        for k in ("pixel_recall", "pixel_precision"):
+        for k in ("pixel_recall", "pixel_precision", "line_recall", "line_precision"):
             if rec[k] is None:
                 assert s[k] is None, (name, k)
             else:
@@ -92,6 +92,58 @@ def test_hairpin_is_summarised_as_one_straight_segment():
     assert c["width_px"] > 20, "the hairpin's height is reported as candidate WIDTH"
 
 
-def test_low_snr_inflates_reported_width():
-    d, _ = SC.case_low_snr(); c = extract_candidates(d)[0]
-    assert c["width_px"] > 40, "a 3-px corridor reported as > 40 px wide under 3x noise"
+def test_width_px_is_curve_extent_not_road_width_regardless_of_noise():
+    # Review 2026-09-12: the first record blamed noise for a 53 px width. It is the curved
+    # component's transverse extent: ~55 px at ZERO noise for a 3-px-thick corridor.
+    w0 = extract_candidates(SC.case_low_snr(noise=0.0)[0])[0]["width_px"]
+    w9 = extract_candidates(SC.case_low_snr(noise=0.9)[0])[0]["width_px"]
+    assert 50 < w0 < 62 and abs(w0 - w9) < 5, (w0, w9)
+    assert SC.curve_extent_without_noise()["true_road_thickness_px"] == 3
+
+
+# ── exported-line layer (review 2026-09-12: component scores ignored the delivered geometry) ──
+def test_wrong_endpoints_score_worse_on_the_line_layer_negative_control():
+    d, t = SC.case_wide_corridor(); c = extract_candidates(d)
+    good = SC.score_lines(t, c)
+    for cc in c: cc["endpoints_px"] = [[0.0, 0.0], [255.0, 255.0]]
+    bad = SC.score_lines(t, c)
+    assert good["line_recall"] > 5 * bad["line_recall"], (good, bad)
+    assert good["line_precision"] > 0.95 and bad["line_precision"] < 0.1
+
+
+def test_component_layer_is_blind_to_endpoints_and_the_record_says_so(live):
+    d, t = SC.case_low_snr(); c = extract_candidates(d)
+    s0 = SC.score(d, t, c)
+    for cc in c: cc["endpoints_px"] = [[0.0, 0.0], [255.0, 255.0]]
+    s1 = SC.score(d, t, c)
+    assert (s0["pixel_recall"], s0["pixel_precision"]) == (s1["pixel_recall"], s1["pixel_precision"])   # blind, by construction
+    assert s1["line_recall"] < s0["line_recall"]                                                           # the line layer is not
+
+
+def test_curved_corridors_pass_the_component_layer_and_fail_the_line_layer(live):
+    for name in ("low_snr", "tight_curve", "demo_reference"):
+        assert live[name]["detected"] and not live[name]["line_ok"], name
+    assert live["low_snr"]["line_recall"] < 0.2 and live["tight_curve"]["line_recall"] < 0.35
+
+
+def test_straight_corridors_pass_both_layers(live):
+    for name in ("faint_corridor", "gradient_background"):
+        assert live[name]["line_ok"], name
+
+
+def test_baseline_record_is_preserved_unchanged():
+    base = json.loads((ROOT / "results/extractor_stress_cases_baseline_2026-09-12.json").read_text())
+    assert base["schema_version"] == 1
+    for name, s in RECORD["cases"].items():
+        for k in ("n_candidates", "n_false_candidates", "pixel_recall", "pixel_precision"):
+            assert base["cases"][name][k] == s[k], (name, k)
+
+
+
+def test_cli_reproduces_the_committed_record_exactly():
+    import subprocess, sys
+    out = subprocess.run([sys.executable, "-m", "catanroads.stress_cases"], cwd=ROOT / "analysis", capture_output=True, text=True)
+    assert out.returncode == 0, out.stderr[-400:]
+    live = json.loads(out.stdout)
+    for k in ("cases", "faint_strength_sweep", "curve_extent_without_noise"):
+        assert live[k] == RECORD[k], k

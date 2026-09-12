@@ -52,21 +52,26 @@ Do **not** commit raw imagery exports here — GeoTIFFs and archives are ignored
 `.gitignore` to keep the repo light. Keep only finished figures.
 
 
-## `extractor_stress_cases.json` — where the extractor detects, misses, or fabricates (CR-R03, 2026-09-12)
 
-Ten fixed synthetic cases (`analysis/catanroads/stress_cases.py`), each with its own truth mask; scored by pixel recall/precision within 2 px and by false-candidate count. Regenerate with `python -m catanroads.stress_cases`; `tests/test_stress_cases.py` pins the observed behaviour. **Synthetic constructions only — nothing here is imagery or a site result.**
+## `extractor_stress_cases.json` — where the extractor detects, misses, fabricates, or misrepresents (CR-R03 / CR-R03b, 2026-09-12)
 
-| case | candidates | false | pixel recall | verdict |
-|---|---:|---:|---:|---|
-| demo_reference | 6 | 0 | 0.92 | the favourable demo, for scale |
-| wide_corridor (13 px) | 1 | 0 | 1.00 | detects |
-| low_snr (3× noise) | 1 | 0 | 1.00 | detects, but reports width 53 px for a 3 px corridor |
-| gradient_background | 3 | 2 | 1.00 | detects, plus two small false candidates on the ramp |
-| tight_curve (hairpin) | 1 | 0 | 1.00 | detects, **misrepresents**: one straight 128 × 22 px segment |
-| faint_corridor (1.15 × thresh) | 7 | 0 | 0.93 | detects, **fragmented** into seven pieces |
-| **crossing** | 0 | 0 | 0.00 | **misses both** roads: the union component fails `min_elongation` |
-| **short_segments** (9 px dashes) | 0 | 0 | 0.00 | **misses**: every dash is below `min_length_px` |
-| **linear_confound_riverbank** | 1 | 1 | — | **fabricates**: a river bank ranks like a strong road (precision 0) |
-| speckle_only (up to 4000 specks) | 0 | 0 | — | robust: no false candidates |
+Ten fixed synthetic cases (`analysis/catanroads/stress_cases.py`), each with its own truth mask, scored on **two layers that must not be confused**: the *component* layer (pixel recall/precision of the extractor's internal mask, within 2 px) and the *exported-line* layer (recall/precision of the straight segment the extractor actually delivers as `endpoints_px`). Regenerate with `python -m catanroads.stress_cases`; `tests/test_stress_cases.py` pins the observed behaviour. `extractor_stress_cases_baseline_2026-09-12.json` is the first, component-only record, kept byte-unchanged as the baseline. **Synthetic constructions only — nothing here is imagery or a site result.**
 
-Detection cliff: the same corridor at 1.3 / 1.15 / 1.05 / 1.0 / 0.9 × `disturb_thresh` gives recall 1.00 / 0.93 / 0.48 / 0.27 / 0.00. Consequences for the false-positive taxonomy (CR-09): linear non-road features are the failure class the extractor cannot see; junctions and dashed tracks are the miss classes; width and straight-segment summaries are not trustworthy under noise or curvature.
+| case | cands | false | component recall | exported-line recall / precision |
+|---|---:|---:|---:|---:|
+| demo_reference | 6 | 0 | 0.92 | 0.35 / 0.47 |
+| faint_corridor | 7 | 0 | 0.93 | 0.92 / 1.00 |
+| wide_corridor | 1 | 0 | 1.00 | 0.38 / 1.00 |
+| crossing | 0 | 0 | 0.00 | 0.00 / — |
+| short_segments | 0 | 0 | 0.00 | 0.00 / — |
+| linear_confound_riverbank | 1 | 1 | — | — / 0.00 |
+| speckle_only | 0 | 0 | — | — / — |
+| low_snr | 1 | 0 | 1.00 | 0.10 / 0.14 |
+| gradient_background | 3 | 2 | 1.00 | 1.00 / 0.90 |
+| tight_curve | 1 | 0 | 1.00 | 0.27 / 0.40 |
+
+**Two corrections to the first record (review 2026-09-12).** (1) The component score is blind to the exported geometry: replacing every candidate's endpoints with an obviously wrong segment leaves it unchanged. The line layer is not — the same substitution drops wide-corridor line recall from 0.38 to 0.02. (2) The earlier "53 px width under 3× noise" was wrong: `width_px` is the component's minor-axis *extent*, and for the curved corridor it is 54.7 px with **zero** noise (the curve's transverse extent), against a 3 px road. The quantity confuses curve extent with road width.
+
+What the line layer shows that the component layer hid: every **curved** corridor — the demo scene included — passes the component layer and **fails** the exported line (low-SNR curve 0.10, hairpin 0.27, demo 0.35), because a single straight chord cannot represent a curve. Straight corridors pass both. The wide corridor's line recall of 0.38 is a metric artifact (a 13 px thick truth vs a 2 px tolerance around a centre line), stated so it is not read as a miss.
+
+For CR-09 and what to fix next: the **representation** (one straight segment per component) and its evaluation, not the threshold. Misses at crossings and dashes, and the river-bank false candidate, are unchanged from the baseline.
