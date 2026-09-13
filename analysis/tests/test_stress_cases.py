@@ -47,7 +47,7 @@ def test_faint_corridor_is_detected_but_fragmented(live):
 
 def test_speckle_alone_produces_no_candidates():
     for n in (400, 1500, 4000):
-        d, _ = SC.case_speckle_only(n_specks=n)
+        d, _, _ = SC.case_speckle_only(n_specks=n)
         assert extract_candidates(d) == [], n
 
 
@@ -55,7 +55,7 @@ def test_speckle_alone_produces_no_candidates():
 def test_crossing_corridors_are_both_lost(live):
     # Two full corridors, zero candidates: the union component's elongation is below min_elongation.
     assert live["crossing"]["n_candidates"] == 0 and live["crossing"]["pixel_recall"] == 0.0
-    d, _ = SC.case_crossing()
+    d, _, _ = SC.case_crossing()
     assert len(extract_candidates(d, min_elongation=1.5)) == 1, "lowering min_elongation recovers ONE component for two roads"
 
 
@@ -74,7 +74,7 @@ def test_detection_cliff_sits_at_disturb_thresh():
 def test_linear_non_road_feature_is_a_confident_false_candidate(live):
     s = live["linear_confound_riverbank"]
     assert s["n_candidates"] == 1 and s["n_false_candidates"] == 1 and s["pixel_precision"] == 0.0
-    d, _ = SC.case_linear_confound_riverbank()
+    d, _, _ = SC.case_linear_confound_riverbank()
     c = extract_candidates(d)[0]
     assert c["length_px"] > 250 and c["mean_disturbance"] > 2, "ranked like a strong road"
 
@@ -86,7 +86,7 @@ def test_gradient_background_adds_small_false_candidates(live):
 
 # ── where it misrepresents ──────────────────────────────────────────────────────────────
 def test_hairpin_is_summarised_as_one_straight_segment():
-    d, _ = SC.case_tight_curve(); c = extract_candidates(d)[0]
+    d, _, _ = SC.case_tight_curve(); c = extract_candidates(d)[0]
     (x0, y0), (x1, y1) = c["endpoints_px"]
     assert abs(y0 - y1) < 1.0, "endpoints lie on one horizontal line; the doubling-back is invisible"
     assert c["width_px"] > 20, "the hairpin's height is reported as candidate WIDTH"
@@ -103,19 +103,47 @@ def test_width_px_is_curve_extent_not_road_width_regardless_of_noise():
 
 # ── exported-line layer (review 2026-09-12: component scores ignored the delivered geometry) ──
 def test_wrong_endpoints_score_worse_on_the_line_layer_negative_control():
-    d, t = SC.case_wide_corridor(); c = extract_candidates(d)
-    good = SC.score_lines(t, c)
+    d, t, cl = SC.case_wide_corridor(); c = extract_candidates(d)
+    good = SC.score_lines(cl, c, truth=t)
     for cc in c: cc["endpoints_px"] = [[0.0, 0.0], [255.0, 255.0]]
-    bad = SC.score_lines(t, c)
+    bad = SC.score_lines(cl, c, truth=t)
     assert good["line_recall"] > 5 * bad["line_recall"], (good, bad)
     assert good["line_precision"] > 0.95 and bad["line_precision"] < 0.1
 
 
+# ── review 2 (2026-09-12): the line layer penalised road width ──
+def test_perfect_centerline_passes_regardless_of_road_width():
+    d, t, cl = SC.case_wide_corridor()
+    perfect = [dict(id=1, endpoints_px=[[0.0, 128.0], [255.0, 128.0]])]
+    s = SC.score_lines(cl, perfect, truth=t)
+    assert s["line_recall"] == 1.0 and s["line_precision"] == 1.0 and s["line_ok"]
+    assert 0.3 < s["area_coverage"] < 0.45, "area coverage of a 13-px road by a 2-px band is a separate diagnostic, not a penalty"
+
+
+def test_offset_centerline_is_penalised_by_the_centerline_metric():
+    d, t, cl = SC.case_wide_corridor()
+    off = [dict(id=1, endpoints_px=[[0.0, 133.0], [255.0, 133.0]])]     # 5 px off-centre, still inside the 13-px road
+    s = SC.score_lines(cl, off, truth=t)
+    assert s["line_recall"] == 0.0 and not s["line_ok"], s
+
+
+def test_every_case_carries_a_reference_centerline_inside_its_truth():
+    for name, fn in SC.CASES.items():
+        d, t, cl = fn()
+        assert cl.shape == t.shape and not (cl & ~t).any(), name
+        if t.any(): assert cl.any(), name
+
+
+def test_demo_centerline_reconstruction_matches_the_generator():
+    d, t, cl = SC.case_demo_reference()
+    assert not (cl & ~t).any() and 800 < cl.sum() < 1000
+
+
 def test_component_layer_is_blind_to_endpoints_and_the_record_says_so(live):
-    d, t = SC.case_low_snr(); c = extract_candidates(d)
-    s0 = SC.score(d, t, c)
+    d, t, cl = SC.case_low_snr(); c = extract_candidates(d)
+    s0 = SC.score(d, t, c, centerline=cl)
     for cc in c: cc["endpoints_px"] = [[0.0, 0.0], [255.0, 255.0]]
-    s1 = SC.score(d, t, c)
+    s1 = SC.score(d, t, c, centerline=cl)
     assert (s0["pixel_recall"], s0["pixel_precision"]) == (s1["pixel_recall"], s1["pixel_precision"])   # blind, by construction
     assert s1["line_recall"] < s0["line_recall"]                                                           # the line layer is not
 
@@ -126,8 +154,12 @@ def test_curved_corridors_pass_the_component_layer_and_fail_the_line_layer(live)
     assert live["low_snr"]["line_recall"] < 0.2 and live["tight_curve"]["line_recall"] < 0.35
 
 
+def test_straight_wide_corridor_now_passes_the_line_layer(live):
+    assert live["wide_corridor"]["line_ok"] and live["wide_corridor"]["line_recall"] == 1.0
+
+
 def test_straight_corridors_pass_both_layers(live):
-    for name in ("faint_corridor", "gradient_background"):
+    for name in ("faint_corridor", "gradient_background", "wide_corridor"):
         assert live[name]["line_ok"], name
 
 
