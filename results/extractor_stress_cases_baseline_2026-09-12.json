@@ -1,0 +1,269 @@
+{
+ "schema_version": 1,
+ "produced_by": "python -m catanroads.stress_cases (analysis/catanroads/stress_cases.py, CR-R03)",
+ "extractor_defaults": {
+  "disturb_thresh": 1.0,
+  "ridge_sigmas": [
+   1,
+   2,
+   3
+  ],
+  "ridge_quantile": 0.85,
+  "min_length_px": 12,
+  "min_elongation": 3
+ },
+ "tol_px": 2,
+ "cases": {
+  "demo_reference": {
+   "n_candidates": 6,
+   "n_false_candidates": 0,
+   "false_candidate_ids": [],
+   "pixel_recall": 0.9230299328039095,
+   "pixel_precision": 1.0,
+   "detected": true,
+   "truth_pixels": 1637,
+   "candidate_pixels": 1511,
+   "doc": "The favourable demonstration scene itself, for scale.",
+   "top_candidates": [
+    {
+     "length_px": 249.894,
+     "width_px": 55.83,
+     "elongation": 6.146,
+     "mean_disturbance": 2.614,
+     "n_pixels": 768
+    },
+    {
+     "length_px": 254.864,
+     "width_px": 29.719,
+     "elongation": 11.363,
+     "mean_disturbance": 2.305,
+     "n_pixels": 298
+    },
+    {
+     "length_px": 254.93,
+     "width_px": 22.38,
+     "elongation": 13.591,
+     "mean_disturbance": 2.253,
+     "n_pixels": 301
+    }
+   ]
+  },
+  "faint_corridor": {
+   "n_candidates": 7,
+   "n_false_candidates": 0,
+   "false_candidate_ids": [],
+   "pixel_recall": 0.9283854166666666,
+   "pixel_precision": 1.0,
+   "detected": true,
+   "truth_pixels": 768,
+   "candidate_pixels": 466,
+   "doc": "A single straight corridor with strength near disturb_thresh=1.0 (default 1.15 on noise 0.3).",
+   "top_candidates": [
+    {
+     "length_px": 49.004,
+     "width_px": 2.094,
+     "elongation": 17.65,
+     "mean_disturbance": 1.321,
+     "n_pixels": 103
+    },
+    {
+     "length_px": 45.002,
+     "width_px": 2.049,
+     "elongation": 15.985,
+     "mean_disturbance": 1.306,
+     "n_pixels": 95
+    },
+    {
+     "length_px": 42.999,
+     "width_px": 2.206,
+     "elongation": 15.048,
+     "mean_disturbance": 1.295,
+     "n_pixels": 90
+    }
+   ]
+  },
+  "wide_corridor": {
+   "n_candidates": 1,
+   "n_false_candidates": 0,
+   "false_candidate_ids": [],
+   "pixel_recall": 1.0,
+   "pixel_precision": 1.0,
+   "detected": true,
+   "truth_pixels": 3328,
+   "candidate_pixels": 3328,
+   "doc": "A 13-px-wide corridor (graded road at coarse resolution); ridge sigmas top out at 3 px.",
+   "top_candidates": [
+    {
+     "length_px": 255.0,
+     "width_px": 12.0,
+     "elongation": 19.751,
+     "mean_disturbance": 2.393,
+     "n_pixels": 3328
+    }
+   ]
+  },
+  "crossing": {
+   "n_candidates": 0,
+   "n_false_candidates": 0,
+   "false_candidate_ids": [],
+   "pixel_recall": 0.0,
+   "pixel_precision": null,
+   "detected": false,
+   "truth_pixels": 1021,
+   "candidate_pixels": 0,
+   "doc": "Two full-width corridors crossing at 90 degrees; they form one 8-connected component.",
+   "top_candidates": []
+  },
+  "short_segments": {
+   "n_candidates": 0,
+   "n_false_candidates": 0,
+   "false_candidate_ids": [],
+   "pixel_recall": 0.0,
+   "pixel_precision": null,
+   "detected": false,
+   "truth_pixels": 432,
+   "candidate_pixels": 0,
+   "doc": "A corridor visible only as 9-px dashes with 7-px gaps (each dash < min_length_px=12).",
+   "top_candidates": []
+  },
+  "linear_confound_riverbank": {
+   "n_candidates": 1,
+   "n_false_candidates": 1,
+   "false_candidate_ids": [
+    9
+   ],
+   "pixel_recall": null,
+   "pixel_precision": 0.0,
+   "detected": false,
+   "truth_pixels": 0,
+   "candidate_pixels": 768,
+   "doc": "A long, thin, high-disturbance feature that is NOT a road (river bank / fence line / field edge). Truth mask is empty by construction.",
+   "top_candidates": [
+    {
+     "length_px": 257.115,
+     "width_px": 37.133,
+     "elongation": 7.393,
+     "mean_disturbance": 2.404,
+     "n_pixels": 768
+    }
+   ]
+  },
+  "speckle_only": {
+   "n_candidates": 0,
+   "n_false_candidates": 0,
+   "false_candidate_ids": [],
+   "pixel_recall": null,
+   "pixel_precision": null,
+   "detected": false,
+   "truth_pixels": 0,
+   "candidate_pixels": 0,
+   "doc": "Isolated speckle (cloud shadow, bare-rock pixels) with no corridor; truth mask empty.",
+   "top_candidates": []
+  },
+  "low_snr": {
+   "n_candidates": 1,
+   "n_false_candidates": 0,
+   "false_candidate_ids": [],
+   "pixel_recall": 1.0,
+   "pixel_precision": 0.9902319902319903,
+   "detected": true,
+   "truth_pixels": 768,
+   "candidate_pixels": 819,
+   "doc": "The demo's curved corridor under 3x the demo noise (sigma 0.9).",
+   "top_candidates": [
+    {
+     "length_px": 251.091,
+     "width_px": 53.196,
+     "elongation": 6.131,
+     "mean_disturbance": 2.531,
+     "n_pixels": 819
+    }
+   ]
+  },
+  "gradient_background": {
+   "n_candidates": 3,
+   "n_false_candidates": 2,
+   "false_candidate_ids": [
+    1344,
+    1182
+   ],
+   "pixel_recall": 1.0,
+   "pixel_precision": 0.9587357330992098,
+   "detected": true,
+   "truth_pixels": 768,
+   "candidate_pixels": 1139,
+   "doc": "A smooth disturbance ramp 0..2.5 across the scene (regional bare-soil gradient) under a straight corridor; more than half the background exceeds disturb_thresh.",
+   "top_candidates": [
+    {
+     "length_px": 255.0,
+     "width_px": 10.003,
+     "elongation": 51.121,
+     "mean_disturbance": 3.083,
+     "n_pixels": 1104
+    },
+    {
+     "length_px": 16.553,
+     "width_px": 1.715,
+     "elongation": 11.743,
+     "mean_disturbance": 2.803,
+     "n_pixels": 19
+    },
+    {
+     "length_px": 12.162,
+     "width_px": 1.979,
+     "elongation": 6.383,
+     "mean_disturbance": 1.608,
+     "n_pixels": 16
+    }
+   ]
+  },
+  "tight_curve": {
+   "n_candidates": 1,
+   "n_false_candidates": 0,
+   "false_candidate_ids": [],
+   "pixel_recall": 1.0,
+   "pixel_precision": 1.0,
+   "detected": true,
+   "truth_pixels": 413,
+   "candidate_pixels": 413,
+   "doc": "A hairpin: a half-ellipse corridor 128 px wide and ~20 px tall.",
+   "top_candidates": [
+    {
+     "length_px": 128.0,
+     "width_px": 22.0,
+     "elongation": 7.489,
+     "mean_disturbance": 5.245,
+     "n_pixels": 413
+    }
+   ]
+  }
+ },
+ "faint_strength_sweep": [
+  {
+   "strength": 1.3,
+   "n_candidates": 4,
+   "pixel_recall": 1.0
+  },
+  {
+   "strength": 1.15,
+   "n_candidates": 7,
+   "pixel_recall": 0.9283854166666666
+  },
+  {
+   "strength": 1.05,
+   "n_candidates": 5,
+   "pixel_recall": 0.48046875
+  },
+  {
+   "strength": 1.0,
+   "n_candidates": 3,
+   "pixel_recall": 0.2721354166666667
+  },
+  {
+   "strength": 0.9,
+   "n_candidates": 0,
+   "pixel_recall": 0.0
+  }
+ ],
+ "note": "Synthetic constructions only. No imagery, no site. Numbers describe the algorithm, not Mongolia."
+}
