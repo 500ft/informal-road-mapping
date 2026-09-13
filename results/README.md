@@ -52,21 +52,24 @@ Do **not** commit raw imagery exports here — GeoTIFFs and archives are ignored
 `.gitignore` to keep the repo light. Keep only finished figures.
 
 
-## `extractor_stress_cases.json` — where the extractor detects, misses, or fabricates (CR-R03, 2026-09-12)
 
-Ten fixed synthetic cases (`analysis/catanroads/stress_cases.py`), each with its own truth mask; scored by pixel recall/precision within 2 px and by false-candidate count. Regenerate with `python -m catanroads.stress_cases`; `tests/test_stress_cases.py` pins the observed behaviour. **Synthetic constructions only — nothing here is imagery or a site result.**
+## `extractor_stress_cases.json` — where the extractor detects, misses, fabricates, or misrepresents (CR-R03 → R03c, 2026-09-13)
 
-| case | candidates | false | pixel recall | verdict |
-|---|---:|---:|---:|---|
-| demo_reference | 6 | 0 | 0.92 | the favourable demo, for scale |
-| wide_corridor (13 px) | 1 | 0 | 1.00 | detects |
-| low_snr (3× noise) | 1 | 0 | 1.00 | detects, but reports width 53 px for a 3 px corridor |
-| gradient_background | 3 | 2 | 1.00 | detects, plus two small false candidates on the ramp |
-| tight_curve (hairpin) | 1 | 0 | 1.00 | detects, **misrepresents**: one straight 128 × 22 px segment |
-| faint_corridor (1.15 × thresh) | 7 | 0 | 0.93 | detects, **fragmented** into seven pieces |
-| **crossing** | 0 | 0 | 0.00 | **misses both** roads: the union component fails `min_elongation` |
-| **short_segments** (9 px dashes) | 0 | 0 | 0.00 | **misses**: every dash is below `min_length_px` |
-| **linear_confound_riverbank** | 1 | 1 | — | **fabricates**: a river bank ranks like a strong road (precision 0) |
-| speckle_only (up to 4000 specks) | 0 | 0 | — | robust: no false candidates |
+Ten fixed synthetic cases (`analysis/catanroads/stress_cases.py`), each with a road-area truth mask **and a 1-px reference centerline**, scored on two layers that must not be confused: the *component* layer (the extractor's internal mask vs the road-area truth, within 2 px) and the *exported-line* layer (the straight segment the extractor delivers as `endpoints_px` **vs the reference centerline**, within 2 px). `area_coverage` — how much of the road-area mask the exported band covers — is reported as a separate diagnostic and never enters `line_ok`. Regenerate with `python -m catanroads.stress_cases`; `tests/test_stress_cases.py` pins the observed behaviour. `extractor_stress_cases_baseline_2026-09-12.json` is the v1 component-only record, kept byte-unchanged. **Synthetic constructions only — nothing here is imagery or a site result.**
 
-Detection cliff: the same corridor at 1.3 / 1.15 / 1.05 / 1.0 / 0.9 × `disturb_thresh` gives recall 1.00 / 0.93 / 0.48 / 0.27 / 0.00. Consequences for the false-positive taxonomy (CR-09): linear non-road features are the failure class the extractor cannot see; junctions and dashed tracks are the miss classes; width and straight-segment summaries are not trustworthy under noise or curvature.
+| case | cands | false | component recall | exported-line recall / precision (vs centerline) | area coverage |
+|---|---:|---:|---:|---:|---:|
+| demo_reference | 6 | 0 | 0.92 | 0.44 / 0.45 | 0.35 |
+| faint_corridor | 7 | 0 | 0.93 | 0.94 / 1.00 | 0.92 |
+| wide_corridor | 1 | 0 | 1.00 | 1.00 / 1.00 | 0.38 |
+| crossing | 0 | 0 | 0.00 | 0.00 / — | 0.00 |
+| short_segments | 0 | 0 | 0.00 | 0.00 / — | 0.00 |
+| linear_confound_riverbank | 1 | 1 | — | — / 0.00 | — |
+| speckle_only | 0 | 0 | — | — / — | — |
+| low_snr | 1 | 0 | 1.00 | 0.11 / 0.11 | 0.10 |
+| gradient_background | 3 | 2 | 1.00 | 1.00 / 0.90 | 1.00 |
+| tight_curve | 1 | 0 | 1.00 | 0.25 / 0.26 | 0.27 |
+
+**Three corrections across two reviews.** (v2) The component score is blind to the exported geometry — replacing endpoints with a wrong segment leaves it unchanged; the line layer catches it. (v2) `width_px` is the component's minor-axis *extent*: 54.7 px for the curved corridor at **zero** noise, against a 3 px road. (v3) The v2 line layer was scored against the road-**area** mask, so a perfect centerline through the 13-px straight road scored recall 0.385 — a 2-px band covers 5/13 of the area. It is now scored against the reference centerline: a perfect centerline scores 1.0 regardless of road width, a 5-px off-centre line inside the road scores 0, and the width effect is visible only as `area_coverage`.
+
+What survives all three: every **curved** corridor — the demo included — passes the component layer and fails the exported line (0.11 / 0.25 / 0.44), because one straight chord cannot represent a curve. Straight corridors pass both. Crossings and dashes are missed; the river-bank confound is fabricated. For CR-09: the **representation** (one straight segment per component), not the threshold, is what to fix next.
