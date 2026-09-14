@@ -1,17 +1,6 @@
-"""Synthetic-corridor tests for the candidate extractor.
-
-Runnable two ways:
-    python -m pytest analysis/tests
-    python analysis/tests/test_extract.py     # no pytest required
-"""
-import os
-import sys
-
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-
+"""Synthetic-corridor tests for the candidate extractor: python -m pytest analysis/tests"""
 import numpy as np
 from catanroads import extract_candidates, make_scene, to_geojson
-from catanroads.synthetic import make_scene as _mk
 
 
 def _hits_truth(cand, truth, tol=3):
@@ -35,14 +24,14 @@ def test_finds_corridors():
 
 def test_rejects_pure_noise():
     # No corridors, no blob: a road-free control. Long linear candidates must be rare.
-    d, _ = _mk(seed=2, with_corridors=False, with_blob=False)
+    d, _ = make_scene(seed=2, with_corridors=False, with_blob=False)
     cands = extract_candidates(d)
     assert len(cands) == 0, f"noise-only scene produced {len(cands)} false corridors"
 
 
 def test_rejects_round_blob():
     # Only a strong ROUND blob: high disturbance but not elongated -> must be rejected.
-    d, _ = _mk(seed=3, with_corridors=False, with_blob=True)
+    d, _ = make_scene(seed=3, with_corridors=False, with_blob=True)
     cands = extract_candidates(d)
     assert len(cands) == 0, "round blob was wrongly accepted as a corridor"
 
@@ -65,12 +54,3 @@ def test_transform_applied():
         lon, lat = gj["features"][0]["geometry"]["coordinates"][0]
         assert 99.0 < lon < 101.0 and 46.0 < lat < 48.0
 
-
-if __name__ == "__main__":
-    fns = [v for k, v in sorted(globals().items()) if k.startswith("test_") and callable(v)]
-    passed = 0
-    for fn in fns:
-        fn()
-        print(f"PASS  {fn.__name__}")
-        passed += 1
-    print(f"\n{passed}/{len(fns)} tests passed")

@@ -5,10 +5,7 @@ Mongolia result — real extraction stays gated on the Phase-1 negative-control 
 
     python analysis/demo_synthetic.py
 """
-import os
-import sys
-
-sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from pathlib import Path
 
 import matplotlib
 matplotlib.use("Agg")
@@ -44,7 +41,6 @@ fig.text(0.5, 0.02,
          ha="center", fontsize=9.5, color=MUTED)
 fig.subplots_adjust(top=0.90, bottom=0.13)
 
-out = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
-                   "results", "method_demo_synthetic.png")
+out = Path(__file__).resolve().parents[1] / "results" / "method_demo_synthetic.png"
 fig.savefig(out, facecolor="white")
 print(f"wrote {out}  ({len(cands)} candidates)")

@@ -38,6 +38,17 @@ def ridge_strength(img: np.ndarray, sigmas=(1.0, 2.0, 3.0)) -> np.ndarray:
     return out
 
 
+def label_candidates(disturbance, disturb_thresh: float = 1.0, ridge_sigmas=(1.0, 2.0, 3.0),
+                     ridge_quantile: float = 0.85):
+    """8-connected labels of the candidate mask: disturbance >= ``disturb_thresh`` AND ridge
+    response in the top ``1 - ridge_quantile``. Returns ``(labels, n)`` like ``ndimage.label``."""
+    d = np.asarray(disturbance, dtype=float)
+    ridge = ridge_strength(d, ridge_sigmas)
+    pos = ridge[ridge > 0]
+    rt = np.quantile(pos, ridge_quantile) if pos.size else np.inf
+    return ndimage.label((d >= disturb_thresh) & (ridge >= rt), structure=np.ones((3, 3)))
+
+
 def extract_candidates(
     disturbance: np.ndarray,
     disturb_thresh: float = 1.0,
@@ -48,18 +59,11 @@ def extract_candidates(
 ) -> list[dict]:
     """Return candidate corridor segments, most prominent first.
 
-    A pixel joins the candidate mask if its disturbance exceeds ``disturb_thresh``
-    AND its ridge response is in the top ``1 - ridge_quantile`` of ridge values.
-    Connected components are kept only if long (``min_length_px``) and elongated
-    (``min_elongation``), which rejects round blobs and short noise specks.
+    Components of ``label_candidates`` are kept only if long (``min_length_px``) and
+    elongated (``min_elongation``), which rejects round blobs and short noise specks.
     """
     d = np.asarray(disturbance, dtype=float)
-    ridge = ridge_strength(d, ridge_sigmas)
-    pos = ridge[ridge > 0]
-    rt = np.quantile(pos, ridge_quantile) if pos.size else np.inf
-    mask = (d >= disturb_thresh) & (ridge >= rt)
-
-    lbl, n = ndimage.label(mask, structure=np.ones((3, 3)))
+    lbl, n = label_candidates(d, disturb_thresh, ridge_sigmas, ridge_quantile)
     candidates: list[dict] = []
     for i in range(1, n + 1):
         ys, xs = np.where(lbl == i)
@@ -67,10 +71,7 @@ def extract_candidates(
             continue
         pts = np.column_stack([xs, ys]).astype(float)   # (x, y)
         c = pts.mean(axis=0)
-        cov = np.cov((pts - c).T)
-        if cov.shape != (2, 2):
-            continue
-        evals, evecs = np.linalg.eigh(cov)               # ascending
+        evals, evecs = np.linalg.eigh(np.cov((pts - c).T))   # ascending
         lam_min, lam_max = float(evals[0]), float(evals[1])
         if lam_max <= 1e-9:
             continue

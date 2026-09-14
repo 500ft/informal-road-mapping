@@ -13,20 +13,14 @@ from __future__ import annotations
 
 import hashlib
 import json
-import os
-import sys
+from pathlib import Path
 
 import numpy as np
 import pytest
 
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-
 from catanroads import extract_candidates, make_scene
 
-RECORD = os.path.join(
-    os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))),
-    "results", "method_demo_synthetic.numeric.json",
-)
+RECORD = Path(__file__).resolve().parents[2] / "results" / "method_demo_synthetic.numeric.json"
 
 # Endpoint coordinates come out of a least-squares fit, so they are compared with a
 # tolerance rather than exactly. It is tight enough that any change to the extractor or
@@ -36,10 +30,9 @@ ENDPOINT_ATOL_PX = 1e-6
 
 @pytest.fixture(scope="module")
 def record():
-    if not os.path.exists(RECORD):
+    if not RECORD.exists():
         pytest.skip(f"numeric record not committed: {RECORD}")
-    with open(RECORD) as fh:
-        return json.load(fh)
+    return json.loads(RECORD.read_text())
 
 
 @pytest.fixture(scope="module")
