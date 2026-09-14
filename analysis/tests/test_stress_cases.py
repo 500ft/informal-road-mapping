@@ -5,7 +5,7 @@ deterministic construction, including the misses and the false candidate, so tha
 the extractor shows up here as a named behaviour change rather than a silent shift in a demo
 figure. results/extractor_stress_cases.json is the committed record the CLI regenerates.
 """
-import json, math
+import json, math, subprocess, sys
 from pathlib import Path
 import numpy as np
 import pytest
@@ -173,7 +173,6 @@ def test_baseline_record_is_preserved_unchanged():
 
 
 def test_cli_reproduces_the_committed_record_exactly():
-    import subprocess, sys
     out = subprocess.run([sys.executable, "-m", "catanroads.stress_cases"], cwd=ROOT / "analysis", capture_output=True, text=True)
     assert out.returncode == 0, out.stderr[-400:]
     live = json.loads(out.stdout)

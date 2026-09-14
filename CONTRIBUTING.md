@@ -30,6 +30,12 @@ These are local software checks, not Earth Engine or physical validation.
 The [runbook](docs/PHASE1_RUNBOOK.md), [design](docs/design.md) and
 [figure guide](docs/data-and-figures.md) define the detailed contracts.
 
+## Editing convention
+
+Code changes follow the [ponytail ruleset](AGENTS.md): reuse what exists, prefer the
+standard library, ship the shortest working diff, and never cut validation, error
+handling or the one check that proves the logic.
+
 ## Submit a change
 
 Use a focused branch and explain the problem, exact commands, input provenance,

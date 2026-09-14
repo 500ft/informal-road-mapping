@@ -45,7 +45,7 @@ def make_scene(size: int = 256, seed: int = 0, noise: float = 0.3,
         xd = np.arange(int(size * 0.15), int(size * 0.85))
         yd = (size * 0.85 - 0.6 * (xd - xd[0]))
         keep = (xd // 8) % 3 != 0            # periodic gaps
-        _stamp_line(d, truth[:], xd[keep], yd[keep], half_width=1, strength=2.4)
+        _stamp_line(d, truth, xd[keep], yd[keep], half_width=1, strength=2.4)
 
     if with_blob:
         cy, cx, r = int(size * 0.5), int(size * 0.8), int(size * 0.06)
