@@ -18,9 +18,8 @@ is the `full` optional extra.
 ## Run
 
 ```bash
-# tests (no pytest required)
-python tests/test_extract.py
-# or:  python -m pytest tests
+# tests
+python -m pytest tests
 
 # synthetic method demonstration -> ../results/method_demo_synthetic.png
 python demo_synthetic.py
