@@ -1,16 +1,15 @@
 """Synthetic scene-count admission checks, not satellite or road evidence."""
 from copy import deepcopy
+import csv
+import json
+import os
+from pathlib import Path
+import subprocess
+import sys
 import pytest
-from test_phase1_gate import fixture, evaluate
+from test_phase1_gate import fixture as counts_fixture, evaluate   # fixture() already carries 3 scenes per year
 
 YEARS = (2018, 2019, 2020, 2021, 2023, 2024, 2025, 2026)
-
-
-def counts_fixture():
-    manifest, rows = fixture()
-    for row in rows:
-        row.update({f"s2_scene_count_{year}": 3 for year in YEARS})
-    return manifest, rows
 
 
 @pytest.mark.parametrize("value", [-1, 0.5, True, "nan", "inf", ""])
@@ -61,12 +60,6 @@ def test_scene_presence_does_not_override_pixel_coverage():
 
 @pytest.mark.parametrize("missing,expected", [(False, 3), (True, 2)])
 def test_cli_scene_qa_delivery(tmp_path, missing, expected):
-    import csv
-    import json
-    import os
-    from pathlib import Path
-    import subprocess
-    import sys
     manifest, rows = counts_fixture()
     if missing:
         for row in rows:
