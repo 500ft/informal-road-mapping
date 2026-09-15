@@ -15,16 +15,15 @@ Scoring (per case), two layers that must not be confused (review 2026-09-12):
     pixel_recall     fraction of truth pixels lying within `tol_px` of any candidate's pixels
     pixel_precision  fraction of candidate pixels within `tol_px` of the truth mask
     false_candidates candidates whose pixels have < 20 % overlap (dilated) with the truth mask
-  LINE layer -- what the extractor actually EXPORTS (path_px, a polyline; CR-09. Until CR-09 this
-  was the straight endpoints_px chord), scored against each case's REFERENCE CENTERLINE (never the
-  road-area mask; review 2, 2026-09-12):
-    line_recall      fraction of reference-centerline pixels within `tol_px` of the exported polyline
-    line_precision   fraction of exported-polyline pixels within `tol_px` of the reference centerline
+  LINE layer -- what the extractor actually EXPORTS (endpoints_px -> a straight segment), scored
+  against each case's REFERENCE CENTERLINE (never the road-area mask; review 2, 2026-09-12):
+    line_recall      fraction of reference-centerline pixels within `tol_px` of the exported segments
+    line_precision   fraction of exported-segment pixels within `tol_px` of the reference centerline
     area_coverage    fraction of the road-AREA mask the exported band covers -- a separate diagnostic
   detected         pixel_recall >= 0.5 (component layer, deliberately coarse)
   line_ok          line_recall >= 0.5 AND line_precision >= 0.5
 The component layer can be excellent while the delivered geometry is wrong (a hairpin exported as
-one straight chord, as it was before CR-09); only the line layer sees that. width_px is the component's
+one straight chord, for example); only the line layer sees that. width_px is the component's
 minor-axis EXTENT, not road width: for a curved corridor it is the curve's transverse extent and is
 ~55 px with zero noise.
 """
@@ -178,19 +177,19 @@ def _fraction_within(of, band):
 
 
 def rasterise_segments(candidates, shape):
-    """Pixels of the polylines the extractor exports (path_px, consecutive vertex pairs), 8-connected."""
+    """Pixels of the straight segments the extractor exports (endpoints_px), 8-connected."""
     m = np.zeros(shape, dtype=bool)
     for c in candidates:
-        for (x0, y0), (x1, y1) in zip(c["path_px"], c["path_px"][1:]):
-            n = int(max(abs(x1 - x0), abs(y1 - y0))) + 1
-            xs = np.rint(np.linspace(x0, x1, n)).astype(int); ys = np.rint(np.linspace(y0, y1, n)).astype(int)
-            ok = (xs >= 0) & (xs < shape[1]) & (ys >= 0) & (ys < shape[0])
-            m[ys[ok], xs[ok]] = True
+        (x0, y0), (x1, y1) = c["endpoints_px"]
+        n = int(max(abs(x1 - x0), abs(y1 - y0))) + 1
+        xs = np.rint(np.linspace(x0, x1, n)).astype(int); ys = np.rint(np.linspace(y0, y1, n)).astype(int)
+        ok = (xs >= 0) & (xs < shape[1]) & (ys >= 0) & (ys < shape[0])
+        m[ys[ok], xs[ok]] = True
     return m
 
 
 def score_lines(centerline, candidates, tol_px=2, truth=None):
-    """Exported polylines (path_px) against the REFERENCE CENTERLINE (review 2, 2026-09-12): a
+    """Exported straight segments against the REFERENCE CENTERLINE (review 2, 2026-09-12): a
     perfect centerline scores 1.0 regardless of road width. `line_recall`/`line_precision` are
     centerline-to-centerline within tol_px. If the road-area `truth` mask is also given, the
     fraction of it the tolerance band covers is reported separately as `area_coverage` -- a

@@ -42,7 +42,7 @@ def test_geojson_shape():
     assert gj["type"] == "FeatureCollection"
     for f in gj["features"]:
         assert f["geometry"]["type"] == "LineString"
-        assert len(f["geometry"]["coordinates"]) >= 2
+        assert len(f["geometry"]["coordinates"]) == 2
         assert "length_px" in f["properties"] and "elongation" in f["properties"]
 
 
