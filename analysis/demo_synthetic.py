@@ -26,8 +26,7 @@ axes[0].set_title("Input: synthetic surface-disturbance", fontsize=13, color=INK
 
 axes[1].imshow(d, cmap="Greys", vmin=-1, vmax=3)
 for c in cands:
-    (x0, y0), (x1, y1) = c["endpoints_px"]
-    axes[1].plot([x0, x1], [y0, y1], color=RED, lw=2.2)
+    axes[1].plot(*zip(*c["path_px"]), color=RED, lw=2.2)
 axes[1].set_title(f"Extracted candidate corridors (n={len(cands)})", fontsize=13, color=INK)
 
 for ax in axes:
