@@ -17,6 +17,8 @@ from __future__ import annotations
 
 import numpy as np
 from scipy import ndimage
+from scipy.sparse import coo_matrix
+from scipy.sparse.csgraph import dijkstra
 
 
 def ridge_strength(img: np.ndarray, sigmas=(1.0, 2.0, 3.0)) -> np.ndarray:
@@ -49,6 +51,36 @@ def label_candidates(disturbance, disturb_thresh: float = 1.0, ridge_sigmas=(1.0
     return ndimage.label((d >= disturb_thresh) & (ridge >= rt), structure=np.ones((3, 3)))
 
 
+def medial_path(component, proj, step=4):
+    """Centred polyline through one component (CR-09): the cheapest 8-connected route between the
+    component's two ends, with edge cost 1/edt so the route hugs the medial axis. The ends are the
+    deepest pixels at the extremes of ``proj`` (the pixels' projection on the major axis, in
+    ``np.nonzero`` order). Returns a list of ``[x, y]`` vertices."""
+    h, w = component.shape
+    ys, xs = np.nonzero(component)
+    idx = np.full(component.shape, -1); idx[ys, xs] = np.arange(xs.size)
+    edt = ndimage.distance_transform_edt(component)
+    src, dst, cost = [], [], []
+    for dy, dx in ((0, 1), (1, 0), (1, 1), (1, -1)):        # half the 8-neighbourhood; graph is undirected
+        y2, x2 = ys + dy, xs + dx
+        ok = (y2 >= 0) & (y2 < h) & (x2 >= 0) & (x2 < w)
+        ok[ok] &= idx[y2[ok], x2[ok]] >= 0
+        src.append(idx[ys[ok], xs[ok]]); dst.append(idx[y2[ok], x2[ok]])
+        cost.append(np.hypot(dy, dx) * (1 / edt[ys[ok], xs[ok]] + 1 / edt[y2[ok], x2[ok]]) / 2)
+    g = coo_matrix((np.concatenate(cost), (np.concatenate(src), np.concatenate(dst))), shape=(xs.size,) * 2).tocsr()
+    depth = edt[ys, xs]
+    a = int(np.argmax(np.where(proj <= proj.min() + 1, depth, -1)))
+    b = int(np.argmax(np.where(proj >= proj.max() - 1, depth, -1)))
+    _, pred = dijkstra(g, directed=False, indices=a, return_predecessors=True)
+    path = [b]
+    while path[-1] != a:
+        path.append(pred[path[-1]])
+    path = np.asarray(path[::-1])
+    # ponytail: fixed 4-px subsample; Douglas-Peucker when someone needs fewer vertices
+    keep = np.r_[0:len(path) - 1:step, len(path) - 1]
+    return np.column_stack([xs[path[keep]], ys[path[keep]]]).astype(float).tolist()
+
+
 def extract_candidates(
     disturbance: np.ndarray,
     disturb_thresh: float = 1.0,
@@ -61,6 +93,8 @@ def extract_candidates(
 
     Components of ``label_candidates`` are kept only if long (``min_length_px``) and
     elongated (``min_elongation``), which rejects round blobs and short noise specks.
+    ``endpoints_px`` is the straight major-axis chord (summary geometry); ``path_px`` is the
+    centred polyline actually exported (see ``medial_path``).
     """
     d = np.asarray(disturbance, dtype=float)
     lbl, n = label_candidates(d, disturb_thresh, ridge_sigmas, ridge_quantile)
@@ -91,6 +125,7 @@ def extract_candidates(
             "id": int(i),
             "centroid_px": [float(c[0]), float(c[1])],
             "endpoints_px": [[float(p0[0]), float(p0[1])], [float(p1[0]), float(p1[1])]],
+            "path_px": medial_path(lbl == i, proj),
             "length_px": length,
             "width_px": width,
             "orientation_deg": orient,
@@ -103,17 +138,17 @@ def extract_candidates(
 
 
 def to_geojson(candidates: list[dict], transform=None) -> dict:
-    """FeatureCollection of candidate LineStrings.
+    """FeatureCollection of candidate LineStrings along each candidate's ``path_px``.
 
     ``transform`` is an optional ``(x_px, y_px) -> (lon, lat)`` callable; without it
     coordinates are left in pixel space. No shapely dependency required.
     """
     features = []
     for c in candidates:
-        coords = c["endpoints_px"]
+        coords = c["path_px"]
         if transform is not None:
             coords = [list(transform(x, y)) for x, y in coords]
-        props = {k: v for k, v in c.items() if k != "endpoints_px"}
+        props = {k: v for k, v in c.items() if k not in ("path_px", "endpoints_px")}
         features.append({
             "type": "Feature",
             "geometry": {"type": "LineString", "coordinates": coords},
