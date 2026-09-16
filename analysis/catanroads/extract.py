@@ -20,6 +20,8 @@ from scipy import ndimage
 from scipy.sparse import coo_matrix
 from scipy.sparse.csgraph import dijkstra
 
+_TIE = dict(rtol=1e-12, atol=1e-12)
+
 
 def ridge_strength(img: np.ndarray, sigmas=(1.0, 2.0, 3.0)) -> np.ndarray:
     """Multiscale bright-ridge response via Hessian eigenvalues (Sato-like).
@@ -51,34 +53,62 @@ def label_candidates(disturbance, disturb_thresh: float = 1.0, ridge_sigmas=(1.0
     return ndimage.label((d >= disturb_thresh) & (ridge >= rt), structure=np.ones((3, 3)))
 
 
-def medial_path(component, proj, step=4):
-    """Centred polyline through one component (CR-09): the cheapest 8-connected route between the
-    component's two ends, with edge cost 1/edt so the route hugs the medial axis. The ends are the
-    deepest pixels at the extremes of ``proj`` (the pixels' projection on the major axis, in
-    ``np.nonzero`` order). Returns a list of ``[x, y]`` vertices."""
-    h, w = component.shape
-    ys, xs = np.nonzero(component)
-    idx = np.full(component.shape, -1); idx[ys, xs] = np.arange(xs.size)
-    edt = ndimage.distance_transform_edt(component)
-    src, dst, cost = [], [], []
-    for dy, dx in ((0, 1), (1, 0), (1, 1), (1, -1)):        # half the 8-neighbourhood; graph is undirected
+def _component_path_px(mask):
+    """One interior-biased representative path through one accepted component (CR-09 plan,
+    docs/PLAN_2026-09-14_CR09.md, algorithm contract steps 1-6).
+
+    ``mask`` is the tight boolean crop of a single 8-connected component. Returns crop-local
+    ``[x, y]`` pixel centres, every vertex kept, oriented with the lower endpoint node ID first.
+    EDT is computed on a one-pixel padded crop, so the image border counts as background.
+    Endpoints: two geometric farthest-point sweeps from node 0 (a heuristic, not an exact
+    diameter). Route: symmetric cost ``ell * (1/edt(u) + 1/edt(v)) / 2`` and canonical
+    reconstruction from the distance labels (lowest-ID neighbour, strictly decreasing).
+    Raises ``ValueError`` for an empty or disconnected mask or an invalid label chain.
+    """
+    # ponytail: one route per component; branches, loops and braided topology are out of scope,
+    # use separately scoped topology extraction when that is needed.
+    mask = np.asarray(mask, dtype=bool)
+    ys, xs = np.nonzero(mask)                      # row-major node IDs
+    n = xs.size
+    if n == 0:
+        raise ValueError("empty component mask")
+    idx = np.full(mask.shape, -1); idx[ys, xs] = np.arange(n)
+    edt = ndimage.distance_transform_edt(np.pad(mask, 1))[1:-1, 1:-1]
+    src, dst, ell = [], [], []
+    for dy, dx in ((0, 1), (1, 0), (1, 1), (1, -1)):
         y2, x2 = ys + dy, xs + dx
-        ok = (y2 >= 0) & (y2 < h) & (x2 >= 0) & (x2 < w)
+        ok = (y2 >= 0) & (y2 < mask.shape[0]) & (x2 >= 0) & (x2 < mask.shape[1])
         ok[ok] &= idx[y2[ok], x2[ok]] >= 0
-        src.append(idx[ys[ok], xs[ok]]); dst.append(idx[y2[ok], x2[ok]])
-        cost.append(np.hypot(dy, dx) * (1 / edt[ys[ok], xs[ok]] + 1 / edt[y2[ok], x2[ok]]) / 2)
-    g = coo_matrix((np.concatenate(cost), (np.concatenate(src), np.concatenate(dst))), shape=(xs.size,) * 2).tocsr()
+        u, v = idx[ys[ok], xs[ok]], idx[y2[ok], x2[ok]]
+        src += [u, v]; dst += [v, u]; ell += [np.full(u.size, np.hypot(dy, dx))] * 2
+    src, dst, ell = map(np.concatenate, (src, dst, ell))
+    geometric = coo_matrix((ell, (src, dst)), shape=(n, n)).tocsr()
+
+    def farthest(dist):
+        dist = np.where(np.isfinite(dist), dist, -np.inf)
+        return int(np.flatnonzero(np.isclose(dist, dist.max(), **_TIE))[0])   # ties -> lowest ID
+
+    d0 = dijkstra(geometric, directed=True, indices=0)
+    if not np.isfinite(d0).all():
+        raise ValueError("component mask is not 8-connected")
+    a = farthest(d0); b = farthest(dijkstra(geometric, directed=True, indices=a))
+    a, b = min(a, b), max(a, b)
     depth = edt[ys, xs]
-    a = int(np.argmax(np.where(proj <= proj.min() + 1, depth, -1)))
-    b = int(np.argmax(np.where(proj >= proj.max() - 1, depth, -1)))
-    _, pred = dijkstra(g, directed=False, indices=a, return_predecessors=True)
+    weighted = coo_matrix((ell * (1 / depth[src] + 1 / depth[dst]) / 2, (src, dst)), shape=(n, n)).tocsr()
+    d = dijkstra(weighted, directed=True, indices=a)
+    if not np.isfinite(d[b]):
+        raise ValueError("endpoint unreachable")
     path = [b]
     while path[-1] != a:
-        path.append(pred[path[-1]])
+        cur = path[-1]
+        nb = weighted.indices[weighted.indptr[cur]:weighted.indptr[cur + 1]]
+        w = weighted.data[weighted.indptr[cur]:weighted.indptr[cur + 1]]
+        ok = nb[np.isclose(d[cur], w + d[nb], **_TIE) & (d[nb] < d[cur])]
+        if ok.size == 0:
+            raise ValueError("invalid distance-label chain")
+        path.append(int(ok.min()))
     path = np.asarray(path[::-1])
-    # ponytail: fixed 4-px subsample; Douglas-Peucker when someone needs fewer vertices
-    keep = np.r_[0:len(path) - 1:step, len(path) - 1]
-    return np.column_stack([xs[path[keep]], ys[path[keep]]]).astype(float).tolist()
+    return np.column_stack([xs[path], ys[path]]).astype(float).tolist()
 
 
 def extract_candidates(
@@ -93,11 +123,10 @@ def extract_candidates(
 
     Components of ``label_candidates`` are kept only if long (``min_length_px``) and
     elongated (``min_elongation``), which rejects round blobs and short noise specks.
-    ``endpoints_px`` is the straight major-axis chord (summary geometry); ``path_px`` is the
-    centred polyline actually exported (see ``medial_path``).
     """
     d = np.asarray(disturbance, dtype=float)
     lbl, n = label_candidates(d, disturb_thresh, ridge_sigmas, ridge_quantile)
+    crops = ndimage.find_objects(lbl)
     candidates: list[dict] = []
     for i in range(1, n + 1):
         ys, xs = np.where(lbl == i)
@@ -121,34 +150,37 @@ def extract_candidates(
         p0 = c + major * proj.min()
         p1 = c + major * proj.max()
         orient = float(np.degrees(np.arctan2(major[1], major[0])) % 180.0)
+        sl = crops[i - 1]                                  # CR-09 T07: attach after acceptance, never rank by it
+        path = (np.asarray(_component_path_px(lbl[sl] == i)) + [sl[1].start, sl[0].start])
         candidates.append({
             "id": int(i),
             "centroid_px": [float(c[0]), float(c[1])],
             "endpoints_px": [[float(p0[0]), float(p0[1])], [float(p1[0]), float(p1[1])]],
-            "path_px": medial_path(lbl == i, proj),
             "length_px": length,
             "width_px": width,
             "orientation_deg": orient,
             "elongation": elong,
             "mean_disturbance": float(d[ys, xs].mean()),
             "n_pixels": int(xs.size),
+            "path_px": path.tolist(),
+            "path_length_px": float(np.hypot(*np.diff(path, axis=0).T).sum()),
         })
     candidates.sort(key=lambda k: k["length_px"] * k["mean_disturbance"], reverse=True)
     return candidates
 
 
 def to_geojson(candidates: list[dict], transform=None) -> dict:
-    """FeatureCollection of candidate LineStrings along each candidate's ``path_px``.
+    """FeatureCollection of candidate LineStrings.
 
     ``transform`` is an optional ``(x_px, y_px) -> (lon, lat)`` callable; without it
     coordinates are left in pixel space. No shapely dependency required.
     """
     features = []
     for c in candidates:
-        coords = c["path_px"]
+        coords = c["endpoints_px"]
         if transform is not None:
             coords = [list(transform(x, y)) for x, y in coords]
-        props = {k: v for k, v in c.items() if k not in ("path_px", "endpoints_px")}
+        props = {k: v for k, v in c.items() if k != "endpoints_px"}
         features.append({
             "type": "Feature",
             "geometry": {"type": "LineString", "coordinates": coords},
