@@ -5,15 +5,18 @@ deterministic construction, including the misses and the false candidate, so tha
 the extractor shows up here as a named behaviour change rather than a silent shift in a demo
 figure. results/extractor_stress_cases.json is the committed record the CLI regenerates.
 """
-import json, math, subprocess, sys
+import hashlib, json, math, subprocess, sys
 from pathlib import Path
 import numpy as np
 import pytest
-from catanroads import extract_candidates
+from catanroads import extract_candidates, to_geojson
 from catanroads import stress_cases as SC
 
 ROOT = Path(__file__).resolve().parents[2]
 RECORD = json.loads((ROOT / "results/extractor_stress_cases.json").read_text())
+V3 = json.loads((ROOT / SC.V3_ARCHIVE).read_text())
+V3_SHA256 = "f906d96b371039db2bea59fe0e971e41bd7e41520e5a61d69b7ac8230d51285f"
+V1_SHA256 = "5baa8ff3e69fd829988b85800e60faee9bcdecc836a34d05019b7e8765bb300c"
 
 
 @pytest.fixture(scope="module")
@@ -85,11 +88,13 @@ def test_gradient_background_adds_small_false_candidates(live):
 
 
 # ── where it misrepresents ──────────────────────────────────────────────────────────────
-def test_hairpin_is_summarised_as_one_straight_segment():
+def test_hairpin_chord_is_flat_and_width_is_extent_but_the_delivered_path_follows_the_bend():
     d, _, _ = SC.case_tight_curve(); c = extract_candidates(d)[0]
     (x0, y0), (x1, y1) = c["endpoints_px"]
-    assert abs(y0 - y1) < 1.0, "endpoints lie on one horizontal line; the doubling-back is invisible"
-    assert c["width_px"] > 20, "the hairpin's height is reported as candidate WIDTH"
+    assert abs(y0 - y1) < 1.0, "the legacy chord is still one horizontal line; the doubling-back is invisible to it"
+    assert c["width_px"] > 20, "the hairpin's height is still reported as candidate WIDTH (minor-axis extent)"
+    ys = [y for _, y in c["path_px"]]
+    assert max(ys) - min(ys) > 15 and c["path_length_px"] > c["length_px"], "path_px follows the arc: taller than 15 px and longer than the chord"
 
 
 def test_width_px_is_curve_extent_not_road_width_regardless_of_noise():
@@ -102,13 +107,39 @@ def test_width_px_is_curve_extent_not_road_width_regardless_of_noise():
 
 
 # ── exported-line layer (review 2026-09-12: component scores ignored the delivered geometry) ──
-def test_wrong_endpoints_score_worse_on_the_line_layer_negative_control():
+def test_a6_corrupting_the_path_degrades_line_scores_and_leaves_component_scores_fixed():
     d, t, cl = SC.case_wide_corridor(); c = extract_candidates(d)
-    good = SC.score_lines(cl, c, truth=t)
+    good = SC.score(d, t, c, centerline=cl)
+    for cc in c: cc["path_px"] = [[0.0, 0.0], [255.0, 255.0]]
+    bad = SC.score(d, t, c, centerline=cl)
+    assert good["line_recall"] > 5 * bad["line_recall"] and good["line_precision"] > 0.95 and bad["line_precision"] < 0.1
+    assert (good["pixel_recall"], good["pixel_precision"]) == (bad["pixel_recall"], bad["pixel_precision"])
+
+
+def test_a6_corrupting_the_chord_with_a_valid_path_leaves_delivered_geometry_fixed():
+    d, t, cl = SC.case_wide_corridor(); c = extract_candidates(d)
+    before = SC.score_lines(cl, c, truth=t); gj = to_geojson(c)
     for cc in c: cc["endpoints_px"] = [[0.0, 0.0], [255.0, 255.0]]
-    bad = SC.score_lines(cl, c, truth=t)
-    assert good["line_recall"] > 5 * bad["line_recall"], (good, bad)
-    assert good["line_precision"] > 0.95 and bad["line_precision"] < 0.1
+    assert SC.score_lines(cl, c, truth=t) == before and to_geojson(c) == gj
+
+
+def test_a5_geojson_and_scorer_deliver_the_same_pixels():
+    d, t, cl = SC.case_tight_curve(); c = extract_candidates(d)
+    gj = to_geojson(c)                                                            # identity transform
+    from_geojson = [dict(path_px=f["geometry"]["coordinates"]) for f in gj["features"]]
+    assert (SC.rasterise_segments(from_geojson, t.shape) == SC.rasterise_segments(c, t.shape)).all()
+
+
+@pytest.mark.parametrize("bad", [None, [], [[0.0, 0.0]], [[0.0, 0.0], [float("nan"), 1.0]], [[0.0, 0.0], [float("inf"), 1.0]],
+                                 [[0.0, 0.0], [0.0, 0.0], [1.0, 1.0]], [[0.0], [1.0]], [[0.0, 0.0, 0.0], [1.0, 1.0, 1.0]], "0,0 1,1"])
+def test_a7_malformed_present_path_raises_through_every_consumer(bad):
+    c = [dict(id=1, endpoints_px=[[0.0, 0.0], [9.0, 9.0]], path_px=bad)]
+    with pytest.raises(ValueError):
+        to_geojson(c)
+    with pytest.raises(ValueError):
+        SC.rasterise_segments(c, (16, 16))
+    assert to_geojson([]) == {"type": "FeatureCollection", "features": []}
+    assert SC.score_lines(np.zeros((16, 16), bool), [])["line_recall"] is None
 
 
 # ── review 2 (2026-09-12): the line layer penalised road width ──
@@ -142,16 +173,33 @@ def test_demo_centerline_reconstruction_matches_the_generator():
 def test_component_layer_is_blind_to_endpoints_and_the_record_says_so(live):
     d, t, cl = SC.case_low_snr(); c = extract_candidates(d)
     s0 = SC.score(d, t, c, centerline=cl)
-    for cc in c: cc["endpoints_px"] = [[0.0, 0.0], [255.0, 255.0]]
+    for cc in c: cc["path_px"] = [[0.0, 0.0], [255.0, 255.0]]
     s1 = SC.score(d, t, c, centerline=cl)
     assert (s0["pixel_recall"], s0["pixel_precision"]) == (s1["pixel_recall"], s1["pixel_precision"])   # blind, by construction
     assert s1["line_recall"] < s0["line_recall"]                                                           # the line layer is not
 
 
-def test_curved_corridors_pass_the_component_layer_and_fail_the_line_layer(live):
+def test_a2_curved_corridors_pass_the_component_layer_and_the_delivered_line_layer(live):
+    # Frozen target (plan A2): recall AND precision >= 0.80 on each curved case. The chord they used
+    # to deliver is kept as chord_line and still fails, so the old failure stays demonstrable.
     for name in ("low_snr", "tight_curve", "demo_reference"):
-        assert live[name]["detected"] and not live[name]["line_ok"], name
-    assert live["low_snr"]["line_recall"] < 0.2 and live["tight_curve"]["line_recall"] < 0.35
+        s = live[name]
+        assert s["detected"] and s["line_ok"] and s["line_recall"] >= 0.80 and s["line_precision"] >= 0.80, (name, s["line_recall"], s["line_precision"])
+        assert not s["chord_line"]["line_ok"] and math.isclose(s["chord_line"]["line_recall"], V3["cases"][name]["line_recall"], abs_tol=1e-9), name
+
+
+def test_a3_straight_corridors_do_not_regress(live):
+    # Frozen target (plan A3): wide >= 0.98 both; faint and gradient >= own v3 value - 0.02, per case.
+    s = live["wide_corridor"]; assert s["line_recall"] >= 0.98 and s["line_precision"] >= 0.98, s
+    for name in ("faint_corridor", "gradient_background"):
+        s, v3 = live[name], V3["cases"][name]
+        assert s["line_recall"] >= v3["line_recall"] - 0.02 and s["line_precision"] >= v3["line_precision"] - 0.02, (name, s["line_recall"], s["line_precision"])
+
+
+def test_a1_component_layer_and_ranking_match_v3(live):
+    for name, s in live.items():
+        for k in ("n_candidates", "n_false_candidates", "false_candidate_ids", "pixel_recall", "pixel_precision", "top_candidates"):
+            assert s[k] == V3["cases"][name][k], (name, k)
 
 
 def test_straight_wide_corridor_now_passes_the_line_layer(live):
@@ -163,18 +211,29 @@ def test_straight_corridors_pass_both_layers(live):
         assert live[name]["line_ok"], name
 
 
-def test_baseline_record_is_preserved_unchanged():
-    base = json.loads((ROOT / "results/extractor_stress_cases_baseline_2026-09-12.json").read_text())
-    assert base["schema_version"] == 1
+def test_a8_archived_records_are_byte_unchanged_and_component_numbers_agree():
+    assert hashlib.sha256((ROOT / SC.V1_ARCHIVE).read_bytes()).hexdigest() == V1_SHA256
+    assert hashlib.sha256((ROOT / SC.V3_ARCHIVE).read_bytes()).hexdigest() == V3_SHA256
+    base = json.loads((ROOT / SC.V1_ARCHIVE).read_text()); assert base["schema_version"] == 1 and V3["schema_version"] == 3
     for name, s in RECORD["cases"].items():
         for k in ("n_candidates", "n_false_candidates", "pixel_recall", "pixel_precision"):
-            assert base["cases"][name][k] == s[k], (name, k)
+            assert base["cases"][name][k] == s[k] == V3["cases"][name][k], (name, k)
 
 
+def test_a8_record_has_complete_v4_metadata():
+    assert RECORD["schema_version"] == 4 and RECORD["geometry_field"] == "path_px"
+    assert RECORD["supersedes"]["v3"] == SC.V3_ARCHIVE and RECORD["supersedes"]["v1"] == SC.V1_ARCHIVE
+    assert RECORD["baseline_revision"] == SC.BASELINE_REVISION and RECORD["tolerance"]["tol_px"] == 2
+    assert set(RECORD["environment"]) >= {"python", "numpy", "scipy"} and "produced_by" in RECORD
+    assert RECORD["extractor_defaults"] == {"disturb_thresh": 1.0, "ridge_sigmas": [1.0, 2.0, 3.0], "ridge_quantile": 0.85, "min_length_px": 12.0, "min_elongation": 3.0}
+    paths = RECORD["cases"]["demo_reference"]["exported_paths_px"]
+    assert len(paths) == RECORD["cases"]["demo_reference"]["n_candidates"] and all(len(p["path_px"]) >= 2 for p in paths)
 
-def test_cli_reproduces_the_committed_record_exactly():
+
+def test_a8_cli_reproduces_the_committed_numeric_payload_exactly():
     out = subprocess.run([sys.executable, "-m", "catanroads.stress_cases"], cwd=ROOT / "analysis", capture_output=True, text=True)
     assert out.returncode == 0, out.stderr[-400:]
     live = json.loads(out.stdout)
-    for k in ("cases", "faint_strength_sweep", "curve_extent_without_noise"):
+    for k in ("cases", "faint_strength_sweep", "sensitivity_seeds", "curve_extent_without_noise", "extractor_defaults", "tolerance", "geometry_field", "schema_version", "supersedes", "baseline_revision"):
         assert live[k] == RECORD[k], k
+    assert set(live["environment"]) == set(RECORD["environment"])      # reported, not compared

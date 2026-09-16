@@ -11,7 +11,7 @@ import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 
-from catanroads import extract_candidates, make_scene
+from catanroads import candidate_coordinates_px, extract_candidates, make_scene
 
 INK, ACCENT, RED, MUTED = "#1b2a24", "#2d6a4f", "#b2182b", "#6b7671"
 
@@ -26,8 +26,7 @@ axes[0].set_title("Input: synthetic surface-disturbance", fontsize=13, color=INK
 
 axes[1].imshow(d, cmap="Greys", vmin=-1, vmax=3)
 for c in cands:
-    (x0, y0), (x1, y1) = c["endpoints_px"]
-    axes[1].plot([x0, x1], [y0, y1], color=RED, lw=2.2)
+    axes[1].plot(*zip(*candidate_coordinates_px(c)), color=RED, lw=2.2)
 axes[1].set_title(f"Extracted candidate corridors (n={len(cands)})", fontsize=13, color=INK)
 
 for ax in axes:
@@ -36,8 +35,9 @@ for ax in axes:
 fig.suptitle("Catan Roads — synthetic method demonstration (Phase 2 extractor)",
              fontsize=15, fontweight="bold", color=INK, y=0.98)
 fig.text(0.5, 0.02,
-         "Known-truth synthetic scene: the ridge + connected-component extractor recovers curved, braided, and "
-         "broken corridors\nwhile rejecting the round blob and background noise. Not a real-imagery result.",
+         "Known-truth synthetic scene: each accepted component is delivered as one interior-biased path (CR-09); "
+         "curved, braided and\nbroken corridors are traced, the round blob and noise rejected. One route per component, "
+         "no branch or junction recovery. Not a real-imagery result.",
          ha="center", fontsize=9.5, color=MUTED)
 fig.subplots_adjust(top=0.90, bottom=0.13)
 

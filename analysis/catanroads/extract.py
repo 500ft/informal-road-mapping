@@ -60,8 +60,9 @@ def _component_path_px(mask):
     ``mask`` is the tight boolean crop of a single 8-connected component. Returns crop-local
     ``[x, y]`` pixel centres, every vertex kept, oriented with the lower endpoint node ID first.
     EDT is computed on a one-pixel padded crop, so the image border counts as background.
-    Endpoints: two geometric farthest-point sweeps from node 0 (a heuristic, not an exact
-    diameter). Route: symmetric cost ``ell * (1/edt(u) + 1/edt(v)) / 2`` and canonical
+    Endpoints: two geometric farthest-point sweeps locate the ends (a heuristic, not an exact
+    diameter); at each end the pixel within one half-width of the farthest that is closest to
+    the major axis is taken (plan amendment A). Route: symmetric cost ``ell * (1/edt(u) + 1/edt(v)) / 2`` and canonical
     reconstruction from the distance labels (lowest-ID neighbour, strictly decreasing).
     Raises ``ValueError`` for an empty or disconnected mask or an invalid label chain.
     """
@@ -84,16 +85,28 @@ def _component_path_px(mask):
     src, dst, ell = map(np.concatenate, (src, dst, ell))
     geometric = coo_matrix((ell, (src, dst)), shape=(n, n)).tocsr()
 
-    def farthest(dist):
-        dist = np.where(np.isfinite(dist), dist, -np.inf)
-        return int(np.flatnonzero(np.isclose(dist, dist.max(), **_TIE))[0])   # ties -> lowest ID
-
     d0 = dijkstra(geometric, directed=True, indices=0)
     if not np.isfinite(d0).all():
         raise ValueError("component mask is not 8-connected")
-    a = farthest(d0); b = farthest(dijkstra(geometric, directed=True, indices=a))
-    a, b = min(a, b), max(a, b)
     depth = edt[ys, xs]
+    pts = np.column_stack([xs, ys]).astype(float); ctr = pts.mean(axis=0)
+    major = np.linalg.eigh(np.cov((pts - ctr).T))[1][:, 1] if n > 2 else np.array([1.0, 0.0])
+    off_axis = np.abs((pts - ctr) @ np.array([-major[1], major[0]]))
+
+    def farthest(dist):
+        dist = np.where(np.isfinite(dist), dist, -np.inf)
+        return int(np.flatnonzero(np.isclose(dist, dist.max(), **_TIE))[0])          # ties -> lowest ID
+
+    def endpoint(dist):
+        # Plan amendment A (adopted 2026-09-16): within one half-width of this end's farthest pixel,
+        # take the pixel closest to the major axis, then the farthest, then the lowest ID.
+        ext = dist >= dist.max() - depth.max()
+        best = np.flatnonzero(ext & np.isclose(off_axis, off_axis[ext].min(), **_TIE))
+        return int(best[np.isclose(dist[best], dist[best].max(), **_TIE)][0])
+
+    a0 = farthest(d0); b0 = farthest(dijkstra(geometric, directed=True, indices=a0))      # two geometric sweeps
+    a, b = endpoint(dijkstra(geometric, directed=True, indices=b0)), endpoint(dijkstra(geometric, directed=True, indices=a0))
+    a, b = min(a, b), max(a, b)
     weighted = coo_matrix((ell * (1 / depth[src] + 1 / depth[dst]) / 2, (src, dst)), shape=(n, n)).tocsr()
     d = dijkstra(weighted, directed=True, indices=a)
     if not np.isfinite(d[b]):
@@ -123,6 +136,9 @@ def extract_candidates(
 
     Components of ``label_candidates`` are kept only if long (``min_length_px``) and
     elongated (``min_elongation``), which rejects round blobs and short noise specks.
+    ``path_px`` / ``path_length_px`` are the delivered geometry (CR-09); ``endpoints_px``,
+    ``length_px`` (major-axis extent) and ``width_px`` (minor-axis extent, not road width) are
+    the legacy chord diagnostics and keep their values. Ranking never uses the path.
     """
     d = np.asarray(disturbance, dtype=float)
     lbl, n = label_candidates(d, disturb_thresh, ridge_sigmas, ridge_quantile)
@@ -169,18 +185,34 @@ def extract_candidates(
     return candidates
 
 
-def to_geojson(candidates: list[dict], transform=None) -> dict:
-    """FeatureCollection of candidate LineStrings.
+def candidate_coordinates_px(candidate: dict) -> list[list[float]]:
+    """The geometry a candidate delivers: ``path_px`` when the key is present, else the legacy
+    ``endpoints_px`` chord (endpoint-only dictionaries keep working). Whichever is selected must
+    be finite N x 2 with N >= 2 and no repeated consecutive vertex; anything else is a
+    ``ValueError`` -- a malformed present path never falls back to the chord."""
+    coords = candidate["path_px"] if "path_px" in candidate else candidate["endpoints_px"]
+    try:
+        arr = np.asarray(coords, dtype=float)
+    except (TypeError, ValueError):
+        raise ValueError("malformed candidate geometry") from None
+    if arr.ndim != 2 or arr.shape[1] != 2 or len(arr) < 2 or not np.isfinite(arr).all() \
+            or (np.diff(arr, axis=0) == 0).all(axis=1).any():
+        raise ValueError("malformed candidate geometry: need finite N x 2, N >= 2, no repeated consecutive vertex")
+    return arr.tolist()
 
-    ``transform`` is an optional ``(x_px, y_px) -> (lon, lat)`` callable; without it
-    coordinates are left in pixel space. No shapely dependency required.
+
+def to_geojson(candidates: list[dict], transform=None) -> dict:
+    """FeatureCollection of candidate LineStrings along ``candidate_coordinates_px``.
+
+    ``transform`` is an optional ``(x_px, y_px) -> (lon, lat)`` callable applied to every
+    vertex; without it coordinates are left in pixel space. No shapely dependency required.
     """
     features = []
     for c in candidates:
-        coords = c["endpoints_px"]
+        coords = candidate_coordinates_px(c)
         if transform is not None:
             coords = [list(transform(x, y)) for x, y in coords]
-        props = {k: v for k, v in c.items() if k != "endpoints_px"}
+        props = {k: v for k, v in c.items() if k not in ("path_px", "endpoints_px")}
         features.append({
             "type": "Feature",
             "geometry": {"type": "LineString", "coordinates": coords},

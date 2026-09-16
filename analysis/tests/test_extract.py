@@ -38,19 +38,31 @@ def test_rejects_round_blob():
 
 def test_geojson_shape():
     d, _ = make_scene(seed=4)
-    gj = to_geojson(extract_candidates(d))
-    assert gj["type"] == "FeatureCollection"
-    for f in gj["features"]:
+    cands = extract_candidates(d)
+    gj = to_geojson(cands)
+    assert gj["type"] == "FeatureCollection" and len(gj["features"]) == len(cands)
+    for f, c in zip(gj["features"], cands):
         assert f["geometry"]["type"] == "LineString"
-        assert len(f["geometry"]["coordinates"]) == 2
-        assert "length_px" in f["properties"] and "elongation" in f["properties"]
+        assert f["geometry"]["coordinates"] == c["path_px"] and len(c["path_px"]) >= 2
+        assert "length_px" in f["properties"] and "elongation" in f["properties"] and "path_length_px" in f["properties"]
+        assert "path_px" not in f["properties"] and "endpoints_px" not in f["properties"]
 
 
-def test_transform_applied():
+def test_transform_applied_to_every_vertex():
     d, _ = make_scene(seed=5)
     cands = extract_candidates(d)
-    if cands:
-        gj = to_geojson(cands, transform=lambda x, y: (100.0 + x * 1e-4, 47.0 - y * 1e-4))
-        lon, lat = gj["features"][0]["geometry"]["coordinates"][0]
-        assert 99.0 < lon < 101.0 and 46.0 < lat < 48.0
+    assert cands
+    gj = to_geojson(cands, transform=lambda x, y: (100.0 + x * 1e-4, 47.0 - y * 1e-4))
+    for f, c in zip(gj["features"], cands):
+        expect = [[100.0 + x * 1e-4, 47.0 - y * 1e-4] for x, y in c["path_px"]]
+        assert np.allclose(f["geometry"]["coordinates"], expect)
+
+
+def test_geojson_prefers_path_over_conflicting_chord_and_accepts_legacy_dicts():
+    # A5: conflicting chord/path -> the path is delivered. Endpoint-only legacy dicts still export.
+    c = dict(id=1, endpoints_px=[[0.0, 0.0], [9.0, 9.0]], path_px=[[0.0, 5.0], [4.0, 5.0], [9.0, 5.0]], length_px=9.0)
+    assert to_geojson([c])["features"][0]["geometry"]["coordinates"] == c["path_px"]
+    legacy = dict(id=2, endpoints_px=[[0.0, 0.0], [9.0, 9.0]])
+    assert to_geojson([legacy])["features"][0]["geometry"]["coordinates"] == legacy["endpoints_px"]
+    assert to_geojson([]) == {"type": "FeatureCollection", "features": []}
 

@@ -13,6 +13,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import math
 from pathlib import Path
 
 import numpy as np
@@ -83,3 +84,16 @@ def test_candidate_lengths_match(record, demo):
         f"candidate lengths moved by up to {worst:.3e} px, above the "
         f"{ENDPOINT_ATOL_PX:.0e} px tolerance"
     )
+
+
+# ── CR-09 (T19): the delivered path geometry of the demo scene is pinned in the v4 stress record ──
+V4 = Path(__file__).resolve().parents[2] / "results" / "extractor_stress_cases.json"
+
+
+def test_demo_paths_ids_and_order_match_the_v4_record(demo):
+    _, cands = demo
+    rec = json.loads(V4.read_text())["cases"]["demo_reference"]["exported_paths_px"]
+    assert [c["id"] for c in cands] == [r["id"] for r in rec]
+    for c, r in zip(cands, rec):
+        assert np.shape(c["path_px"]) == np.shape(r["path_px"]) and np.allclose(c["path_px"], r["path_px"], rtol=0, atol=ENDPOINT_ATOL_PX)
+        assert math.isclose(c["path_length_px"], r["path_length_px"], abs_tol=ENDPOINT_ATOL_PX)
