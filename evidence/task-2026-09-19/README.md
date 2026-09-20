@@ -116,3 +116,70 @@ No finding blocks Gate A or Gate B. CR-09 remains merge-ready on the evidence ob
 ## Not done on Day 1
 No code, record, threshold, site, manifest, ledger row or PR state was changed. No imagery was
 inspected. CR-08 is unchanged and still blocked on a dated source-image judgment.
+
+---
+
+# Day 2 — 2026-09-20 — gallery review and owner review request (W1)
+
+PR #25 merged as `c5886a4`; `main` is at that commit. Day 2 produces two artifacts: a written
+review of the five-figure gallery on PR #24, and the owner review request below. Still no change to
+any record, threshold, site or the Phase-1 gate.
+
+## Gallery review — PR #24, base head `44f2b68`
+
+Reviewed against the six criteria in the plan. The gallery is my own work from 2026-09-16, so it is
+reviewed here as a reviewer would, not defended.
+
+| criterion | result |
+|---|---|
+| scores read from the committed record, not typed | **fail → fixed (G1)** |
+| scene labelled synthetic / development evidence | pass — every figure carries the same footer naming the generator and denying imagery |
+| component recall kept distinct from exported-line recall | **fail → fixed (G2)** |
+| no implication of real imagery or road classification | pass — no figure names a site, a region or an accuracy |
+| no clipped labels, overlapping annotations or misleading legend | pass after the Day 2 wrap; the three-panel notes collided once the labels grew and were wrapped to two lines |
+| listed in the figure manifest and the figure guide | pass — one manifest entry with all five outputs, its generator, its three inputs and its command, and one row in `docs/data-and-figures.md` |
+
+### G1 — figure 4 carried hand-typed observed numbers
+
+`04_low_snr_curve.png` had the suptitle *"component recall 1.00; chord 0.11 → path 0.99"* written as
+a literal string, while every other number in the gallery is read from
+`results/extractor_stress_cases.json`. Three observed values in the most quotable position on the
+figure would have gone stale silently the first time the record changed. Now derived from the record
+like the rest; the rendered title is unchanged today because the values are the same, which is the
+point.
+
+Not a defect: figure 3's *"A3 target ≥ 0.98"* is a frozen plan constant, not an observed score, and
+is correctly a literal.
+
+### G2 — figure 5 said "recall" without naming the layer
+
+`05_misses_and_confound.png` annotated the crossing and dashed-track panels *"recall 0.00"*. Both
+layers are in fact 0.00 there, so no number was wrong, but the whole subject of the gallery is that
+component recall and exported-line recall differ, and this is the one figure that blurred them. Both
+are now named per panel (`component recall … · line recall …`), and the longer labels are wrapped to
+two lines because they collided with the neighbouring panel at the first attempt.
+
+Both corrections are on #24 as a second commit, `1b06128`. No figure was redesigned, no layout
+reworked, no new figure added. 117 tests pass; presentation checks clean.
+
+## Owner review request
+
+Three pull requests are ready. Each needs **one** decision; none needs a repository-wide read.
+
+| PR | what it is | the one decision |
+|---|---|---|
+| **#22** CR-09 T09–T23 | The path export: one interior-biased route per accepted component, delivered through a single selector to GeoJSON, scoring and the demo. Curved corridors go from 0.11 / 0.25 / 0.44 line recall to 0.99 / 1.00 / 0.93; the legacy chord is retained per case as `chord_line`; the component layer is byte-identical to v3. Re-verified Day 1 from a clean checkout. | Approve the representation, or name one bounded correction. |
+| **#24** gallery | Five figures showing what the extractor now delivers and what it still gets wrong, with the two Day 2 corrections applied. Stacked on #22's branch. | Approve, or name a figure to change. |
+| **#23** docs housekeeping | Progress and review-index entries for the R03 stack, ponytail and CR-09; the stale CatanRoads links retargeted; the CR-08 intake re-check recorded. | Approve. |
+
+Proposed order, unchanged from the plan: **#22**, then **#24 once its first hosted CI run passes**
+(finding F3: it has never been checked, because the workflow only triggers on pull requests to
+`main`; merging #22 retargets it and the check runs for the first time), then **#23**.
+
+Still open from Day 1, and not decided by me: **F1/F2**, whether the unsafe documented regeneration
+command and the missing atomic writer are fixed inside #22 before merge or as a follow-up. My
+recommendation remains fixing it inside #22, because the offending line is introduced by #22 and is
+not yet on `main`.
+
+## Not done on Day 2
+No record, threshold, site, manifest or ledger row changed. No imagery inspected. CR-08 unchanged.
