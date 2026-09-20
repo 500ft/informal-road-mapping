@@ -93,13 +93,19 @@ def plot_all(out_dir):
     axes[0].imshow(d, cmap="Greys", vmin=-2, vmax=4); axes[0].set_title("Input at 3× the demo noise (σ = 0.9)", fontsize=10.5, color=INK)
     axes[0].set_xticks([]); axes[0].set_yticks([])
     draw(axes[1], d, cl, cands, "Delivered geometry", vmin=-2, vmax=4, note=scores("low_snr"))
-    written.append(finish(fig, "04_low_snr_curve", "Low signal-to-noise curve — component recall 1.00; chord 0.11 → path 0.99"))
+    c = rec["low_snr"]
+    written.append(finish(fig, "04_low_snr_curve", "Low signal-to-noise curve — component recall "
+                          f"{_f(c['pixel_recall'])}; line recall {_f(c['chord_line']['line_recall'])} (chord) → {_f(c['line_recall'])} (path)"))
     # 5 — what stays missed or fabricated
     fig, axes = plt.subplots(1, 3, figsize=(15, 5.6))
     for ax, name, label in zip(axes, ("crossing", "short_segments", "linear_confound_riverbank"),
                                ("Crossing: union component fails min_elongation", "Dashed track: each 9-px dash < min_length_px", "River-bank confound: delivered as the strongest candidate")):
         d, t, cl = SC.CASES[name](); cands = extract_candidates(d); c = rec[name]
-        draw(ax, d, cl, cands, label, note=f"{c['n_candidates']} candidate(s), {c['n_false_candidates']} false · " + (f"line precision {_f(c['line_precision'])}" if c["line_precision"] is not None else "recall 0.00"))
+        note = (f"{c['n_candidates']} candidate(s), {c['n_false_candidates']} false\n"
+                f"component recall {_f(c['pixel_recall'])} · line recall {_f(c['line_recall'])}")
+        if c["line_precision"] is not None:
+            note += f" / precision {_f(c['line_precision'])}"
+        draw(ax, d, cl, cands, label, note=note)
     written.append(finish(fig, "05_misses_and_confound", "What stays missed or fabricated by construction — unchanged by CR-09"))
     return written
 
