@@ -58,6 +58,26 @@
         "docs/media/project-overview.svg"
       ],
       "boundary": "Original conceptual overview; source and accessibility notes in docs/REPOSITORY_IDENTITY.md. No imagery result, model output or site verification."
+    },
+    {
+      "id": "stress-case-gallery",
+      "evidence_type": "simulation",
+      "generator": "analysis/plot_stress_cases.py",
+      "command": "MPLBACKEND=Agg PYTHONPATH=analysis python analysis/plot_stress_cases.py",
+      "inputs": [
+        "analysis/catanroads/stress_cases.py",
+        "analysis/catanroads/extract.py",
+        "results/extractor_stress_cases.json"
+      ],
+      "outputs": [
+        "results/figures/01_demo_paths_vs_chords.png",
+        "results/figures/02_hairpin_chord_vs_path.png",
+        "results/figures/03_wide_corridor_centred_endpoints.png",
+        "results/figures/04_low_snr_curve.png",
+        "results/figures/05_misses_and_confound.png"
+      ],
+      "boundary": "Five views of the CR-09 stress cases: the delivered path_px against the legacy endpoints_px chord and each case's reference centerline. Synthetic constructions with known truth; nothing here is imagery or a site result. Panel numbers are read from the v4 stress record, not typed.",
+      "reproducibility": "Deterministic given the fixed seeds in stress_cases.py. analysis/tests/test_plot_stress_cases.py checks the script runs and writes all five files; pixels are not compared (font rasterisation differs between machines)."
     }
   ],
   "figure_comparison_policy": {
