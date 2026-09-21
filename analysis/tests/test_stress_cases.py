@@ -230,6 +230,25 @@ def test_a8_record_has_complete_v4_metadata():
     assert len(paths) == RECORD["cases"]["demo_reference"]["n_candidates"] and all(len(p["path_px"]) >= 2 for p in paths)
 
 
+def test_atomic_out_writes_the_same_payload_as_stdout(tmp_path):
+    target = tmp_path / "record.json"
+    SC.main(["--out", str(target)])
+    assert json.loads(target.read_text())["cases"] == RECORD["cases"]
+    assert not list(tmp_path.glob("*.tmp"))
+
+
+def test_a_failed_regeneration_leaves_an_accepted_record_untouched(tmp_path, monkeypatch):
+    # F1/F2: the CLI used to be documented as a shell redirect, which truncates the destination when
+    # the run fails. --out stages beside the target, validates by parsing back, then os.replace.
+    target = tmp_path / "record.json"
+    target.write_text('{"accepted": true}')
+    monkeypatch.setattr(SC, "record", lambda: {"schema_version": 4, "geometry_field": "path_px"})   # missing metadata
+    with pytest.raises(ValueError):
+        SC.main(["--out", str(target)])
+    assert json.loads(target.read_text()) == {"accepted": True}, "the accepted record was modified"
+    assert not list(tmp_path.glob("*.tmp")), "a temporary file was left behind"
+
+
 def test_a8_cli_reproduces_the_committed_numeric_payload_exactly():
     out = subprocess.run([sys.executable, "-m", "catanroads.stress_cases"], cwd=ROOT / "analysis", capture_output=True, text=True)
     assert out.returncode == 0, out.stderr[-400:]

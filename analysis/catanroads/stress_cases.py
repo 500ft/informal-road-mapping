@@ -293,6 +293,38 @@ def record():
     }
 
 
+def validate_record(rec):
+    """Reject a record that must not replace an accepted one. Parseability is not enough
+    (guidance 2026-09-21 section 4): a nonempty file is not a correct record."""
+    if rec.get("schema_version") != 4 or rec.get("geometry_field") != "path_px":
+        raise ValueError("record is not schema 4 / path_px")
+    for key in ("produced_by", "supersedes", "extractor_defaults", "tolerance", "baseline_revision", "environment"):
+        if not rec.get(key):
+            raise ValueError("record is missing required metadata: " + key)
+    if set(rec.get("cases", {})) != set(CASES) or not rec.get("faint_strength_sweep"):
+        raise ValueError("record does not cover every case and the strength sweep")
+    return rec
+
+
+def main(argv=None):
+    import argparse, json, os, sys
+    from pathlib import Path as _Path
+    ap = argparse.ArgumentParser(description="Regenerate the stress-case record.")
+    ap.add_argument("--out", type=_Path, help="write atomically to PATH: a temporary file beside it, "
+                    "validated by parsing it back, then os.replace. Without this the record goes to "
+                    "stdout, and a shell redirect that fails mid-run truncates the destination.")
+    args = ap.parse_args(argv)
+    text = json.dumps(validate_record(record()), indent=1) + "\n"
+    if args.out is None:
+        sys.stdout.write(text); return
+    tmp = args.out.with_name(args.out.name + ".tmp")
+    tmp.write_text(text, encoding="utf-8")
+    try:
+        validate_record(json.loads(tmp.read_text(encoding="utf-8")))
+        os.replace(tmp, args.out)
+    except Exception:
+        tmp.unlink(missing_ok=True); raise
+
+
 if __name__ == "__main__":
-    import json, sys
-    json.dump(record(), sys.stdout, indent=1); print()
+    main()
