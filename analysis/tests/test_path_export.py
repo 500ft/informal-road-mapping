@@ -1,6 +1,16 @@
 """CR-09 routing contract (docs/PLAN_2026-09-14_CR09.md, A1 and A4): hand-built masks whose
 geometry is known before the router runs, plus the legacy-field invariant against the pre-CR-09
-baseline snapshot. Nothing here scores road accuracy."""
+baseline snapshot. Nothing here scores road accuracy.
+
+Two kinds of check live here and must not be confused (guidance 2026-09-21, section 1):
+  * INDEPENDENT CORRECTNESS -- the fixtures below are hand-constructed and, where the route through
+    them is uniquely determined, the expected coordinate list is written out by hand before the
+    router runs. These can falsify the implementation.
+  * REGRESSION COMPATIBILITY -- `test_a1_*` compares against
+    evidence/task-2026-09-14/baseline_candidates.json, which was produced by the PRE-CR-09
+    EXTRACTOR ITSELF. It proves the legacy fields did not move; it is NOT an independent oracle and
+    cannot show that those fields were ever right.
+"""
 import json, math
 from pathlib import Path
 import numpy as np
@@ -56,6 +66,24 @@ def test_a4_path_is_finite_adjacent_confined_and_repeatable(name):
     assert (_steps(path) == 1).all(), (name, "every step is one 8-neighbour move, no repeats")
     assert m[p[:, 1].astype(int), p[:, 0].astype(int)].all(), (name, "path leaves the component")
     assert _component_path_px(m) == path, (name, "not deterministic")
+
+
+@pytest.mark.parametrize("name,expected", [
+    # Independently specified: on a 3x40 strip the medial row is row 1, so the route is that row,
+    # left to right. On a 20x20 identity the only 8-connected chain is the main diagonal.
+    ("straight", [[float(x), 1.0] for x in range(40)]),
+    ("diagonal_only", [[float(i), float(i)] for i in range(20)]),
+])
+def test_a4_hand_derived_expected_coordinates(name, expected):
+    assert _component_path_px(FIXTURES[name]()) == expected
+
+
+def test_a4_coordinates_are_x_y_not_row_col():
+    # The non-square fixture is 25 rows x 7 columns: a transposed return would put a value >= 7 in
+    # the x slot. A square fixture cannot catch this.
+    m = non_square(); p = np.asarray(_component_path_px(m))
+    assert p[:, 0].max() < m.shape[1] and p[:, 1].max() < m.shape[0], p.max(axis=0).tolist()
+    assert m[p[:, 1].astype(int), p[:, 0].astype(int)].all()
 
 
 def test_a4_length_equals_segment_sum_via_extract():

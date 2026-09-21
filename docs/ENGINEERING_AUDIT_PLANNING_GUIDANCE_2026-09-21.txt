@@ -1,0 +1,103 @@
+ENGINEERING-AUDIT GUIDANCE FOR INFORMAL ROAD MAPPING
+Recorded 2026-09-21 at the owner's request
+
+Source to give another session:
+  500ft/engineering-audit -> docs/cad_agent_briefing.md
+  https://github.com/500ft/engineering-audit/blob/main/docs/cad_agent_briefing.md
+
+Reviewed file version:
+  cf56cdff50b09c9a266292006cbf5b2a0f2e8ac6
+  https://github.com/500ft/engineering-audit/blob/cf56cdff50b09c9a266292006cbf5b2a0f2e8ac6/docs/cad_agent_briefing.md
+Local reference:
+  /Users/redhose/Developer/engineering-audit/docs/cad_agent_briefing.md
+
+Purpose
+-------
+Apply the briefing's verification and evidence principles to future planning.
+Codex supplies planning/critique and plain-text handoffs; Claude implements.
+This note is a planning reference, with no new implementation or measured result.
+Consult docs/WEEKLY_PLAN_2026-09-19.md and the task ledger before proposing work
+already covered by code, tests, or the revised weekly plan.
+
+1. Independently specified expected results
+------------------------------------------
+The briefing checks CAD geometry against an independently computed expectation.
+Here, use hand-constructed masks and reference centerlines whose coordinates and
+connectivity are defined before the extractor runs. Compare the actual delivered
+geometry with those expectations.
+
+Distinguish regression compatibility (saved baseline), synthetic correctness
+(independently specified truth), and real-site interpretation (dated imagery).
+An extractor-generated baseline is not an independent correctness oracle.
+Agreement between two consumers of one faulty helper proves consistency only;
+include a hand-derived expected coordinate list or other known-truth control.
+
+2. Coordinate probes before geospatial integration
+-------------------------------------------------
+For a future raster/vector adapter, require a small non-square fixture with known
+origin and unequal x/y scale. Check row/column versus x/y, axis direction,
+pixel centers versus corners, and target CRS. A synthetic transform such as
+(x, y) -> (100 + 2*x, 200 - 3*y) should have hand-computed expected vertices.
+That probe does not replace validation of a real affine transform and CRS.
+Pixel-space length is not meters.
+
+Existing boundary: analysis/catanroads/extract.py::to_geojson and
+analysis/tests/test_extract.py. Inspect existing coverage; add only missing cases.
+
+3. Prove that input changes reach the delivered artifact
+------------------------------------------------------
+The briefing changes a named dimension and measures the resulting saved part.
+Here, corrupt only the path while preserving its component: the delivered-line
+score should respond while component metrics stay fixed. With a valid path
+selected, changing only the legacy chord should leave the delivered path fixed.
+These controls already belong to CR-09; confirm coverage before adding tests.
+Use synthetic inputs for probes. Preserve the registered Phase-1 settings and
+primary result; new scientific endpoints require prospective amendments.
+
+4. Check the saved export and completed operation
+-----------------------------------------------
+When export work is in scope, save GeoJSON, parse it back, and compare IDs,
+vertex order, coordinates, units/CRS interpretation, and path-length semantics
+with independent expectations. In-memory equality alone misses serialization.
+Reuse the existing round-trip contract if it already covers this boundary.
+
+For generated records, check exit status, parseability, required metadata and
+numeric content before replacing accepted output. Reuse the planned atomic-write
+work. A nonempty file does not establish geometric or scientific correctness.
+For Earth Engine, retain task identity, terminal state, actual exports and the
+admission verdict. A successful launch does not establish a completed export.
+
+5. Preserve each claim's evidence source
+--------------------------------------
+The briefing distinguishes designer choices, vendor drawings and measurements.
+Here, distinguish proposed settings, synthetic truth, dated image judgments and
+actual Earth Engine exports. One category cannot satisfy another's requirement.
+Keep unresolved dates, provenance, scene counts and site judgments unresolved.
+Use the existing INCONCLUSIVE/DEVELOPMENT_ONLY semantics and CR-08 rules.
+
+6. Capture the first useful failure signal
+-----------------------------------------
+For a failed experiment, record the relevant stage: input validity, accepted
+component ID/count, selected path, serialized geometry, or scoring denominator.
+Include source revision, input identity, settings and outcome. Prefer a bounded
+evidence trace to a new logging framework. Retain all prospectively specified
+synthetic variant outcomes; cases used to tune the implementation are development
+data even if their inputs are hashed and their results are reproducible.
+
+Reuse and limits
+----------------
+Reusable CAD/FEA machinery belongs in engineering-audit; the RoboRacer mast
+deliverable belongs in autonomous-racing-systems. No CAD/FEA work is added to this
+satellite-mapping project by this reference. If a hardware task is later requested,
+consult the source repository's host_setup.md and solidworks_api_findings.md and
+reuse its existing machinery.
+
+CAD numerical tolerances do not transfer to raster measurements. Keep the
+existing L1 two-pixel scoring contract for current comparisons. The briefing's
+reported host capabilities are task-specific; it also identifies untested assembly
+and drawing support and a missing independent FEA accuracy check.
+
+For each future task, name the independent expected result, actual output artifact,
+admissible evidence source and failure outcome. Check what already exists before
+adding a verification task. This guidance informs future plans without changing
+the current thresholds, site choices or holdout policy.
