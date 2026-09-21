@@ -45,6 +45,25 @@ consumer round-trip test are largely already on #22 (`test_a8_*`, `test_a5_*`, `
 be duplicate coverage, so Day 3 closes only the measured gaps instead. And the draft's Day 6 "run
 the complete repository gate" is folded into the post-merge day rather than run twice.
 
+## Addendum — engineering-audit guidance, 2026-09-21
+
+The owner recorded [ENGINEERING_AUDIT_PLANNING_GUIDANCE_2026-09-21.txt](ENGINEERING_AUDIT_PLANNING_GUIDANCE_2026-09-21.txt)
+and linked it from [AGENTS.md](../AGENTS.md). It is a planning reference, not a new result, and it
+asks that existing coverage be checked before anything is added. Day 3 checked all six sections and
+found three genuine gaps and three principles already satisfied:
+
+| guidance section | state before Day 3 | action |
+|---|---|---|
+| 1 independently specified expected results | partial — two A4 fixtures carried hand-derived coordinates, the rest asserted properties only, and `baseline_candidates.json` is extractor-generated | closed: hand-derived coordinate lists where the route is uniquely determined, an x/y-versus-row/col assertion, and the baseline's status named in the test module as regression compatibility rather than an oracle |
+| 2 coordinate probes | gap — the transform test recomputed its expectation from the same lambda, with equal x and y scale magnitudes | closed: a probe under `(x, y) -> (100 + 2x, 200 - 3y)` with hand-computed expected vertices |
+| 3 input changes reach the artifact | already satisfied by the CR-09 `test_a6_*` controls | none; coverage confirmed, nothing added |
+| 4 saved export and completed operation | gap — every comparison was in-memory; the atomic-write work was still only planned | closed: a `json.dumps`/`loads` round-trip comparing ids, vertex order, coordinates and path-length semantics, plus the `--out` writer from F2 with validation before replacement |
+| 5 evidence provenance | already the repository's discipline | reinforced in the CR-08 packet, which states that the four evidence categories cannot substitute for one another |
+| 6 first useful failure signal | already satisfied — the CR-09 evidence discloses the two rejected endpoint rules as development data | none |
+
+The guidance's limits are respected: no CAD or FEA work enters this project, the L1 two-pixel
+scoring contract is unchanged, and pixel-space length is not meters.
+
 ## Decision gates
 
 Unchanged from the draft: **A** CR-09 stack integrity, **B** consumer consistency, **C** evidence
@@ -70,7 +89,7 @@ Proposed merge order, unchanged in dependency from the draft: **#22**, then **#2
 run on the retargeted base passes**, then **#23**, resolving any changed-line conflicts. #17 and
 #18 stay open or closed as historical plan records; history is not rewritten.
 
-### Day 3 — 2026-09-21 — measured gaps and the owner-independent CR-08 packet
+### Day 3 — 2026-09-21 — measured gaps, the audit addendum, and the CR-08 packet — **done**
 Artifacts: the F1/F2 fix if the owner approves it (an `--out PATH` flag that stages through a
 temporary file in the destination directory, validates by parsing it back, then `os.replace`s, plus
 the guide and plan verification block pointing at it; stdlib only, one test that a failed run leaves
