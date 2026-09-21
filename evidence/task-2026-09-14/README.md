@@ -90,3 +90,75 @@ loops or braided topology. Better line geometry does not improve road / non-road
 | `tools/check_presentation.py` / `tools/test_presentation.py` | issues: [] / OK |
 | `PYTHONPATH=analysis python -m catanroads.site_worksheet --check` | consistent |
 | `git diff --check` | clean (ledger lines are CRLF by convention) |
+
+
+---
+
+# Continuation 2026-09-16 — amendment A adopted; T09–T23 built
+
+Branch `task/cr09-t09-t23-20260916` off `main` 515ce3d. Owner accepted the proposed
+endpoint amendment on 2026-09-16 ("i agree with all 3 tasks"); the plan now carries it as
+**Amendment A**.
+
+## Amendment A, measured (T08 re-run, frozen v3 scorer, `feasibility_t08.py`)
+| case | path recall / precision | target | result |
+|---|---:|---|---|
+| low_snr | 0.9922 / 0.9961 | A2 ≥ 0.80 | PASS |
+| tight_curve | 1.0000 / 1.0000 | A2 ≥ 0.80 | PASS |
+| demo_reference | 0.9347 / 1.0000 | A2 ≥ 0.80 | PASS |
+| wide_corridor | 1.0000 / 1.0000 | A3 ≥ 0.98 | PASS |
+| faint_corridor | 0.9258 / 1.0000 | A3 ≥ 0.9175 / 0.9800 | PASS |
+| gradient_background | 1.0000 / 0.9039 | A3 ≥ 0.9800 / 0.8814 | PASS |
+
+Development data disclosed (two intermediate rules tried while implementing the amendment,
+neither adopted): (i) "extreme set = within 1 px of the geometric farthest, then axis-nearest"
+left wide at 0.9688 because that set contains only corners; (ii) "projection-extreme,
+axis-nearest, no sweeps" passed A2/A3 but lost the second tip of the true U-turn fixture.
+The adopted rule keeps the sweeps and widens the extreme set to one half-width.
+
+## T09–T20
+`candidate_coordinates_px` (shared selector: `path_px` preferred, `endpoints_px` only when the
+key is absent, strict finite N×2 / N ≥ 2 / no repeated vertex, `ValueError` otherwise) routes
+`to_geojson`, `rasterise_segments` and the demo plot. `score` adds `chord_line` (the legacy chord
+through the same scorer). The CLI now writes the complete v4 record (schema, supersedes v3/v1,
+`geometry_field`, defaults, tolerance metric, baseline revision, environment, sensitivity seeds,
+`cases.demo_reference.exported_paths_px`). Record regenerated into a temporary file, validated
+(component layer == v3, `chord_line` == v3 line layer), then copied over. Demo figure
+regenerated from source and inspected: all six routes follow their corridors; caption states
+one route per component and no branch recovery; no clipped text.
+
+## T21 docs
+`docs/figure-manifest.json` (path record pointer, legacy record retained), `docs/data-and-figures.md`,
+`analysis/README.md` (field semantics), `results/README.md` (v4 table with chord comparison).
+
+## T22 — declared sensitivity seeds (scored once, not tuned on; synthetic only)
+| case | cands | false | component recall | path recall / precision | chord recall / precision | line_ok |
+|---|---:|---:|---:|---:|---:|---|
+| low_snr(seed=117) | 1 | 0 | 1.00 | 1.00 / 1.00 | 0.10 / 0.11 | True |
+| faint_corridor(seed=111) | 6 | 0 | 0.87 | 0.86 / 1.00 | 0.87 / 1.00 | True |
+| gradient_background(seed=118) | 5 | 4 | 1.00 | 1.00 / 0.84 | 1.00 / 0.85 | True |
+
+The faint corridor at seed 111 fragments into six pieces and its path recall (0.8594) is
+slightly below its chord (0.8711): fragment routes end at interior pixels where the chord
+extrapolates to the fragment's extreme. The gradient scene at seed 118 produces four small
+false candidates (chord and path alike). Neither seed was used to change anything.
+
+## T23 — integration checks (repository root, Python 3.11.8, NumPy 2.4.6, SciPy 1.17.1)
+| command | observed |
+|---|---|
+| `python -m compileall -q analysis/catanroads analysis/tests` | exit 0 |
+| `PYTHONPATH=analysis MPLBACKEND=Agg python -m pytest analysis/tests -q` | **116 passed** |
+| `PYTHONPATH=analysis python evidence/task-2026-09-14/feasibility_t08.py` | exit 0, A2+A3 PASS |
+| `node tools/validate_phase1.mjs` / `node tools/test_temporal_qa.mjs` | pass / PASS |
+| `tools/check_presentation.py` / `tools/test_presentation.py` | issues: [] / OK |
+| `PYTHONPATH=analysis python -m catanroads.site_worksheet --check` | consistent |
+
+Acceptance traceability: A1 `test_a1_*` (path_export, stress_cases); A2/A3 `test_a2_*`, `test_a3_*`;
+A4 `test_a4_*`; A5 `test_a5_*`, `test_geojson_*`, `test_transform_*`; A6 `test_a6_*`; A7 `test_a7_*`;
+A8 `test_a8_*`, `test_demo_paths_*`.
+
+## Limits retained (unchanged)
+Crossings rejected by elongation; dashes rejected by minimum length; river-bank / field-edge
+confound still the strongest candidate; faint routes fragmented; one route per component, no
+junctions, loops or braids. Better line geometry does not improve road / non-road
+discrimination. CR-08 remains the only research gate; no imagery, no site, no Mongolia result.

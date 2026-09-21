@@ -13,9 +13,10 @@
       "outputs": [
         "results/method_demo_synthetic.png"
       ],
-      "boundary": "Synthetic scene from make_scene(size=256, seed=1); demonstrates the extractor's behaviour, not performance on real imagery.",
-      "reproducibility": "Deterministic given the seed. Numeric output (scene fingerprint and candidate geometry) is pinned in results/method_demo_synthetic.numeric.json and gated by analysis/tests/test_demo_reproducibility.py. Do NOT gate on PNG bytes: font rasterisation differs between freetype builds, so the text bands change while every data pixel is identical -- see results/method_demo_synthetic.env.json.",
-      "numeric_record": "results/method_demo_synthetic.numeric.json"
+      "boundary": "Synthetic scene from make_scene(size=256, seed=1); demonstrates the extractor's behaviour, not performance on real imagery. Since CR-09 (2026-09-16) the red lines are each candidate's delivered path_px (one interior-biased route per accepted component; no branch or junction recovery), not the legacy straight chord.",
+      "reproducibility": "Deterministic given the seed. Numeric output (scene fingerprint and candidate geometry) is pinned in results/method_demo_synthetic.numeric.json and gated by analysis/tests/test_demo_reproducibility.py. Do NOT gate on PNG bytes: font rasterisation differs between freetype builds, so the text bands change while every data pixel is identical -- see results/method_demo_synthetic.env.json. The rendered path geometry (path_px, path_length_px, candidate ids and order) is pinned in results/extractor_stress_cases.json under cases.demo_reference.exported_paths_px and checked by the same test module; method_demo_synthetic.numeric.json is retained as the legacy chord/scene record.",
+      "numeric_record": "results/method_demo_synthetic.numeric.json",
+      "path_record": "results/extractor_stress_cases.json#cases.demo_reference.exported_paths_px"
     },
     {
       "id": "ndvi-change-placeholder",

@@ -4,8 +4,14 @@ Turns a surface-disturbance raster into **candidate corridor line-segments**. Th
 is the Phase-2 baseline from [`../docs/design.md`](../docs/design.md): a multiscale
 Hessian **ridge filter** enhances elongated features, then **connected components**
 are kept only if long and elongated enough to be corridor-scale — rejecting round
-blobs and isolated noise. Each survivor becomes a LineString with length,
-orientation, width, elongation, and mean disturbance.
+blobs and isolated noise. Each survivor is delivered as one interior-biased
+polyline (`path_px`, with `path_length_px`) routed through the component along a
+distance-transform-weighted shortest path (CR-09); the legacy straight chord
+(`endpoints_px`) and the component extents (`length_px` major axis, `width_px` minor
+axis, **not** road width) are kept as diagnostics. One route per component: junctions,
+loops and braided topology are not resolved. `to_geojson` emits the path; endpoint-only
+candidate dictionaries still export, and a malformed present `path_px` raises
+`ValueError` rather than falling back to the chord.
 
 Core runs on **numpy + scipy only**. The fuller pipeline (skeleton + graph tracing,
 richer geometry, raster/vector I/O via scikit-image / shapely / rasterio / geopandas)

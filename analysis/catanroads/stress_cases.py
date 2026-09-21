@@ -15,10 +15,12 @@ Scoring (per case), two layers that must not be confused (review 2026-09-12):
     pixel_recall     fraction of truth pixels lying within `tol_px` of any candidate's pixels
     pixel_precision  fraction of candidate pixels within `tol_px` of the truth mask
     false_candidates candidates whose pixels have < 20 % overlap (dilated) with the truth mask
-  LINE layer -- what the extractor actually EXPORTS (endpoints_px -> a straight segment), scored
-  against each case's REFERENCE CENTERLINE (never the road-area mask; review 2, 2026-09-12):
-    line_recall      fraction of reference-centerline pixels within `tol_px` of the exported segments
-    line_precision   fraction of exported-segment pixels within `tol_px` of the reference centerline
+  LINE layer -- what the extractor actually EXPORTS (candidate_coordinates_px: path_px since CR-09,
+  the endpoints_px chord before it), scored against each case's REFERENCE CENTERLINE (never the
+  road-area mask; review 2, 2026-09-12):
+    line_recall      fraction of reference-centerline pixels within `tol_px` of the exported polyline
+    line_precision   fraction of exported-polyline pixels within `tol_px` of the reference centerline
+    chord_line       the same scorer on the legacy endpoints_px chord alone (what v3 delivered)
     area_coverage    fraction of the road-AREA mask the exported band covers -- a separate diagnostic
   detected         pixel_recall >= 0.5 (component layer, deliberately coarse)
   line_ok          line_recall >= 0.5 AND line_precision >= 0.5
@@ -30,8 +32,12 @@ minor-axis EXTENT, not road width: for a curved corridor it is the curve's trans
 from __future__ import annotations
 import numpy as np
 from scipy import ndimage
-from .extract import extract_candidates, label_candidates
+from .extract import candidate_coordinates_px, extract_candidates, label_candidates
 from .synthetic import make_scene
+
+V3_ARCHIVE = "results/extractor_stress_cases_baseline_v3_2026-09-14.json"
+V1_ARCHIVE = "results/extractor_stress_cases_baseline_2026-09-12.json"
+BASELINE_REVISION = "9fa31ffc42d26c64f4fd278ee214fa1865fcdc2f"
 
 
 def _stamp(d, truth, xs, ys, half_width, strength, centerline=None):
@@ -177,19 +183,20 @@ def _fraction_within(of, band):
 
 
 def rasterise_segments(candidates, shape):
-    """Pixels of the straight segments the extractor exports (endpoints_px), 8-connected."""
+    """Pixels of the delivered geometry (candidate_coordinates_px, consecutive vertex pairs), 8-connected."""
     m = np.zeros(shape, dtype=bool)
     for c in candidates:
-        (x0, y0), (x1, y1) = c["endpoints_px"]
-        n = int(max(abs(x1 - x0), abs(y1 - y0))) + 1
-        xs = np.rint(np.linspace(x0, x1, n)).astype(int); ys = np.rint(np.linspace(y0, y1, n)).astype(int)
-        ok = (xs >= 0) & (xs < shape[1]) & (ys >= 0) & (ys < shape[0])
-        m[ys[ok], xs[ok]] = True
+        pts = candidate_coordinates_px(c)
+        for (x0, y0), (x1, y1) in zip(pts, pts[1:]):
+            n = int(max(abs(x1 - x0), abs(y1 - y0))) + 1
+            xs = np.rint(np.linspace(x0, x1, n)).astype(int); ys = np.rint(np.linspace(y0, y1, n)).astype(int)
+            ok = (xs >= 0) & (xs < shape[1]) & (ys >= 0) & (ys < shape[0])
+            m[ys[ok], xs[ok]] = True
     return m
 
 
 def score_lines(centerline, candidates, tol_px=2, truth=None):
-    """Exported straight segments against the REFERENCE CENTERLINE (review 2, 2026-09-12): a
+    """Delivered geometry against the REFERENCE CENTERLINE (review 2, 2026-09-12): a
     perfect centerline scores 1.0 regardless of road width. `line_recall`/`line_precision` are
     centerline-to-centerline within tol_px. If the road-area `truth` mask is also given, the
     fraction of it the tolerance band covers is reported separately as `area_coverage` -- a
@@ -217,6 +224,8 @@ def score(disturbance, truth, candidates, tol_px=2, centerline=None, **kw):
     if centerline is None:
         raise ValueError("score() needs the case's reference centerline; every CASES entry returns (d, truth, centerline)")
     out.update(score_lines(centerline, candidates, tol_px, truth=truth))
+    chord = score_lines(centerline, [dict(endpoints_px=c["endpoints_px"]) for c in candidates], tol_px, truth=truth)
+    out["chord_line"] = {k: chord[k] for k in ("line_recall", "line_precision", "line_ok", "area_coverage")}
     return out
 
 
@@ -229,6 +238,8 @@ def run_all(**kw):
         s["doc"] = " ".join((fn.__doc__ or "").split())
         s["top_candidates"] = [{k: round(c[k], 3) for k in ("length_px", "width_px", "elongation", "mean_disturbance", "n_pixels")} for c in cands[:3]]
         s["note_width_px"] = "minor-axis extent of the component, not road width"
+        if name == "demo_reference":
+            s["exported_paths_px"] = [{k: c[k] for k in ("id", "path_px", "path_length_px")} for c in cands]
         out[name] = s
     return out
 
@@ -244,6 +255,16 @@ def faint_strength_sweep(strengths=(1.3, 1.15, 1.05, 1.0, 0.9), **kw):
 
 
 
+def sensitivity_seeds(**kw):
+    """Plan T22: the three declared alternative seeds, scored once with the frozen scorer. Synthetic
+    sensitivity checks only; never tuned on, never held-out site validation."""
+    out = {}
+    for name, fn, seed in (("low_snr", case_low_snr, 117), ("faint_corridor", case_faint_corridor, 111), ("gradient_background", case_gradient_background, 118)):
+        d, truth, cl = fn(seed=seed); cands = extract_candidates(d, **kw); s = score(d, truth, cands, centerline=cl, **kw)
+        out[f"{name}(seed={seed})"] = {k: s[k] for k in ("n_candidates", "n_false_candidates", "pixel_recall", "pixel_precision", "line_recall", "line_precision", "line_ok", "chord_line")}
+    return out
+
+
 def curve_extent_without_noise():
     """The curved corridor's width_px at zero noise, to show width_px measures curve extent, not road width."""
     d, _, _ = case_low_snr(noise=0.0)
@@ -251,7 +272,27 @@ def curve_extent_without_noise():
     return {"width_px_noise_0": c[0]["width_px"] if c else None, "true_road_thickness_px": 3, "curve_peak_to_peak_px": 2 * 0.12 * 256}
 
 
+def record():
+    """The complete v4 record the CLI writes: metadata plus the numeric payload."""
+    import inspect, platform, scipy
+    defaults = {k: v.default for k, v in inspect.signature(extract_candidates).parameters.items() if v.default is not inspect.Parameter.empty}
+    return {
+        "schema_version": 4,
+        "produced_by": "PYTHONPATH=analysis python -m catanroads.stress_cases (analysis/catanroads/stress_cases.py, CR-09)",
+        "supersedes": {"v3": V3_ARCHIVE, "v1": V1_ARCHIVE,
+                       "note": "v3 scored the line layer on the endpoints_px chord; v4 scores the delivered path_px and keeps the chord result as chord_line. Component-layer numbers are identical to v1 and v3."},
+        "geometry_field": "path_px",
+        "extractor_defaults": defaults,
+        "tolerance": {"tol_px": 2, "metric": "two iterations of 4-neighbour binary dilation (L1 band), not a Euclidean disk"},
+        "baseline_revision": BASELINE_REVISION,
+        "environment": {"python": platform.python_version(), "numpy": np.__version__, "scipy": scipy.__version__,
+                        "note": "reported, not compared: tests replay the numeric payload only"},
+        "cases": run_all(), "faint_strength_sweep": faint_strength_sweep(), "sensitivity_seeds": sensitivity_seeds(),
+        "curve_extent_without_noise": curve_extent_without_noise(),
+        "note": "Synthetic constructions only. Component layer = internal mask vs road-area truth; line layer = delivered path_px vs reference CENTERLINE; chord_line = the legacy chord on the same scorer; area_coverage = diagnostic only.",
+    }
+
+
 if __name__ == "__main__":
     import json, sys
-    out = {"cases": run_all(), "faint_strength_sweep": faint_strength_sweep(), "curve_extent_without_noise": curve_extent_without_noise()}
-    json.dump(out, sys.stdout, indent=1); print()
+    json.dump(record(), sys.stdout, indent=1); print()

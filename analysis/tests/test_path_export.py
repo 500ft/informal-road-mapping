@@ -71,12 +71,13 @@ def test_a4_u_turn_stays_on_its_corridor_and_reaches_both_tips():
     assert m[p[:, 1].astype(int), p[:, 0].astype(int)].all()
 
 
-def test_a4_wide_strip_exposes_endpoint_bias_but_stays_inside():
-    # The geometric two-sweep heuristic picks boundary pixels as endpoints on a wide strip (plan
-    # critique row 2). Record it: the ends are corners, the middle of the route is centred.
+def test_a4_wide_strip_endpoints_are_centred_after_amendment_a():
+    # Before amendment A the geometric two-sweep picked the corners (0,0)-(59,12) and A3 failed on
+    # wide_corridor (0.9688). The amended rule takes, within one half-width of each end, the pixel
+    # closest to the major axis: the route now starts and ends on the centre row.
     m = wide_strip(); p = np.asarray(_component_path_px(m))
-    assert p[0].tolist() == [0.0, 0.0] and p[-1].tolist() == [59.0, 12.0], "corner endpoints, as the heuristic implies"
-    assert p[len(p) // 2][1] == 6.0, "the route is on the medial row away from the ends"
+    assert p[0].tolist() == [0.0, 6.0] and p[-1].tolist() == [59.0, 6.0], p[[0, -1]].tolist()
+    assert (p[:, 1] == 6.0).all(), "the whole route is on the medial row"
 
 
 def test_a4_ring_and_branch_give_one_connected_path_not_topology():
