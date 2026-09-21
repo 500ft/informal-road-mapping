@@ -183,3 +183,103 @@ not yet on `main`.
 
 ## Not done on Day 2
 No record, threshold, site, manifest or ledger row changed. No imagery inspected. CR-08 unchanged.
+
+---
+
+# Day 3 — 2026-09-21 — audit guidance, F1/F2, and the CR-08 packet (W2 + W3)
+
+Base: `main` at `dcf9df0`. Two things happened before this work started that change the record.
+
+## F4 — the merge order stranded the gallery (found 2026-09-21, fixed here)
+
+The owner merged all three review PRs today: #22 into `main` at 14:13:55, #23 into `main` at
+14:14:16, and **#24 into `task/cr09-t09-t23-20260916` at 14:15:31** — that is, into a base branch
+that had already been merged into `main` two minutes earlier. The gallery therefore landed on an
+orphaned branch and **never reached `main`**: no `results/figures/`, no
+`analysis/plot_stress_cases.py`, no `analysis/tests/test_plot_stress_cases.py`. The Day 3 code work,
+which had been pushed to the same branch, was stranded with it.
+
+This is Day 1 finding F3 arriving by a different route. F3 said a stacked pull request has no CI
+until its base merges and GitHub retargets it; the same stacking also means that **merging the base
+first leaves the stacked branch pointing at a commit that is already history**. Merging the stacked
+PR afterwards is a no-op with respect to `main`.
+
+Recovered here by merging the orphaned branch into a branch cut from `main`. Verified present after
+recovery: five figures, the generator, its smoke test, the `--out` writer, the guidance document and
+the `AGENTS.md` link. Nothing was rebuilt or regenerated; the recovery is a merge, so the gallery
+commits `44f2b68` and `1b06128` keep their identity.
+
+**Rule added to the plan's definition of done:** when a stacked pull request exists, merge the
+stacked one first, or re-target it before merging its base.
+
+## Audit guidance addendum — coverage checked before anything was added
+
+The guidance asks that existing coverage be confirmed before new tests or tools appear. All six
+sections were checked against the tree; three were already satisfied and nothing was added for them.
+
+| section | verdict |
+|---|---|
+| 3 input changes reach the artifact | already covered by `test_a6_corrupting_the_path_*` and `test_a6_corrupting_the_chord_*`; nothing added |
+| 5 evidence provenance | already the repository's discipline; restated in the CR-08 packet |
+| 6 first useful failure signal | already satisfied; the CR-09 evidence discloses the two rejected endpoint rules as development data |
+
+Three were genuine gaps and are closed:
+
+**Section 1 — independent expected results.** `evidence/task-2026-09-14/baseline_candidates.json`
+was produced by the pre-CR-09 extractor itself, so `test_a1_*` proves the legacy fields did not move
+and nothing more. That status is now written into the test module so no reader mistakes it for a
+correctness oracle. Two fixtures already carried hand-derived coordinates (the wide strip's centre
+row, the U-turn's two tips); two more now do, where the route is uniquely determined: a 3×40 strip
+must be row 1 left to right, and a 20×20 identity has exactly one 8-connected chain. Both
+expectations were written before running the router and both passed unchanged, which is the first
+falsifiable confirmation of the routing itself rather than of its own baseline. The non-square
+fixture now asserts that coordinates are `(x, y)` and not `(row, col)` — a 25×7 mask makes a
+transposition visible, and a square one cannot.
+
+**Section 2 — coordinate probes.** The existing transform test computed its expectation from the
+same lambda it passed in, so it proved that one function ran over every vertex, not that the right
+argument reached the right axis; its x and y scales were equal in magnitude, so a transposition
+survived. Added a probe under the guidance's own suggested transform, `(x, y) -> (100 + 2x, 200 - 3y)`,
+with vertices computed by hand. Pixel-space length remains pixels; nothing here validates a real
+affine transform or CRS, and the guidance says so.
+
+**Section 4 — saved artifacts.** Every geometry comparison was in-memory. Added a
+`json.dumps`/`json.loads` round-trip comparing candidate ids, vertex order, coordinate values and
+`path_length_px` semantics, and asserting neither coordinate array leaks into `properties`.
+
+## F1 and F2 — closed
+
+`results/README.md` documented regeneration as a plain CLI run, which a shell redirect turns into a
+truncation risk; the reviewed CR-09 plan required temp-file staging and the guide contradicted it.
+`stress_cases.main` now takes `--out PATH`: it writes a temporary file beside the destination,
+validates it by parsing it back and checking schema, geometry field, required metadata, every case
+and the strength sweep, then `os.replace`s it. stdout remains the default and is byte-identical, so
+`test_a8_cli_reproduces_the_committed_numeric_payload_exactly` is unaffected. Two tests: `--out`
+matches stdout and leaves no temporary file; a regeneration that fails validation leaves an accepted
+record byte-identical and removes its temporary file.
+
+## Phase-1 CLI rehearsal (no Earth Engine run, controlled synthetic and missing inputs)
+
+| input | exit | status | traceback |
+|---|---:|---|---|
+| synthetic, well-formed | 3 | DEVELOPMENT_ONLY | no |
+| export-labelled, well-formed | 0 | SCREEN_PASS | no |
+| export-labelled, all development sites below the floor | 1 | SCREEN_FAIL | no |
+| the committed unverified manifest, well-formed metrics | 2 | INCONCLUSIVE | no |
+| missing export file | 2 | INCONCLUSIVE | no |
+
+All four documented exit codes reproduce through the real CLI and a missing export fails closed
+without a traceback that could be mistaken for a result.
+
+## CR-08 packet
+
+[cr08-first-site-packet.md](cr08-first-site-packet.md): a proposed inspection order with its
+reasoning and a named alternative, the blank judgment form, the rule that no evidence category
+substitutes for another, what happens to each of the three outcomes, and the machine-checkable
+export preflight checklist bound to the existing gate. No site, coordinate, role or flag was
+touched; no imagery was inspected. CR-08 remains blocked.
+
+## Checks observed
+`compileall` exit 0 · `pytest analysis/tests -q` **124 passed** · `feasibility_t08.py` exit 0 ·
+both Node checks exit 0 · `site_worksheet --check` exit 0 · both presentation checks exit 0 ·
+`git diff --check` clean · committed stress record byte-unchanged.
