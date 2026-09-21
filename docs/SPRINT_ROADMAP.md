@@ -11,8 +11,8 @@ pushes, and pull requests for this sprint. This does not authorize deployment,
 research publication, outreach, spending, or any blocked physical/data action.
 
 Audience: engineering/research reviewer and graduate-application portfolio reader.
-Canonical sprint checkout: `/Users/redhose/Developer/research-sprints/2026-09-05/CatanRoads`.
-Remote: https://github.com/500ft/CatanRoads. Base: `690c2fcf88bbe689bd006cce91863821a39edb2a`.
+Canonical sprint checkout: `/Users/redhose/Developer/research-sprints/2026-09-05/CatanRoads` (historical path; the repository was renamed and the current canonical clone is `~/Developer/repo-professionalization-20260910/informal-road-mapping`).
+Remote: https://github.com/500ft/informal-road-mapping (then named CatanRoads). Base: `690c2fcf88bbe689bd006cce91863821a39edb2a`.
 Branch: `sprint/evidence-integrity-20260905`. Prepared from freshly fetched origin/main, not from original dirty drafts.
 Original checkout: `/Users/redhose/.graphify/repos/500ft/CatanRoads`; preserved. New sprint checkout was clean before evidence capture. No commit, push, publication, purchase, deployment or outreach is claimed or planned as an automatic action.
 

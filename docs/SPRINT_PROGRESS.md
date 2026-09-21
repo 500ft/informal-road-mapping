@@ -1,5 +1,26 @@
 # Sprint progress — CatanRoads
 
+## 2026-09-12 → 2026-09-16 — stress cases, editing convention, CR-09
+
+- **2026-09-12/13, CR-R03 → R03c** (PRs #12, #13, #14; merged 2026-09-13): the extractor is
+  stress-tested beyond its favourable demo on ten fixed constructions; two review repairs moved
+  the line layer from the component mask to the exported geometry, then to reference
+  centerlines. Finding carried forward: curved corridors passed the component layer and failed
+  the exported straight chord. [Evidence](../evidence/task-2026-09-12/README.md).
+- **2026-09-14, ponytail** (PRs #15, #16): [AGENTS.md](../AGENTS.md) adopted as the editing
+  convention; two refactor passes, −44 lines, records unchanged.
+- **2026-09-14/15, CR-09 plan**: #17 (agent draft) superseded by the owner's reviewed #18
+  (merged). #19 was built from #17 by mistake and reverted in #20, which also built the reviewed
+  contract to its T08 feasibility stop (A3 failed on the wide strip, 0.9688 < 0.98); #21 fixed
+  the ledger row.
+- **2026-09-16, CR-09 build** (#22, awaiting owner review): amendment A to the endpoint rule
+  adopted by the owner; A1–A8 pass; `path_px` delivered through one selector to GeoJSON,
+  scoring and the demo; v4 record with chord comparison; 116 tests.
+  [Plan](PLAN_2026-09-14_CR09.md) · [Evidence](../evidence/task-2026-09-14/README.md).
+- **CR-08** unchanged: all six sites unverified; no imagery inspected; the intake path was
+  re-checked on 2026-09-16 (see [REVIEW_READY.md](REVIEW_READY.md)).
+
+
 ## 2026-09-11 — evidence-gap correction
 
 The [current correction](COMPLETION_RECONCILIATION.md) supersedes any interpretation that earlier preparation closed a physical, approval, or source-review gate. Work is on `fix/evidence-gaps-20260911` from current renamed main; historical entries below retain their original dates and PR snapshots. The original day-3 and presentation PRs are now merged, but this correction is a new reviewable change, not an asserted merge or publication.
@@ -8,7 +29,7 @@ Each omitted or incomplete recommendation is accounted for separately in the cur
 
 ## Day-3 work — 2026-09-09
 
-Delivery update: the preparation was committed as 500ft and pushed; [day-3 PR](https://github.com/500ft/CatanRoads/pull/8) is open against main. Initial implementation source: `b3e7797f62ac2a8b1c0cd630b5d2455a9bfb2b52` (later review/documentation commits are visible in the PR). This supersedes the pre-push stopping state below. Original day-1/day-2 PRs are merged; this new PR is not merged. Resume from the named unresolved project gates in [DAY3_PLAN.md](DAY3_PLAN.md), not from the already completed push step.
+Delivery update: the preparation was committed as 500ft and pushed; [day-3 PR](https://github.com/500ft/informal-road-mapping/pull/8) is open against main. Initial implementation source: `b3e7797f62ac2a8b1c0cd630b5d2455a9bfb2b52` (later review/documentation commits are visible in the PR). This supersedes the pre-push stopping state below. Original day-1/day-2 PRs are merged; this new PR is not merged. Resume from the named unresolved project gates in [DAY3_PLAN.md](DAY3_PLAN.md), not from the already completed push step.
 
 Both reviewed PR layers merged into main; new work starts from `346b942b6de2ade58d40f2dfe367cbd086370d87` on `task/day-three-20260909`. Five generated-worksheet tests cover holdout omission, unchanged eligibility, future site inclusion, duplicate IDs and committed output consistency. 63 analysis tests and both Node checks pass. All six sites remain unverified; no imagery or Earth Engine evaluation occurred.
 
@@ -48,7 +69,7 @@ Next command: `node tools/test_temporal_qa.mjs`; next external task CR-08.
 
 ## 2026-09-06 — Partial handoff
 
-- Sprint start2026-09-05; canonical checkout `/Users/redhose/Developer/research-sprints/2026-09-05/CatanRoads`.
+- Sprint start2026-09-05; canonical checkout `/Users/redhose/Developer/research-sprints/2026-09-05/CatanRoads` (historical path; the repository was renamed and the current canonical clone is `~/Developer/repo-professionalization-20260910/informal-road-mapping`).
 - Branch `sprint/evidence-integrity-20260905`; HEAD/base `690c2fcf88bbe689bd006cce91863821a39edb2a`.
 - Seven Agent tasks done with linked evidence; CR-08 blocked on: Dated imagery/site verification and Earth Engine runtime credentials are not supplied. The existing unverified sites remain unverified. Hosted Actions requires a separately authorized push.
 - 35 tests passed (9 existing plus26 intake cases); static GEE validator passed; 6/6 installed-CLI cases matched.
