@@ -40,7 +40,7 @@ image acquisition date(s):            # the scene date, NOT an access or copyrig
 inspected extent and scale/resolution:
 obscured or unassessable area:
 expected feature judgment:            # confirmed / rejected / uncertain
-counter-evidence and confounds seen:  # agriculture, riverbed, shadow, cloud, mosaic seam
+counter-evidence and confounds seen:  # see the confound checklist below
 second dated observation (recovery claims only):
 source screenshot / image reference (only if redistribution is authorized):
 supports verified = true:              # yes / no
@@ -53,7 +53,57 @@ Rules that do not bend: an AI-assisted read is labelled as such and is not an in
 judgment; a basemap of unknown date is not a dated scene; a blank or partially filled form is not
 evidence; `verified=true` is never set to unblock software.
 
+## Confound checklist — what to rule out, and why each is on the list
+
+Extended 2026-09-22 from the [literature review](../../literature/claim-ledger.md#c16--a-river-bank-shaped-feature-is-returned-as-the-strongest-candidate).
+The first four were already in the worksheet. The last three are **new**: the extractor's own stress
+tests and the literature both say they are the classes a geometry-driven detector cannot separate
+from a road, and none of them was in this project's confound stratum.
+
+Tick each as *present / absent / cannot tell* inside the inspected extent. "Cannot tell" is a valid
+and useful answer; a blank is not.
+
+| # | confound | why it is on the list |
+|---|---|---|
+| 1 | agriculture or field boundaries | original worksheet stratum |
+| 2 | riverbed or seasonal watercourse | original worksheet stratum |
+| 3 | shadow, cloud, or a mosaic seam | original worksheet stratum |
+| 4 | settlement expansion | original worksheet stratum |
+| 5 | **dry drainage channel / wadi** | Liu 2016 extracts desert wadis and finds commission errors occur mainly in features falsely enhanced by water indices — **specifically roads**. The confusion is documented in the mirror direction, in arid terrain, at moderate resolution. |
+| 6 | **fence line** | Buzzard 2022 measures ~0.93 km of fence per km² (max 14.9) in comparable grazing country, and built its fence model partly *from* road layers. At that density a fence is a pervasive background linear signal, not a rare confound. Løvschal 2022 shows fencing proliferating in similar pastoral rangeland. |
+| 7 | **animal path / livestock trail** | Chemura 2024 mapped off-road tracks and animal paths together in open rangeland and found they **co-occur at r = 0.75**, needing a separate explicit classification stage even at 50 cm. |
+
+Queiroz 2020 states plainly that roads, pipelines, seismic lines and power lines are one detectable
+class for geometry-driven linear extractors, and Nagel 2024 finds that at Sentinel-2 resolution a
+deep model cannot separate road from seismic line. **Geometry alone cannot decide roadness.** That
+is the whole reason this inspection exists, and why items 5 to 7 must be recorded even when the
+expected feature is confirmed — a site can contain both.
+
 ## What happens to each outcome
+
+## If the site is `dev-02-recovering`: name the variable and carry a range
+
+The registered recovering-corridor role asks whether a track is recovering. The literature does not
+support a single answer, because the available studies measure **different variables**:
+
+| source | system | variable measured | time to recovery |
+|---|---|---|---|
+| Kinugasa 2015 | Mongolian steppe | cover and biomass | ~4 years |
+| Keshkamat 2012 | Mongolia | full revegetation of the swath | 10–15 years |
+| Jorgenson 2010 | Arctic tundra | severe-impact trails | 2 decades and beyond |
+| Webb 2002 | Mojave Desert | soil compaction | 80–130 years |
+
+Two consequences for the judgment form. First, **state which variable you judged** — greenness,
+species composition, visible rutting, or surface brightness — because "recovered" means a different
+thing for each, and Li 2006 shows early steppe recovery is a *compositional* change (pioneer species
+colonising the compacted surface) rather than a return to background greenness. Second, **carry the
+range, never a point estimate**; Jorgenson 2010 shows recovery time depends strongly on initial
+severity and substrate, and Kinugasa & Oda 2014 found track formation removed 8.3–9.4 cm of soil and
+the seed bank with it, so recovery is not simple regrowth.
+
+Independent of any judgment here: the Phase-1 screen computes **positive** disturbance and is not a
+recovery detector. That mismatch is recorded in `docs/design.md` and is not resolved by this
+inspection.
 
 | outcome | action |
 |---|---|
