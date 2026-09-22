@@ -8,7 +8,8 @@ license = { text = "MIT" }
 # Core baseline runs on numpy + scipy only (no heavy geospatial stack required).
 # Upper bounds so a major release cannot change extraction results silently.
 # tests/test_demo_reproducibility.py is what would CATCH such a change; these bounds
-# are what stop it arriving unannounced. Both ends of the range are verified good.
+# are what stop it arriving unannounced. Both ends of the range are verified good:
+# the numeric gate passes at numpy 2.1.3 / scipy 1.14.1 and at numpy 2.4.6 / scipy 1.17.1.
 dependencies = ["numpy>=1.24,<3", "scipy>=1.10,<2"]
 
 [project.optional-dependencies]
