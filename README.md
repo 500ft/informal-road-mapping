@@ -52,6 +52,14 @@ No real-road precision/recall, active/abandoned classification or Mongolia
 detection result is claimed. The earlier NDVI rendering in `results/` is not
 a successful Phase-1 output.
 
+## Literature
+
+A [literature review](literature/) added 2026-09-22 attaches evidence to the methodological claims
+in [docs/design.md](docs/design.md): an [annotated bibliography](literature/bibliography.md), a
+[claim ledger](literature/claim-ledger.md) mapping each existing project claim to supporting or
+challenging papers, and an explicit [gaps list](literature/gaps.md). Entries carry a transcription
+confidence; unverified fields are marked rather than presented as solid.
+
 ## Getting started
 
 The local check route needs **Python 3.10+** and **Node.js 22** (the CI version).
