@@ -16,7 +16,7 @@ jobs:
           python-version: "3.11"
           cache: pip
           cache-dependency-path: analysis/pyproject.toml
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v7
         with:
           node-version: "22"
       - name: Install analysis dependencies
