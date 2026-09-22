@@ -283,3 +283,53 @@ touched; no imagery was inspected. CR-08 remains blocked.
 `compileall` exit 0 · `pytest analysis/tests -q` **124 passed** · `feasibility_t08.py` exit 0 ·
 both Node checks exit 0 · `site_worksheet --check` exit 0 · both presentation checks exit 0 ·
 `git diff --check` clean · committed stress record byte-unchanged.
+
+---
+
+# 2026-09-22 — dependency bumps merged, and the CR-08 intake path completed from the literature
+
+## Merges
+PR #29 (literature review) merged as `1194d94`. Three Dependabot pull requests then merged:
+`actions/checkout` 5 → 7 (#31), `actions/setup-node` 4 → 7 (#33), `actions/setup-python` 6 → 7
+(#32, which conflicted once the other two landed and was rebased by Dependabot rather than bypassed).
+All four carried passing `analysis-tests`, CodeQL and dependency-review checks. `main` is `e44f314`
+and its post-merge CI and CodeQL runs both completed successfully on all three bumped actions.
+
+## CR-08 intake path — two additions the literature made necessary
+
+The packet delivered on Day 3 was complete against the repository's own knowledge. The literature
+review merged the same week showed it was incomplete in two specific ways, both now closed.
+
+**1. Three missing confound strata.** The inspection form asked an inspector to rule out
+agriculture, riverbeds, shadow and settlement. The literature identifies three more that a
+geometry-driven detector provably cannot separate from a road, none of which this project carried:
+
+| stratum | evidence |
+|---|---|
+| dry drainage channel / wadi | Liu 2016 extracts desert wadis and reports commission errors occurring mainly in features falsely enhanced by water indices — **specifically roads**. The same confusion, documented in the mirror direction, in arid terrain, at moderate resolution. |
+| fence line | Buzzard 2022 measures ~0.93 km of fence per km² (max 14.9) in comparable grazing country and built its fence model partly *from* road layers. A pervasive background signal, not a rare confound. |
+| animal path / livestock trail | Chemura 2024 mapped off-road tracks and animal paths together in open rangeland and found them co-occurring at **r = 0.75**, requiring a separate classification stage even at 50 cm. |
+
+Queiroz 2020 states that roads, pipelines, seismic lines and power lines are **one detectable class**
+for geometry-driven extractors, and Nagel 2024 finds a deep model cannot separate road from seismic
+line at Sentinel-2 resolution. Geometry alone cannot decide roadness, which is the reason this
+inspection exists. The three strata were added **to the worksheet generator**
+(`analysis/catanroads/site_worksheet.py`), not hand-edited into its output, and the committed
+worksheet was regenerated from it; `test_committed_sheet_matches` still passes.
+
+**2. The recovering site needs a named variable and a range.** The packet now carries the four-study
+spread — ~4 years for cover and biomass, 10–15 for full revegetation, two decades for severe tundra
+impacts, 80–130 for soil compaction — and requires the inspector to state *which variable* was
+judged. Li 2006 shows early steppe recovery is a compositional change rather than a return to
+background greenness, and Kinugasa & Oda 2014 found track formation removed 8.3–9.4 cm of soil and
+the seed bank with it, so recovery is not simple regrowth.
+
+## Checks observed
+`pytest analysis/tests -q` **124 passed** · `site_worksheet --check` consistent · both Node checks
+exit 0 · both presentation checks exit 0 · `git diff --check` clean · all six `verified` flags still
+`false`.
+
+## Not done
+No site, coordinate, role or flag was changed. No imagery was inspected. CR-08 remains blocked on
+one dated source-image judgment, and the first-site order (`dev-01-braided` proposed,
+`negative-01` the named alternative) is still an open owner decision.

@@ -31,7 +31,11 @@ redistributing imagery without permission. No site image has been inspected in t
 1. Open the coordinates below and record scene acquisition date(s), provider, view extent,
    scale/resolution, access link or retained screenshot reference, and inspector identity.
 2. Check the expected feature and document contradictory land use, riverbeds, shadow,
-   agriculture, clouds or mosaic-date boundaries. Uncertain visibility stays unverified.
+   agriculture, clouds or mosaic-date boundaries. Also record, as present / absent /
+   cannot tell, the three confounds a geometry-based detector cannot separate from a
+   road: dry drainage channels, fence lines, and animal or livestock paths. Record them
+   even when the expected feature is confirmed, because a site can contain both.
+   Uncertain visibility stays unverified.
 3. For a recovering corridor, compare at least two dated images; a single green scene
    cannot distinguish abandonment, rain response or absence of a road. The Phase-1
    positive-disturbance gate is not itself a recovery/road classifier.
