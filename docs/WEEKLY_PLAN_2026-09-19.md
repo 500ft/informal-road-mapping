@@ -64,6 +64,36 @@ found three genuine gaps and three principles already satisfied:
 The guidance's limits are respected: no CAD or FEA work enters this project, the L1 two-pixel
 scoring contract is unchanged, and pixel-space length is not meters.
 
+## Addendum 2 — literature critique, 2026-09-24
+
+The owner audited the merged literature review and found several claims overstated. All were
+checked and **all were correct**; the corrections are in
+[evidence/task-2026-09-19/README.md](../evidence/task-2026-09-19/README.md) and applied across
+`literature/`, the evaluation packet and the topology note. The pattern in every case was the same:
+a measured result from one study, on one sensor, for one outcome, was carried across as if it
+constrained this project.
+
+| claim as written | what was wrong | now |
+|---|---|---|
+| COLD's 27/28% is "the realistic error floor" | another method's measurement on another dataset is not a floor, and quoting it could excuse a poor detector before measurement | this screen's error rates are **unmeasured** |
+| Jia 2023 extracts "2.5 m roads", so sub-pixel is reachable | 2.5 m is the **output grid spacing** of a super-resolution map trained on fine labels, not a demonstrated minimum detectable width | minimum detectable width **unmeasured**; corridors stay the target |
+| Okin 2001 sets a 30% green-cover floor below which no index helps | Okin concerns vegetation-**type** retrieval; cover fraction can still be estimable | universal cutoff **withdrawn**; soil-adjusted indices are candidates to test |
+| Ji 2025 offers coherence as a sign-independent channel | it studies grazing breakpoints, uses externally processed InSAR, and Earth Engine's `S1_GRD` is backscatter, not coherence | a **separate pipeline to scope**, not a channel to switch on |
+| Hannink 2014 "places the junction loss in the filter" | Hannink analyses Frangi; `ridge_strength` is Sato-like with no eigenvalue-ratio suppression | **motivates** a stage-by-stage diagnostic; attribution is provisional |
+| Qiu 2023 "weighted scoring wins, median ~70× cheaper" | not locatable in the official abstract | figures **withdrawn** pending an exact source |
+| ridge sigmas 1–3 px enhance "10–30 m structures" | filter scale is not a hard cutoff, **and** the pixel is not 10 m on the ground | see below |
+
+**The grid finding, new and checkable.** The screen runs on EPSG:3857 at nominal scale 10, so a
+pixel spans about **6.6–7.0 m** of ground across the registered latitudes and the 50-pixel component
+threshold is nearer **2,300 m²** than 5,000. Every metre figure derived from a 10 m assumption,
+including this plan's own earlier ridge-scale arithmetic, was overstated by roughly 45%. Recorded as
+claim C19 and pinned by `analysis/tests/test_support_and_compositing.py`. These are independently
+calculated estimates; a runtime probe of the exported transform still requires Earth Engine access.
+
+**Standing rule adopted from the critique:** every quantitative claim must name its population,
+sensor, outcome, metric and **access level** — metadata, abstract, methods or full result. An
+independent-validation grade is never awarded from a bibliographic record alone.
+
 ## Decision gates
 
 Unchanged from the draft: **A** CR-09 stack integrity, **B** consumer consistency, **C** evidence

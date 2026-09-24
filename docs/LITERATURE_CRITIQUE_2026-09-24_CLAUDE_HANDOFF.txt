@@ -1,0 +1,374 @@
+LITERATURE CRITIQUE AND NEXT EXPERIMENTS
+500ft/informal-road-mapping | 2026-09-24 | Planning handoff for Claude
+
+Reviewed HEAD and fetched origin/main:
+c354e4134cdc9543cd0a3fb69c917c22461e89f4 (PR #35 merged).
+
+QUESTION
+For Mongolia's informal disturbance corridors, which claims and next steps in
+the Sentinel-2 change-screen and synthetic path-extraction workflow are justified
+by the cited literature, and which require correction or direct measurement?
+
+RECOMMENDATION
+Keep the corridor-screen / high-resolution-confirmation direction. Correct the
+literature's overclaims first, then establish spatial support, temporal support,
+and real confirmation value. The literature supports useful hypotheses; it does
+not yet validate this project's detector, its recovery interpretation, or an
+expected accuracy. Do not start a model or topology replacement on this evidence.
+
+This is a proposal, not implementation or a new gate. Codex supplies critique;
+Claude implements work the owner selects. Existing source, thresholds, sites,
+records, and gate history remain authoritative. Preserve the original frozen
+configuration; any scientifically necessary correction needs a dated amendment,
+versioned outputs, and a statement of which predictions have already been seen.
+Pre-specification does not require retaining a known measurement error forever.
+
+WHAT ALREADY EXISTS -- DO NOT REBUILD IT
+- PR #34 added dry channels, fence lines, and animal paths to inspection, and
+  requires the recovery variable to be named. These are already addressed.
+- PR #35 distinguishes SCREEN_PASS from road accuracy and provides the packet.
+- The code uses harmonized Sentinel-2 SR and distinguishes missing observations.
+- CR-09 delivers and scores the same path; synthetic archives remain controls.
+- CAD-derived independent coordinate and artifact checks have already been added.
+- No site is verified and no real Earth Engine evaluation is recorded in the
+  reviewed packet. CR-08 remains a real-evidence dependency, not a coding task.
+
+1. CORRECT THE LITERATURE BEFORE USING IT AS A SPECIFICATION
+
+1A. Another method's error rate is not an error floor.
+Locations: literature/claim-ledger.md C10; bibliography.md Zhu 2020;
+docs/PHASE1_EVALUATION_PACKET.md section 0.
+Zhu et al. measured 27% omission and 28% commission for COLD on their Landsat
+evaluation [S1]. Those are neither theoretical lower bounds nor predictions for
+Mongolian track candidates. Calling them an expected floor could excuse a poor
+detector before it is measured. Keep the example with its dataset context.
+Replacement: "Other disturbance screens report substantial errors; this screen's
+error rates and acceptable review burden have not yet been measured."
+
+1B. Output spacing is not demonstrated minimum detectable road width.
+Location: claim-ledger.md C1 and bibliography.md Jia 2023.
+Jia et al. produce a 2.5 m output map from 10 m inputs, using learned spatial
+relationships and fine-resolution labels [S2]. That statement does not establish
+accurate detection of every 2.5 m-wide road, much less a low-contrast Gobi track.
+Replace "same sensor, same width, opposite conclusion" with the exact mapping
+claim. Keep subpixel detection possible in principle; leave this method's minimum
+detectable width unmeasured. Also remove C8's claim that Chemura's scores are an
+upper bound: a different dataset and sensor do not mathematically bound ours.
+
+1C. The 30% vegetation statement is being applied to the wrong outcome.
+Locations: bibliography.md Okin 2001; topology note's arid-index proposal.
+Okin et al.'s simulated hyperspectral unmixing has unreliable vegetation-TYPE
+retrieval at low cover, while cover itself can sometimes be estimated reliably
+[S3]. It does not prove that all vegetation-index refinements fail below 30% or
+that this detector must switch to soil brightness. Remove that universal rule.
+Treat soil-adjusted indices as candidates for a controlled comparison.
+
+1D. Recovery remedies are hypotheses, with distinct input requirements.
+Locations: claim-ledger.md C11; bibliography.md Ji 2025 / Shi & Xu 2019;
+topology note's "sign-stable or sensor-independent channel" proposal.
+The Ji study concerns grazing-related vegetation breakpoints; it uses weather
+predictors and externally processed InSAR coherence [S4]. It does not validate
+road abandonment. Earth Engine's S1_GRD backscatter is not interferometric
+coherence [S5]. Scope a coherence data pipeline separately if it becomes useful.
+Shi & Xu's paper is explicitly for at-sensor reflectance [S6]; this repository
+uses surface reflectance. Require a compatible coefficient source or a tested
+transfer before implementation. Brightness is not established here as a
+directionally invariant marker of compaction or recovery across substrates.
+Segment fitting likewise requires an index, sign convention, sufficient temporal
+support, and independently dated changes; naming LandTrendr does not supply them.
+
+1E. A related filter's limitation is not a diagnosis of this implementation.
+Locations: claim-ledger.md C12/C14/C15; topology note's first recommendation.
+Hannink et al. study Frangi vesselness at vascular crossings [S7]. Our
+ridge_strength uses max(0, -lambda_min) times sigma squared; it does not implement
+Frangi's eigenvalue-ratio suppression. extract_candidates separately rejects
+low-elongation components. The literature motivates looking for filter loss,
+but cannot establish that it caused our crossing failure. Inspect stages first.
+Also, skeletonizing only ACCEPTED components cannot recover a crossing rejected
+before acceptance. Option A must acknowledge that placement conflict.
+Do not claim sigma=1..3 means an exclusive detectable width range of 10..30 m:
+filter scale is not a hard width cutoff, and ground pixel spacing needs checking.
+
+1F. Recheck the compositing comparison's attribution.
+Location: bibliography.md Qiu 2023; gaps.md compositing hazard.
+The cited Qiu paper's official abstract says performance depends on interval and
+application, with no universally best compositor [S8]. It does not substantiate
+the entry's "weighted scoring wins" / "median ~70x cheaper" summary. Locate an
+exact source and page for those numbers or remove them pending verification.
+Keep Roberts' spectral-consistency concern [S9], but call its magnitude and
+downstream effect here unmeasured. A geometric median need not be an actually
+observed spectrum either; a medoid selects an observation. "Never observed" alone
+is not the test of whether an estimator is useful.
+
+1G. Reduce categorical claims made from incomplete searches.
+Location: literature/gaps.md.
+Use "not located in this review" instead of "no paper exists" or "empty set".
+An unsupported minimum-years rule is an engineering choice requiring validation,
+not automatically a novel contribution. Apply the same restraint to OSM coverage
+and metric claims. Preserve exact source access levels: metadata, abstract,
+methods, or full result; do not award independent-validation strength from a
+bibliographic record alone.
+
+Acceptance for this correction task: every changed quantitative claim names its
+population, sensor, outcome, metric and access level; linked summaries agree.
+These corrections need documentation review, not new software tests.
+
+2. MEASURE THE GRID'S PHYSICAL MEANING BEFORE QUOTING METRES
+
+Observed: gee/ndvi_change.js uses EPSG:3857 at nominal scale 10, bilinear
+resampling, a 50-pixel component threshold, and B11 in BSI. B11's native sampling
+is 20 m [S10]. Resampling changes the grid; it does not create independent 10 m
+SWIR measurements.
+
+Projection concern: Web Mercator's nominal metres differ from ground distances
+away from the equator [S11/S12]. Under the spherical approximation, a 10-unit
+pixel at 47.3 degrees N is about 6.78 m on the ground and 50 pixels occupy about
+2,300 m2, rather than 5,000 m2. These are independently calculated estimates,
+not measurements of an exported Earth Engine raster. Exact ellipsoidal geometry,
+the delivered affine transform, and neighbourhood-kernel behavior need probing.
+Do not assume the metre-based kernel has precisely the same distortion without
+testing it. Fractions within an AOI need not suffer the same error as physical
+widths, although component selection and smoothing can change with ground scale.
+
+Bounded diagnostic, separate from a gate revision:
+1. Use a synthetic, non-square raster and a fixed coordinate at each registered
+   latitude. Record projection, affine transform, nominal scale, pixelArea,
+   neighbour-centre distances, and the footprint of the metre-based ring kernel.
+2. Compare exported corners/centres with an independent geodesic calculation.
+   State numerical tolerances before reading results; distinguish approximation
+   error from failure. Reuse CAD guidance, not a second coordinate framework.
+3. Document B4/B8/B11 alignment and the order of interpolation and index formation.
+   Check categorical masks/counts are not inadvertently interpolated as signals.
+4. Produce a small table of map units, ground distances, sensor sampling and
+   effective support. Never convert path_length_px to metres using an assumed 10.
+5. If the intended physical contract differs, propose site-appropriate metric
+   grids with pinned origins and a dated migration; do not silently edit the gate.
+
+Acceptance: one independently checked export round-trip, exact transform recorded,
+and explicit disposition of the 50-pixel and annulus interpretations. Without
+Earth Engine access, finish the specification and label runtime claims untested.
+
+3. TEST COMPOSITING ORDER WITH THE CHEAPEST VALID ALTERNATIVE
+
+Observed: julyS2 computes bandwise medians; julyComposite then derives NDVI/BSI.
+These operations generally do not commute. The issue is estimator choice, not
+proof that all current values are invalid [S8/S9].
+
+Proposed comparison:
+A. Current ratio-of-band-medians baseline, unchanged.
+B. Form NDVI, BSI and the per-observation composite from jointly valid bands on
+   each acquisition; summarize those indices within July. Explicitly choose
+   whether to median the joint composite or combine index medians; they also
+   differ. Keep RGB as visualization, not input to the index calculation.
+C. Defer medoid/geometric-median unless A/B identifies a decision-relevant issue.
+
+Use a hand-derived counterexample before real imagery:
+  red = [0.10, 0.40, 0.30]; NIR = [0.20, 0.50, 0.90].
+  NDVI of band medians = (0.50-0.30)/(0.50+0.30) = 0.25.
+  Per-acquisition NDVI = [1/3, 1/9, 1/2]; its median = 1/3.
+This proves a difference, not which estimator is best. Add one observation with
+a missing band to require common validity explicitly.
+
+For any real QA comparison, fix AOIs, dates, masking, grids and samples before
+reading predictions. Report differences in signed disturbance, coverage, mask
+membership, component fraction and background artifacts, plus runtime. Review
+discordant locations blind to which variant produced them. A larger candidate
+fraction is not an improvement criterion. Keep all variants as development
+evidence; promote only under a dated scientific rationale and independent labels.
+
+4. TURN MISSING-YEAR SUPPORT INTO A MEASURED SENSITIVITY
+
+This is code-derived arithmetic, not a literature-derived optimal threshold:
+with four recent years, persistence >=2/3 requires 2/2, 2/3, or 3/4 disturbed
+observations depending on which years are valid. The same temporal history can
+change decision when missingness preferentially removes quiet or disturbed years.
+All recent comparisons also share the early baseline; they are not independent
+replications. Current recent-year counts do not summarize early baseline support.
+
+Small experiment:
+- Enumerate the 16 binary disturbance histories for four recent years. For each,
+  enumerate missingness patterns retaining 2, 3 or 4 years. Derive expected
+  persistence decisions by hand/combinatorics; compare with current helpers.
+- Distinguish random missingness from deletion of only quiet or disturbed years.
+- On fixed QA pixels, record clear observations per July AND contributing early
+  and recent years. Scene counts over an AOI do not prove per-pixel usable data.
+- After a registered baseline result, use leave-one-year-out diagnostics for early
+  and recent windows separately. Report decision flips, not only correlations.
+
+Acceptance: support table and all attempted sensitivity outcomes, with no tuned
+minimum-year recommendation masquerading as literature consensus. Keep the
+existing >=2 rule unless a separately specified amendment is adopted.
+
+5. ALIGN VALIDATION WITH CONFIRMATION TRIAGE
+
+The current gate measures site-level positive disturbance. Road accuracy, recovery,
+network connectivity and regional extent are separate targets. Existing packet
+disclaimers are good; the next improvement is a response-design specification
+that says which reference observation establishes each claim [S13].
+
+For the first real diagnostic pilot:
+- Preserve the four gate sites and holdout restrictions. Do not pick replacement
+  sites because the signal looks good. Record failures and missing provenance.
+- Use dated, authorized high-resolution evidence to identify corridor presence;
+  use temporally appropriate paired evidence for disturbance/recovery attribution.
+  A single contemporary image cannot establish historical change or abandonment.
+- Fix a small inspection budget and a deterministic candidate selection rule
+  before predictions. Report confirmed corridors / reviewed candidates, uncertain
+  judgments separately, duplicate reviews, and reviewer minutes per confirmation.
+  Treat this as pilot triage yield, not population precision or recall.
+- Use separately chosen, fully inspected tiles containing candidates AND areas
+  without predictions to estimate missed corridors. Reviewing candidates alone
+  cannot estimate recall. Label the sampling design and inclusion probabilities
+  before attempting wider-area inference; use an analysis appropriate to that
+  design rather than unweighted counts from oversampled candidate strata.
+- Record existing confound categories and substrate/land-cover context. Add a
+  matched-background diagnostic only prospectively; one distant negative site
+  cannot by itself attribute all between-site differences to roads.
+- Retain an explicit unknown label and a small blind repeat/adjudication subset.
+  Two hours of owner time cannot establish a large reference dataset.
+
+Useful development idea: a DETECTABILITY ENVELOPE rather than one headline score.
+After these basics, freeze synthetic sweeps over corridor width, surface contrast,
+orientation and subpixel offset. Generate reflectance mixtures first, sample each
+band at its native support, and then run the index chain. Add registration shifts
+and missing observations independently. Keep hand-defined corridor truth.
+Report sensitivity by condition; state that blur/noise assumptions remain models.
+Current painted disturbance rasters test geometry, not this sensor-to-signal chain.
+This experiment could identify an honest operating range; it cannot establish real
+minimum width without imagery-based validation. Defer it if first real evidence
+already demonstrates that a different failure dominates.
+
+6. KEEP TOPOLOGY DEFERRED; DIAGNOSE THE EXISTING CROSSING FIRST
+
+If geometry diagnosis is selected, log the existing crossing through these stages:
+raw synthetic disturbance -> each-scale ridge response -> quantile mask -> component
+membership -> length/elongation rejection -> exported path. Record junction and
+arm retention before and after every operation. Compare defaults with ONE named
+diagnostic relaxation, keeping the baseline record untouched. This distinguishes
+enhancement loss, rejection, and one-path representation loss [S7 + code inspection].
+
+Only propose new filters if enhancement demonstrably loses needed structure.
+Only propose branch extraction if accepted components retain that structure and
+a confirmation task needs it. The representative corridor path can be sufficient
+when the purpose is directing a human to a braided swath. Recovering each rut is
+a different target. Do not impose APLS/TOPO merely because literature names them:
+network evaluation needs a defined, independently labelled graph output. Before
+then, record duplicate candidates and tolerance sensitivity beside current line
+scores without claiming those metrics establish topology.
+
+7. PROPOSED NEXT WORK PACKAGE -- MAXIMUM 20 CLAUDE HOURS + 2 OWNER HOURS
+
+These are effort caps, not a requirement to consume all time or finish within the
+remaining September 19-25 window. This package proposes new work; it does not
+replace the current weekly ledger automatically.
+
+Task | Claude cap | Deliverable / stop point
+A. Claim corrections | 3 h | Small docs-only diff across the affected summaries;
+   sources and replacement language from section 1; no scientific retuning.
+B. Grid/support diagnostic | 4 h | Independent coordinate expectations, probe
+   specification, and measured report if export access exists. Stop at a clear
+   physical-contract mismatch; propose migration rather than alter thresholds.
+C. Compositor A/B | 4 h | Hand-derived oracle and one bounded experimental report;
+   no production replacement. If imagery access is absent, deliver fixtures and
+   the frozen comparison protocol, then stop.
+D. Missingness sensitivity | 3 h | Enumeration plus early/recent support protocol;
+   conditional real-data diagnostics, no expanded time-series model.
+E. Real-evidence/triage response design | 4 h | Reuse CR-08 packet, choose reference
+   rules and review budget, prepare pilot inputs; execute only when eligible.
+F. Contingency/review | 2 h | Resolve a discovered discrepancy or reconcile docs.
+TOTAL | 20 h | Return unused time; do not fill it with algorithm expansion.
+
+Owner allocation: 30 min early for intended target and reference-source decisions;
+60 min for dated imagery judgments if available; 30 min for disputed labels and
+amendment decisions. Missing evidence stays unresolved. Owner approval of prose
+does not count as image verification. Work A-D can progress independently of E.
+
+Deferred outside this cap: sensor-realistic detectability sweep, topology code,
+learned super-resolution, SAR coherence ingestion, LandTrendr, and regional
+accuracy/area estimation. Promote only against a measured limitation and a new
+bounded task. They are alternatives to investigate, not a simultaneous roadmap.
+
+8. EVIDENCE TABLE AND CLAIM LEDGER
+
+Retrieval: targeted checks of the repo's pivotal citations, author/institutional
+copies, publishers, and official instrument/platform documentation on 2026-09-24.
+Eligibility 3 = directly addresses the question or a named proposed method;
+2 = relevant method with domain/target transfer; 1 = background; 0 = excluded.
+No citation-count ranking. Priority above reflects consequence for this project.
+Evidence B = individual empirical study; C = simulation or limited model evidence;
+D = methodological guidance, not a detector validation. Official specifications
+are marked SPEC, not assigned empirical grades. Grades concern cited claims,
+not paper prestige. No claim here has replicated Mongolia-road validation.
+
+ID | Source / access | Relevance | Evidence | Supports / limit
+S1 | Zhu 2020, author-hosted full paper | 2 | B | COLD's measured errors;
+   does not transfer them as a universal floor. Correction confidence HIGH.
+S2 | Jia 2023, publisher-indexed article text | 3 | B | Fine-grid road output;
+   not a demonstrated 2.5 m minimum width. Correction confidence HIGH.
+S3 | Okin 2001, publisher abstract | 2 | C | Distinguishes vegetation type
+   from cover retrieval. Universal 30% rule is unsupported. Confidence HIGH.
+S4 | Ji 2025, publisher methods/results + institutional PDF | 2 | B | A
+   Mongolian coherence application, not abandoned-road validation. HIGH.
+S5 | Earth Engine Sentinel-1 documentation | 3 | SPEC | GRD versus complex
+   SLC/coherence input distinction. Pipeline-scope correction HIGH.
+S6 | Shi & Xu 2019, publisher title/metadata | 2 | ungraded | At-sensor
+   coefficient scope verified; transfer to SR untested. Concern MODERATE.
+S7 | Hannink 2014, author/institutional abstract and paper | 2 | B | Frangi
+   crossing weakness; local causal diagnosis unproven. Concern MODERATE.
+S8 | Qiu 2023, USGS author abstract / publisher preview | 3 | B | Compositor
+   ranking depends on task. Repo's 70x attribution unresolved. HIGH for caveat.
+S9 | Roberts 2017, author-institution abstract / DEA method documentation |
+   3 | B | Spectral consistency motivation. Best local replacement unknown.
+S10 | Official Sentinel-2 SR band catalog | 3 | SPEC | 10/20 m native support.
+   Concern HIGH; effect on this screen needs an experiment.
+S11 | PROJ Web Mercator equations | 3 | SPEC | Ground-scale approximation.
+S12 | Earth Engine nominalScale/reproject API docs | 3 | SPEC | Nominal-scale
+   semantics. Export/ring behavior still needs runtime verification.
+S13 | Olofsson 2014, publisher abstract | 3 | D | Sampling, reference and
+   uncertainty design for accuracy/area inference; no sample-size prescription
+   or blanket prohibition on descriptive mapped counts. Confidence HIGH.
+
+The numerical persistence example and the NDVI counterexample are mathematical
+deductions from the current code, not claims borrowed from a paper. The proposed
+grid probes, A/B protocol, triage metrics and effort allocation are our design
+recommendations. Their benefit remains to be measured. The diagnostic label for
+the current crossing remains provisional until stage outputs are inspected.
+
+SOURCE LINKS
+S1 https://gerslab.cahnr.uconn.edu/wp-content/uploads/sites/2514/2021/06/cold_2020_zhu.pdf
+S2 https://www.mdpi.com/2072-4292/15/17/4193
+S3 https://www.sciencedirect.com/science/article/pii/S0034425701002073
+S4 https://www.tandfonline.com/doi/full/10.1080/15481603.2025.2540222
+   https://oa-fund.ub.uni-muenchen.de/id/eprint/2163/
+S5 https://developers.google.com/earth-engine/guides/sentinel1
+S6 https://ieeexplore.ieee.org/document/8836649/
+S7 https://cris.fau.de/publications/111031404/?lang=en_GB
+   https://www5.informatik.uni-erlangen.de/Forschung/Publikationen/2014/Hannink14-CMV.pdf
+S8 https://www.usgs.gov/publications/evaluation-landsat-image-compositing-algorithms
+S9 https://researchportalplus.anu.edu.au/en/publications/high-dimensional-pixel-composites-from-earth-observation-time-ser/
+   https://docs.dea.ga.gov.au/data/product/dea-geometric-median-and-median-absolute-deviation-landsat/
+S10 https://developers.google.com/earth-engine/datasets/catalog/COPERNICUS_S2_SR_HARMONIZED
+S11 https://proj.org/en/stable/operations/projections/webmerc.html
+S12 https://developers.google.com/earth-engine/apidocs/ee-projection-nominalscale
+    https://developers.google.com/earth-engine/apidocs/ee-image-reproject
+S13 https://www.sciencedirect.com/science/article/pii/S0034425714000704
+
+LIMITATIONS AND VERIFICATION
+This is a focused audit, not a systematic review of all road-mapping literature.
+Publisher access was mixed; S2/S3 were readable through indexed publisher text
+although direct opens failed. S6 was metadata-only. No exhaustive non-English or
+grey-literature search was performed. A targeted correction/retraction search for
+S1-S3 found no relevant notices; it is not a comprehensive Crossmark or retraction
+database check. Status of all other references was not exhaustively checked.
+
+Inspected the merged literature, evaluation packet, topology note, GEE script,
+extractor and stress-case definitions. The standalone projection arithmetic ran
+with Python's math module. A proposed crossing diagnostic could not execute:
+the available python3 lacks scipy. No packages were installed and no runtime
+crossing result is claimed. No Earth Engine run or imagery judgment was performed.
+
+Evidence strength: strong for the identified wording/transfer errors and the
+instrument/projection distinctions; moderate for choosing which diagnostics to
+prioritize; insufficient to claim a replacement method will improve real-road
+performance. The next useful result is independently verified signal and triage
+value, even if it establishes a narrow operating range or a failed screen.
