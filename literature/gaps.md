@@ -5,36 +5,38 @@ or a real hole in the literature, and the two are distinguished where possible.
 
 ## Things this project must establish itself
 
-1. **No paper quantifies the effect of missing years on a bi-temporal or z-score change estimate.**
-   The closest hits were gap-filling and time-series-reconstruction work, not an evaluation of how
-   dropping a year biases a change magnitude. This project's ">= 2 valid recent years" rule has no
-   cited basis. Either run the ablation or state it as a novel contribution.
-2. **No paper analyses an L1 dilation band as an evaluation tolerance**, or the sensitivity of
-   completeness and correctness to buffer width. The 2-pixel choice rests only on Heipke 1997's
+1. **Not located in this review: any paper quantifying the effect of missing years on a bi-temporal
+   or z-score change estimate.** The closest hits were gap-filling and reconstruction work. This
+   project's ">= 2 valid recent years" rule therefore has no cited basis — which makes it an
+   **engineering choice requiring validation**, not automatically a novel contribution. Run the
+   enumeration and the sensitivity before describing it either way.
+2. **Not located in this review: any analysis of an L1 dilation band as an evaluation tolerance**,
+   or of the sensitivity of completeness and correctness to buffer width. The 2-pixel choice rests only on Heipke 1997's
    qualitative trade-off statement. Wiedemann 2003's redundancy caveat applies and is unaddressed.
-3. **No OpenStreetMap completeness study exists for Mongolia or Central Asian steppe.** The nearest
+3. **Not located in this review: an OpenStreetMap completeness study for Mongolia or Central Asian
+   steppe.** The nearest
    are Iran (Minaei 2020) and China (Zhang 2015). The Mongolia-specific figure should be extracted
    from Barrington-Leigh & Millard-Ball's supplementary data rather than inferred from the global
    average — especially given their U-shaped density finding.
-4. **No confusion matrix with "river bank" as a class in a road detector was found.** Liu 2016 and
-   Lu 2024 document the confusion qualitatively and in the mirror direction. This may genuinely be
-   a hole in the literature and is worth stating as such rather than assumed missed.
-5. **No head-to-head benchmark of Hessian ridge filters on satellite roads.** The filter lineage is
-   medical imaging; the road-extraction literature rarely evaluates it directly. That comparison may
-   simply not exist, which is itself reportable.
-6. **Pre-registration in remote sensing appears to be an empty set.** Two targeted searches returned
-   nothing. The nearest anchors are geography reproducibility (Nüst & Pebesma 2021) and the ecology
+4. **Not located in this review: a confusion matrix with "river bank" as a class in a road
+   detector.** Liu 2016 and Lu 2024 document the confusion qualitatively and in the mirror
+   direction. Whether this is a hole in the literature or a limit of this search is unresolved.
+5. **Not located in this review: a head-to-head benchmark of Hessian ridge filters on satellite
+   roads.** The filter lineage is medical imaging. Whether the comparison exists was not established.
+6. **Not located in this review: pre-registration practice in remote sensing.** Two targeted
+   searches returned nothing, which is weak evidence of absence, not an empty set. The nearest anchors are geography reproducibility (Nüst & Pebesma 2021) and the ecology
    adaptation (Parker 2016). Do not claim precedent for "pre-registered remote sensing" without a
    deeper search of the OSF registries and EarthArXiv.
-7. **Nothing found on what resampling a 20 m shortwave band to 10 m does to a narrow-feature index.**
-   A specific, checkable weakness in the bare-soil-index claim that remains unsupported either way.
+7. **Not located in this review: any study of what resampling a 20 m shortwave band to 10 m does to
+   a narrow-feature index.** This is now a named diagnostic rather than only a gap — see C19 in the
+   [claim ledger](claim-ledger.md).
 
 ## Engineering hazards named by the literature and checked here (2026-09-22)
 
 | hazard | source | checked | result |
 |---|---|---|---|
 | Sentinel-2 Processing Baseline 04.00 radiometric offset (25 Jan 2022) falls **between** the 2018–2021 and 2023–2026 windows and creates a false step change | ESA/Copernicus documentation, not a peer-reviewed paper | `gee/ndvi_change.js` | **passes** — uses `COPERNICUS/S2_SR_HARMONIZED`, which rescales post-2022 reflectance to the earlier convention |
-| A **per-band median** composite destroys the inter-band spectral relationship, so a band ratio is taken on a pixel that never existed | Roberts, Mueller & McIntyre 2017 | `julyS2` medians B2/B3/B4/B8/B11, then `julyComposite` computes NDVI and BSI from those medians | **applies** — the geometric median or a medoid is the documented fix; magnitude here is untested |
+| Forming a band ratio from **per-band medians** is not the same estimator as summarising per-acquisition indices; the operations do not commute | Roberts, Mueller & McIntyre 2017 | `julyS2` medians B2/B3/B4/B8/B11, then `julyComposite` computes NDVI and BSI from those medians | **applies, magnitude unmeasured** — a hand-derived counterexample confirms the operations differ (red [0.10, 0.40, 0.30], NIR [0.20, 0.50, 0.90]: ratio-of-medians 0.25, median-of-ratios 1/3). Which estimator is better here is **not** established; a geometric median is itself an estimate rather than an observed spectrum, while a medoid selects a real observation |
 | BRDF is the largest uncontrolled term in time-series consistency | Qiu 2019 | pipeline | **applies** — no BRDF correction is present |
 | The default Sen2Cor scene-classification mask is the weakest of the common options (84% vs MAJA 91%, FMask 90%) | Baetens 2019 | `maskS2` | **worth testing** — Cloud Score+ (Pasquarella 2023) runs natively in Earth Engine and allows weighting rather than hard masking |
 | Cloud-mask models report weakness specifically on **road** and urban surfaces | Wright 2024 | — | named hazard for a pipeline whose targets are bare linear tracks |
@@ -84,6 +86,15 @@ finished through the Crossref and OpenAlex APIs, which verify bibliographic fiel
 Preprints without a confirmed peer-reviewed venue: Van Etten 2018 and 2019, Wang 2024 (R2-Net),
 Nagel 2024, Meng 2023, Fobi 2020, Kamalu & Choi 2020. No entry in this folder was found to be
 retracted.
+
+## Source access levels
+
+Correction 2026-09-24: this review did not previously record **how much of each source was read**.
+Entries were graded from a mix of full text, abstracts, and bibliographic records, and an
+independent-validation grade was in some cases awarded from a Crossref record alone, which cannot
+support it. Where a grade rests on metadata only, it should be read as *unverified*, not as
+evidence strength. Roughly a third of the findings in `bibliography.md` come from abstracts or index
+records rather than full text, because publisher sites returned access errors throughout.
 
 ## Method limitations of this review
 

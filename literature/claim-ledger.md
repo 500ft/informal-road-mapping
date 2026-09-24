@@ -18,15 +18,18 @@ Keshkamat 2012 measures Mongolian dirt-track corridors at 30–125 m (mean 164 m
 routes); Amarsanaa 2022 finds 58% of Gobi dirt road is 3–4 parallel tracks averaging **26.5 m**.
 The target genuinely is a multi-pixel swath.
 
-The *reasoning* does not survive. Welch 1982 separates **detection** from **identification** and
-shows high-contrast linear objects are detectable below the nominal pixel size; Atkinson 2005 and
+The *reasoning* does not survive, though less dramatically than this ledger first claimed
+(corrected 2026-09-24). Welch 1982 separates **detection** from **identification** and shows
+high-contrast linear objects are detectable below the nominal pixel size; Atkinson 2005 and
 Thornton 2006/2007 recover sub-pixel linear features, with linearity itself as exploitable prior
-information. Jia 2023 extracts **2.5 m rural roads from 10 m Sentinel-2** — the exact width at the
-exact resolution this project declares out of reach. Löw & Duveiller 2014 give a framework, tested
-in Central Asia, for computing the recoverable width instead of asserting it.
+information. Jia 2023 produces a **2.5 m output map** from 10 m inputs by super-resolution mapping
+with fine-resolution training labels — that is output grid spacing, **not** a demonstrated 2.5 m
+minimum detectable width, and certainly not for a low-contrast Gobi track. Löw & Duveiller 2014 give
+a framework, tested in Central Asia, for computing a recoverable width instead of asserting one.
 
-**Restate as:** single tracks are not separable *by this project's per-pixel index method* at 10 m,
-so corridors are the operative target — not that single tracks are unresolvable in principle.
+**Restate as:** sub-pixel detection is possible in principle, but single tracks are not separable
+*by this project's per-pixel index method*, so corridors remain the operative target. **This
+project's minimum detectable width is unmeasured**, and no cited paper supplies it.
 
 ## C2 — "Abandoned tracks stay visible for years"
 **Source:** design.md:165 · **Confidence: high for the claim, but the timescale is unsettled**
@@ -127,7 +130,8 @@ centreline pixels inside a 2-pixel band is a raster reimplementation of it and s
 such. Heipke 1997 states the trade-off the 2-pixel choice must answer to: less tolerant matching
 looks less complete but more accurate. Mayer 2006 gives the empirical range published systems
 reach. Chemura 2024 gives the closest comparable numbers for informal tracks: **77.5% completeness,
-89.2% correctness** — at 50 cm, so it is an upper bound this project cannot approach.
+89.2% correctness** — at 50 cm on a different sensor, dataset and landscape, so it is a comparison
+point, **not** a mathematical bound on this project in either direction (corrected 2026-09-24).
 
 Site-level holdout is supported by Roberts 2017 and vividly by Ploton 2020, where non-spatial
 validation suggested a model explained over half the variance while spatial validation showed
@@ -152,21 +156,35 @@ product citation.
 
 This is an established operational pattern, not a fallback. Hansen 2016 (GLAD alerts) ships a
 per-pixel **screen** that explicitly does not distinguish human-induced from natural disturbance,
-and the alert community routinely confirms alerts at higher resolution. Zhu 2020 (COLD) gives the
-realistic error floor for an unsupervised screen: **27% omission, 28% commission** — so tens of
-percent commission is normal, not a defect to hide.
+and the alert community routinely confirms alerts at higher resolution.
+
+**Correction 2026-09-24.** This ledger previously cited Zhu 2020 (COLD) as giving "the realistic
+error floor" at 27% omission and 28% commission. That was wrong. Those are *measured results* for
+one algorithm on the authors' Landsat evaluation against their reference data. They are not a lower
+bound, not a prediction for Mongolian track candidates, and not an acceptable-error target here.
+Quoting them as a floor could excuse a poor detector before it has been measured. **This screen's
+error rates and the review burden it implies have not been measured at all.**
 
 ## C11 — A positive-disturbance mask is not a recovery detector
 **Source:** design.md:1–10 · **Confidence: high — with a concrete remedy available**
 
-Correct, and the literature offers the fix. Kennedy 2010 (LandTrendr) fits piecewise segments, so
-recovery appears as a positive-slope segment instead of failing a fixed positive threshold —
-segment fitting is **sign-agnostic**. Burrell 2017 (TSS-RESTREND) represents abandonment as a
-breakpoint followed by an opposite-sign residual trend. Crist & Cicone 1984 offers a different
-route: tasseled-cap **brightness** is the axis a compacted track moves along and is sign-stable in a
-way NDVI change is not, with Sentinel-2 coefficients in Shi & Xu 2019. Ji 2025 offers a fourth:
-Sentinel-1 coherence responds to surface disturbance regardless of greenness sign, tested in Eastern
-Mongolian rangeland.
+The claim itself is correct. The literature offers **candidate remedies, each a hypothesis with its
+own unmet input requirements** — not a fix (corrected 2026-09-24).
+
+- Kennedy 2010 (LandTrendr) fits piecewise segments, so recovery could appear as a positive-slope
+  segment rather than failing a fixed positive threshold. Naming it does not supply the index, the
+  sign convention, sufficient temporal support, or independently dated changes it needs.
+- Burrell 2017 (TSS-RESTREND) represents abandonment as a breakpoint plus an opposite-sign residual
+  trend, and inherits RESTREND's rainfall-regression requirements.
+- Crist & Cicone 1984 offers tasseled-cap **brightness**. But Shi & Xu 2019's Sentinel-2
+  coefficients are derived for **at-sensor** reflectance and this repository uses **surface**
+  reflectance, so they do not transfer without a compatible source or a tested conversion. Brightness
+  is **not** established here as a directionally invariant marker of compaction or recovery across
+  substrates.
+- Ji 2025 uses Sentinel-1 **interferometric coherence** for grazing-related vegetation breakpoints —
+  not road abandonment. Earth Engine's `S1_GRD` is detected backscatter, **not** coherence, which
+  needs complex SLC pairs and separate interferometric processing. This is a separate pipeline to
+  scope, not a channel to switch on.
 
 ## C12 — The multiscale Hessian ridge response is an appropriate corridor enhancer
 **Source:** `extract.py::ridge_strength` · **Confidence: moderate — sound family, three documented weaknesses**
@@ -175,18 +193,27 @@ Provenance is solid: Frangi 1998 and Sato 1998 for the filter, Lindeberg 1998 fo
 scale-normalised max. Sato's noise-equalisation across scales is the fix if the smallest scale
 currently dominates.
 
-Three documented weaknesses bear directly on observed behaviour. Hannink 2014 states the filter
-**cannot cope with crossings or bifurcations**, because the image-domain Hessian supports one
-orientation per location. Law & Chung 2008 shows it **merges adjacent structures**. Jerman 2016
-shows Frangi/Sato response is **non-uniform across structure size and contrast**, so a single global
-threshold after the scale-max treats narrow and wide corridors differently — and offers a drop-in
-eigenvalue-ratio fix. Steger 1998 adds that asymmetric lateral contrast (bare soil one side,
-vegetation the other) biases the detected centreline off axis.
+Three documented weaknesses **motivate inspection** of observed behaviour, but none has been shown
+to cause it here (corrected 2026-09-24). Hannink 2014 analyses **Frangi** vesselness at crossings;
+`ridge_strength` is Sato-like, `max(0, -λ_min)·σ²`, and implements no eigenvalue-ratio suppression,
+so that finding motivates a search for enhancement loss rather than diagnosing one. Law & Chung 2008
+shows Hessian detection merges adjacent structures. Jerman 2016 shows Frangi/Sato response is
+non-uniform across structure size and contrast. Steger 1998 adds that asymmetric lateral contrast
+biases the detected centreline off axis.
 
-**Scale range, checked:** the filter runs at sigmas 1–3 px on a 10 m grid, so it enhances ~10–30 m
-structures. Amarsanaa's 26.5 m Gobi corridors fall inside that; Keshkamat's 30–125 m typical
-corridors and 164 m national-route mean fall **outside** it. The range was set without a documented
-link to any measured width. **Testable recommendation, not a proven defect.**
+**Scale range — the earlier arithmetic here was wrong twice.** It said sigmas 1–3 px on a 10 m grid
+enhance "~10–30 m structures", implying an exclusive detectable-width band. Both halves fail:
+
+1. **Filter scale is not a hard width cutoff.** A scale-normalised max over σ responds outside the
+   nominal band with reduced, not zero, sensitivity.
+2. **The pixel is not 10 m on the ground.** The grid is EPSG:3857 at nominal scale 10. Under the
+   spherical Web Mercator approximation a 10-unit pixel spans about **6.6–7.0 m** of ground distance
+   across the registered site latitudes, so every metre figure previously derived from a 10 m
+   assumption was overstated by roughly 45%. See [C19](#c19--the-analysis-grids-nominal-metres-are-not-ground-metres).
+
+The honest residue: the σ range was chosen without a documented link to any measured corridor width,
+and measured Mongolian corridors span roughly 26–164 m. That is a **question to measure**, not a
+proven mismatch.
 
 ## C13 — A distance-weighted shortest path yields a usable centreline
 **Source:** `extract.py::_component_path_px` · **Confidence: high — and it has a published name**
@@ -201,9 +228,15 @@ how to fuse the ridge and path steps into one metric and get corridor width for 
 ## C14 — One path per component cannot represent junctions, loops or braids
 **Source:** `extract.py` `ponytail:` comment · **Confidence: high — and the marked upgrade path exists**
 
-Correct, and the ceiling begins earlier than the code comment implies: Hannink 2014 places the
-junction failure **in the filter**, before components or pathfinding. Türetken 2013 is the direct
-answer — an integer program that rejects the tree assumption and recovers networks with cycles.
+Correct as stated. Where the ceiling *begins* is **not established** (corrected 2026-09-24):
+Hannink 2014 concerns Frangi and motivates suspecting enhancement loss, but this implementation's
+crossing failure has at least three candidate stages — enhancement, the quantile mask, and the
+elongation rejection — and has not been attributed to any of them.
+
+One consequence is already clear and was missed: **skeletonising only accepted components cannot
+recover a crossing that was rejected before acceptance.** Any Option-A-style proposal has to
+resolve that placement conflict first. Türetken 2013 remains the published answer for loopy
+networks, but adopting it is a larger change than the topology note implied.
 Dirnberger 2015 (NEFI) is the concrete raster-to-graph recipe; Zhang & Suen 1984 and Lee 1994 the
 thinning algorithms; Bai 2007 the standard answer to the spurious spurs that follow.
 Douglas & Peucker 1973 is the named simplification in the debt comment.
@@ -211,10 +244,14 @@ Douglas & Peucker 1973 is the named simplification in the debt comment.
 ## C15 — Crossings are lost because the union component fails an elongation filter
 **Source:** `results/extractor_stress_cases.json`, case `crossing` · **Confidence: challenged — the attribution is incomplete**
 
-The elongation filter does reject the union component, but Hannink 2014 shows the **filter response
-itself** is already degraded at crossings. So removing or relaxing the elongation threshold would
-not recover the two roads cleanly. The stress case's own note (lowering `min_elongation` to 1.5
-recovers *one* component for two roads) is consistent with the failure being upstream.
+The elongation filter does reject the union component. Whether the **filter response** is already
+degraded at the crossing is *suspected, not shown*: Hannink 2014 analyses Frangi, not this Sato-like
+response. The stress case's own note (lowering `min_elongation` to 1.5 recovers *one* component for
+two roads) is **consistent with** an upstream loss but does not establish it.
+
+**This diagnosis is provisional** until the stage-by-stage trace is run: raw disturbance → per-scale
+ridge response → quantile mask → component membership → length/elongation rejection → exported path,
+recording junction and arm retention at each step. Corrected 2026-09-24.
 
 ## C16 — A river-bank-shaped feature is returned as the strongest candidate
 **Source:** case `linear_confound_riverbank` · **Confidence: high — a field-wide failure, not a local bug**
@@ -262,3 +299,36 @@ not provide.
 
 **Action:** either deposit a timestamped registration externally, or soften the wording to
 "pre-specified" throughout.
+
+
+## C19 — The analysis grid's nominal metres are not ground metres
+**Source:** `gee/ndvi_change.js` (`ANALYSIS_CRS = 'EPSG:3857'`, `ANALYSIS_SCALE_M = 10`) · **Confidence: high — independently calculated, not yet measured on an export**
+
+Added 2026-09-24. The screen works on a Web Mercator grid at nominal scale 10. Web Mercator's linear
+scale factor grows as 1/cos(latitude), so a 10-unit pixel does **not** span 10 m of ground away from
+the equator. Under the spherical approximation:
+
+| site | latitude | ground span of a 10-unit pixel | 50-pixel component area |
+|---|---:|---:|---:|
+| dev-01-braided | 47.30 | 6.78 m | 2,300 m² |
+| dev-02-recovering | 46.20 | 6.92 m | 2,395 m² |
+| dev-03-gobi | 45.40 | 7.02 m | 2,465 m² |
+| holdout-01 | 48.10 | 6.68 m | 2,230 m² |
+| confound-01 | 48.60 | 6.61 m | 2,187 m² |
+| negative-01 | 46.80 | 6.85 m | 2,343 m² |
+
+The `min_component_pixels = 50` threshold was therefore reasoned about as roughly 5,000 m² and is
+closer to **2,200–2,500 m²**. Every metre figure in this repository derived from a 10 m assumption —
+including this ledger's earlier ridge-scale arithmetic — was overstated by roughly 45%.
+
+Two further support questions, unresolved:
+
+- **BSI mixes native samplings.** It uses B11, whose native sampling is 20 m, with B4, B8 and B2 at
+  10 m. Resampling changes the grid; it does not create independent 10 m shortwave measurements.
+- **The control ring is specified in metres** (200–800 m). Whether the metre-based kernel carries the
+  same distortion as the pixel grid has not been tested.
+
+**These are independently calculated estimates, not measurements of an exported raster.** Exact
+ellipsoidal geometry, the delivered affine transform and neighbourhood-kernel behaviour all need a
+runtime probe, which requires Earth Engine access this project does not have. `path_length_px` must
+never be converted to metres using an assumed 10.

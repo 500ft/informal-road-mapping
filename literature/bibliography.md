@@ -27,7 +27,7 @@ bibliographic fields precisely but discovers less well than full-text search. Se
   - A directly comparable methodological alternative — object/texture features rather than one change index, which sidesteps the sign problem entirely. **A3 · EB · high**
 - **Chemura, A.; Lu, S.; Skidmore, A.K.; Duporge, I.; Lee, S.J.; Yu, Z.; Ngene, S.; Wang, T.** | 2024 | *Mapping off-road tracks and animal paths in protected areas using high-resolution GeoEye-1 panchromatic satellite imagery* | International Journal of Remote Sensing 45(16):5425–5442 | doi:10.1080/01431161.2024.2377230
   - Curvelet + active-contour + fuzzy pipeline on 50 cm imagery: **77.5% completeness, 89.2% correctness, 79.5% overall**; tracks and animal paths co-occur (r = 0.75).
-  - The fairest quantitative target for a non-learned linear-feature extractor on informal tracks — and it names **animal paths** as a confound stratum this project does not have. **A3 · EB · high**
+  - A useful comparison point for a non-learned linear-feature extractor on informal tracks, and it names **animal paths** as a confound stratum this project did not carry. A different sensor (50 cm), dataset and landscape does **not** mathematically bound this project's achievable scores in either direction. Corrected 2026-09-24. **A3 · EB · high**
 - **Gomes, O.F.M.; Feitosa, R.Q.; Coutinho, H.L.C.** | 2004 | *Sub-pixel unpaved roads detection in Landsat images* | ISPRS Congress XXXV Comm. III | [PDF](https://isprs.org/proceedings/XXXV/congress/comm3/papers/448.pdf)
   - Finds sub-pixel-width dirt roads as long, narrow, smooth segments spectrally closer to bare soil than their surroundings.
   - The closest classical precedent for this project's core problem at medium resolution. **A3 · EC · high**
@@ -44,8 +44,8 @@ bibliographic fields precisely but discovers less well than full-text search. Se
   - OSM labels + Copernicus data with a U-Net for desert roads; **Sentinel-1 VV backscatter averages alone were the best model input**.
   - A direct counter-hypothesis: in arid terrain SAR may separate compacted tracks better than the optical signal this project relies on. **A3 · EB · high on citation, medium on author list**
 - **Jia, Y.; Zhang, X.; Xiang, R.; Ge, Y.** | 2023 | *Super-Resolution Rural Road Extraction from Sentinel-2 Imagery Using a Spatial Relationship-Informed Network* | Remote Sensing 15(17):4193 | doi:10.3390/rs15174193
-  - Produces **2.5 m rural road maps from 10 m Sentinel-2**, outperforming spectral-only super-resolution mapping on elongated roads.
-  - The most direct challenge to this project's "2.5–3 m is sub-pixel, therefore target corridors" reasoning — same sensor, same width, opposite conclusion. **A3 · EB · high**
+  - Produces a **2.5 m output map** from 10 m Sentinel-2 inputs by super-resolution mapping, using learned spatial relationships and fine-resolution training labels; reports better results for elongated rural roads than spectral-only methods.
+  - Output grid spacing is **not** a demonstrated minimum detectable road width, and the training regime is not available here. It establishes that sub-pixel mapping is possible in principle; it does not establish reliable detection of a 2.5 m low-contrast Gobi track. This project's minimum detectable width remains **unmeasured**. Corrected 2026-09-24. **A2 · EB · high**
 - **Oehmcke, S.; Thrysøe, C.; Borgstad, A.; Vaz Salles, M.A.; Brandt, M.; Gieseke, F.** | 2019 | *Detecting Hardly Visible Roads in Low-Resolution Satellite Time Series Data* | IEEE Big Data 2019:2403–2412 | doi:10.1109/bigdata47090.2019.9006251
   - Frames Sentinel-2 road detection as **ordinal** classification over cloud-affected time series, avoiding curated clear-sky tiles, evaluated against OSM.
   - Two transferable moves: grade corridors faint-to-clear instead of binary, and use the messy stack directly rather than compositing. **A3 · EB · high**
@@ -77,8 +77,8 @@ bibliographic fields precisely but discovers less well than full-text search. Se
   - Field spectra at **58 sites across semi-arid and arid Mongolian steppe** fit and test photosynthetic/non-photosynthetic/bare-soil unmixing.
   - The most site-specific paper found: in-country endmembers for exactly the decomposition the Gobi site needs. **A3 · EB · high**
 - **Ji, S.; Gonchigsumlaa, G.; Damdindorj, S.; Tseren, T.; Sharavjamts, D.; Otgondemberel, A.** | 2025 | *Can vegetation breakpoints in Eastern Mongolia rangeland be detected using Sentinel-1 coherence time series data?* | GIScience & Remote Sensing 62(1) | doi:10.1080/15481603.2025.2540222
-  - Sentinel-1 interferometric coherence with random forest for grazing-induced vegetation breakpoints in Mongolian rangeland.
-  - An optical-independent signal: coherence responds to surface disturbance regardless of greenness sign, which would resolve the recovering-corridor mismatch without redesigning the index. **A3 · EB · high**
+  - Sentinel-1 **interferometric coherence**, with weather predictors and random forest, for grazing-induced vegetation breakpoints in Mongolian rangeland.
+  - A Mongolian coherence application, **not** a validation of road-abandonment detection. Note also that Earth Engine's `COPERNICUS/S1_GRD` is detected backscatter, **not** coherence: coherence needs complex SLC pairs and separate interferometric processing, so this is a separate data pipeline to scope, not a drop-in channel. Corrected 2026-09-24. **A2 · EB · high**
 - **Dashpurev, B.; Wesche, K.; Jäschke, Y.; Oyundelger, K.; Phan, T.N.; Bendix, J.; Lehnert, L.W.** | 2021 | *A cost-effective method to monitor vegetation changes in steppes ecosystems: A case study on remote sensing of fire and infrastructure effects in eastern Mongolia* | Ecological Indicators 132:108331 | doi:10.1016/j.ecolind.2021.108331
   - Remote-sensing case study of fire and **infrastructure** effects on eastern Mongolian steppe vegetation. **A2 · EB · high on citation, LOW on finding** (no abstract retrieved; read before claiming novelty)
 - **Meng, X.; Gao, X.; Li, S.; Li, S.; Lei, J.** | 2021 | *Monitoring desertification in Mongolia based on Landsat images and Google Earth Engine from 1990 to 2020* | Ecological Indicators 129:107908 | doi:10.1016/j.ecolind.2021.107908
@@ -157,8 +157,8 @@ bibliographic fields precisely but discovers less well than full-text search. Se
 - **Lindeberg, T.** | 1998 | *Feature Detection with Automatic Scale Selection* | IJCV 30(2):77–116 | doi:10.1023/A:1008045108935
   - The general normalised-derivative principle; a wrong exponent systematically biases which corridor widths win the max. **A2 · EC · high** (page range commonly cited as 79–116; verify)
 - **Hannink, J.; Duits, R.; Bekkers, E.** | 2014 | *Crossing-Preserving Multi-scale Vesselness* | MICCAI 2014, LNCS 8674:603–610 | doi:10.1007/978-3-319-10470-6_75
-  - States explicitly that multiscale Frangi vesselness **cannot cope with crossings or bifurcations**, because the image-domain Hessian supports one orientation per location, and fixes it by lifting to orientation scores.
-  - **The single best citation for this project's junction failure mode** — it begins in the filter, before components or pathfinding. **A3 · EB · high**
+  - States that multiscale **Frangi** vesselness cannot cope with crossings or bifurcations, because the image-domain Hessian supports one orientation per location, and fixes it by lifting to orientation scores.
+  - **Motivates** looking for enhancement loss at crossings, but does **not** diagnose this implementation: `ridge_strength` is Sato-like, `max(0, -λ_min)·σ²`, and does not implement Frangi's eigenvalue-ratio suppression. `extract_candidates` separately rejects low-elongation components, so the observed crossing failure has at least three candidate stages and has not been attributed to any of them. Corrected 2026-09-24. **A2 · EB · high**
 - **Law, M.W.K.; Chung, A.C.S.** | 2008 | *Three Dimensional Curvilinear Structure Detection Using Optimally Oriented Flux* | ECCV 2008 | DOI unverified
   - Hessian detection **merges closely located adjacent structures** because second-derivative responses are corrupted by neighbours.
   - The second failure mode that matters here: parallel and braided corridors fused into one component, which is what makes one-path-per-component wrong. **A3 · EB · high on venue/year, volume and pages unverified**
@@ -232,8 +232,8 @@ bibliographic fields precisely but discovers less well than full-text search. Se
   - Compares z-scores, non-exceedance probability and VCI; the best formulation depends on whether anomalies are averaged or thresholded, and early-window estimates carry large errors.
   - Interrogates this project's two core choices directly, and shows a z ≥ 1.0 cut from few years is the least stable part of the pipeline. **A3 · EB · high**
 - **Zhu, Z.; Zhang, J.; Yang, Z.; Aljaddani, A.H.; Cohen, W.B.; Qiu, S.; Zhou, C.** | 2020 | *Continuous monitoring of land disturbance based on Landsat time series* | Remote Sensing of Environment 238:111116 | doi:10.1016/j.rse.2019.03.009
-  - COLD detects disturbance without training data at **27% omission, 28% commission**.
-  - Sets the realistic error floor for an unsupervised screen — tens of percent commission is normal, not a defect. **A3 · EB · high**
+  - COLD detects disturbance without training data, **measured at 27% omission and 28% commission on the authors' Landsat evaluation against their reference data**.
+  - An example of what one unsupervised screen achieved on one dataset. It is **not** a lower bound, a prediction for Mongolian track candidates, or an acceptable-error target for this project — those numbers do not transfer. Corrected 2026-09-24. **A2 · EB · high**
 - **Reiche, J.; Hamunyela, E.; Verbesselt, J.; Hoekman, D.; Herold, M.** | 2018 | *Improving near-real time deforestation monitoring in tropical dry forests by combining dense Sentinel-1 time series with Landsat and ALOS-2 PALSAR-2* | Remote Sensing of Environment 204:147–161 | doi:10.1016/j.rse.2017.10.034
   - Quantifies the confirmation-versus-latency trade-off that a persistence rule silently makes. **A3 · EB · high**
 - **Hansen, M.C.; Krylov, A.; Tyukavina, A.; Potapov, P.V.; Turubanova, S.; Zutta, B.; Ifo, S.; Margono, B.** | 2016 | *Humid tropical forest disturbance alerts using Landsat data* | Environmental Research Letters 11:034008 | doi:10.1088/1748-9326/11/3/034008
@@ -247,10 +247,10 @@ bibliographic fields precisely but discovers less well than full-text search. Se
 
 - **Roberts, D.; Mueller, N.; McIntyre, A.** | 2017 | *High-Dimensional Pixel Composites From Earth Observation Time Series* | IEEE TGRS 55(11):6254–6264 | doi:10.1109/TGRS.2017.2723896
   - The **geometric median** preserves the inter-band spectral relationship that a per-band median destroys.
-  - **Directly applicable**: this project computes NDVI and BSI from a per-band median composite, so the ratio is taken on a pixel that never existed. This paper names the problem and the fix. **A3 · EC · high**
+  - **Applies here**: this project computes NDVI and BSI from a per-band median composite, so band ratios are formed from independently medianed bands. The operations do not commute. The **magnitude and downstream effect of that difference in this pipeline are unmeasured**. Note also that a geometric median is itself an estimate rather than an observed spectrum; a medoid selects an actual observation. "Never observed" alone is not the test of whether an estimator is useful. Corrected 2026-09-24. **A3 · EC · high**
 - **Qiu, S.; Zhu, Z.; Olofsson, P.; Woodcock, C.E.; Jin, S.** | 2023 | *Evaluation of Landsat image compositing algorithms* | Remote Sensing of Environment 285:113375 | doi:10.1016/j.rse.2022.113375
-  - Benchmarks ten algorithms; weighted scoring wins on fidelity but median is ~70× cheaper with only slightly lower downstream accuracy.
-  - The published defence for using a median composite — a near-optimal cost/accuracy choice, not a shortcut. **A3 · EB · high**
+  - Benchmarks compositing algorithms and reports that **performance depends on the compositing interval and the application, with no universally best compositor**.
+  - The earlier summary here ("weighted scoring wins", "median ~70× cheaper") could **not be located in the official abstract** and is withdrawn pending an exact source and page. What survives is the weaker and safer claim: median compositing is a defensible choice whose ranking is task-dependent. Corrected 2026-09-24. **A3 · EB · high on citation, attribution of the specific figures UNRESOLVED**
 - **Baetens, L.; Desjardins, C.; Hagolle, O.** | 2019 | *Validation of Copernicus Sentinel-2 Cloud Masks Obtained from MAJA, Sen2Cor, and FMask Processors…* | Remote Sensing 11(4):433 | doi:10.3390/rs11040433
   - On reference masks over 10 sites: **MAJA 91%, FMask 90%, Sen2Cor 84%**.
   - Concrete evidence that the default Sen2Cor scene-classification mask is the weakest of the three. **A3 · EB · high**
@@ -287,8 +287,8 @@ bibliographic fields precisely but discovers less well than full-text search. Se
 - **Huete, A.R.; Jackson, R.D.; Post, D.F.** | 1985 | *Spectral response of a plant canopy with different soil backgrounds* | Remote Sensing of Environment 17(1):37–53 | doi:10.1016/0034-4257(85)90111-7
   - With vegetation held constant and soils swapped, **no** greenness measure predicted the spectra. A change in substrate alone — which is what a graded track is — moves NDVI without any vegetation change. **A3 · EB · high**
 - **Okin, G.S.; Roberts, D.A.; Murray, B.; Okin, W.J.** | 2001 | *Practical limits on hyperspectral vegetation discrimination in arid and semiarid environments* | Remote Sensing of Environment 77(2):212–225 | doi:10.1016/S0034-4257(01)00207-3
-  - **Below roughly 30% green cover** discrimination degrades sharply even with hyperspectral data.
-  - An honest ceiling: below that floor no index refinement rescues the screen and the detector must key on soil brightness. **A3 · EC · high**
+  - Simulated hyperspectral unmixing shows unreliable **vegetation-type** retrieval at low green cover, while cover *fraction* itself can sometimes still be estimated.
+  - It does **not** establish that every vegetation index fails below 30% cover, nor that this detector must switch to soil brightness. Treat soil-adjusted indices as candidates for a controlled comparison, not as a forced substitution. Corrected 2026-09-24. **A2 · EC · high**
 - **Rondeaux, G.; Steven, M.; Baret, F.** | 1996 | *Optimization of soil-adjusted vegetation indices* | Remote Sensing of Environment 55(2):95–107 | doi:10.1016/0034-4257(95)00186-7 — OSAVI, a defensible fixed constant. **A3 · EC · high**
 - **Baret, F.; Jacquemoud, S.; Hanocq, J.F.** | 1993 | *The soil line concept in remote sensing* | Remote Sensing Reviews 7(1):65–82 | doi:10.1080/02757259309532166
   - Soil-line slope and intercept vary with soil type and moisture — an assumption inherited by any SAVI-family index and worth checking for Gobi substrates. **A2 · EC · high**
@@ -309,7 +309,8 @@ bibliographic fields precisely but discovers less well than full-text search. Se
   - A published dispute over whether rainfall normalisation reveals or hides degradation: the correction step is itself contested. **A2 · ED · high**
 - **Crist, E.P.; Cicone, R.C.** | 1984 | *A physically-based transformation of Thematic Mapper data — the TM Tasseled Cap* | IEEE TGRS GE-22(3):256–263 | doi:10.1109/TGRS.1984.350619
   - Brightness is the axis a compacted track actually moves along, and a brightness-change screen is **sign-stable** in a way an NDVI-change screen is not. **A3 · EB · high**
-- **Shi, T.; Xu, H.** | 2019 | *Derivation of tasseled cap transformation coefficients for Sentinel-2 MSI at-sensor reflectance data* | IEEE JSTARS 12(10):4038–4048 | doi:10.1109/JSTARS.2019.2938388 — sensor-correct coefficients for the imagery already ingested. **A3 · EB · high**
+- **Shi, T.; Xu, H.** | 2019 | *Derivation of tasseled cap transformation coefficients for Sentinel-2 MSI **at-sensor** reflectance data* | IEEE JSTARS 12(10):4038–4048 | doi:10.1109/JSTARS.2019.2938388
+  - Coefficients are derived for **at-sensor** reflectance. This repository uses **surface** reflectance (`S2_SR_HARMONIZED`), so the coefficients do not transfer without a compatible source or a tested conversion. Brightness is **not** established here as a directionally invariant marker of compaction or recovery across substrates. Corrected 2026-09-24. **A2 · ungraded on transfer · high on citation**
 - **Rasul, A.; Balzter, H.; Ibrahim, G.R.F.; Hameed, H.M.; Wheeler, J.; Adamu, B.; et al.** | 2018 | *Applying built-up and bare-soil indices from Landsat 8 to cities in dry climates* | Land 7(3):81 | doi:10.3390/land7030081
   - Introduces DBI and DBSI **because indices developed for humid climates misclassify in arid terrain**; 93% and 92% accuracy in Erbil. **A3 · EB · high**
 - **Zha, Y.; Gao, J.; Ni, S.** | 2003 | *Use of normalized difference built-up index in automatically mapping urban areas from TM imagery* | IJRS 24(3):583–594 | doi:10.1080/01431160304987 — validated on a humid city, not a desert. **A2 · EB · high**

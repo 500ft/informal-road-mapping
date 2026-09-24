@@ -377,3 +377,54 @@ work is added to this satellite-mapping project** by that reference. Nothing was
 `tools/check_presentation.py` issues: [] with 78 local links · `tools/test_presentation.py` OK ·
 `git diff --check` clean. No code, test, record, threshold, site or gate touched; all six `verified`
 flags remain `false`; CR-08 unchanged.
+
+---
+
+# 2026-09-24 — literature corrections from the owner's critique
+
+The owner audited the merged literature review against the primary sources and found several claims
+overstated. **Every correction was checked here and every one was correct.** The failure mode was
+consistent: a measured result from one study, one sensor and one outcome carried across as if it
+constrained this project. Where I had written a bound, the source supported only an example.
+
+## Verified before accepting
+
+| check | result |
+|---|---|
+| Web Mercator ground span at the six registered latitudes | 6.61–7.02 m for a nominal-10 pixel; 50 px = 2,187–2,465 m² against the 5,000 m² assumed |
+| the NDVI commutation counterexample (red [0.10, 0.40, 0.30], NIR [0.20, 0.50, 0.90]) | ratio-of-medians 0.25, median-of-ratios 1/3 — reproduced exactly |
+| is `ridge_strength` Frangi? | **no** — `max(0, -λ_min)·σ²`, Sato-like, no eigenvalue-ratio suppression; its own docstring says so |
+| does BSI use a 20 m band? | yes, B11 alongside B4, B8, B2 at 10 m |
+
+## Corrections applied
+
+Nine bibliography entries, seven claim-ledger claims, the evaluation packet's section 0 and frozen
+settings, the topology note, and the categorical language throughout `gaps.md`
+("no paper exists" → "not located in this review"). One claim added:
+
+**C19 — the analysis grid's nominal metres are not ground metres.** Independently calculated, not
+measured on an export. `path_length_px` must never be converted to metres using an assumed 10.
+
+Two consequences I had missed and which the critique surfaced:
+
+- **Option A cannot recover the case it was proposed for.** It skeletonises *accepted* components,
+  but the `crossing` case produces **zero** accepted components. Recorded as a placement conflict.
+- **A grade must record its access level.** Some entries were graded from a Crossref record alone,
+  which cannot support an independent-validation grade. Noted in `gaps.md`.
+
+## New tests
+`analysis/tests/test_support_and_compositing.py` pins both arithmetic facts — the ground-scale
+shortfall at every registered site, and the non-commutation of ratio-of-medians against
+median-of-ratios, including the case where a missing band changes which acquisitions are jointly
+valid. Neither test asserts which estimator is better; that is unmeasured.
+
+## Checks observed
+`pytest analysis/tests -q` **129 passed** (124 + 5 new) · both Node checks · worksheet check · both
+presentation checks · `git diff --check` clean. No threshold, default, site, gate or committed
+record changed; all six `verified` flags remain `false`; CR-08 unchanged.
+
+## Not done from the critique's work package
+Sections 2 to 6 propose diagnostics needing Earth Engine access or owner time: the runtime grid
+probe, the compositor A/B on real imagery, the missing-year sensitivity on real QA pixels, and the
+triage response design. The two arithmetic oracles are delivered above; the rest remain specified
+and unexecuted.

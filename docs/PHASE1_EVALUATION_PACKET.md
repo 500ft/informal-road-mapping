@@ -13,9 +13,15 @@ itself. Do not create a second gate or a second set of thresholds.
 A SCREEN_PASS is the registered **large-component positive-disturbance screen**. It is not road
 precision, not road recall, not recovery detection, and not source authentication. Hansen 2016's
 alert system is the precedent for shipping a screen that explicitly does not separate human-induced
-from natural disturbance. Zhu 2020 (COLD) puts the realistic error floor for an unsupervised
-disturbance screen at roughly **27% omission and 28% commission**, so a commission rate in the tens
-of percent is expected behaviour, not a defect to hide.
+from natural disturbance.
+
+**Corrected 2026-09-24.** An earlier draft quoted Zhu 2020's COLD results as "the realistic error
+floor" for an unsupervised screen. That transfer was unjustified: 27% omission and 28% commission
+are measured results for one algorithm on the authors' Landsat evaluation against their reference
+data, not a bound and not a prediction for Mongolian track candidates. Quoting them as a floor could
+excuse a poor detector before it has been measured. The correct statement is: **other disturbance
+screens report substantial errors, and this screen's error rates and the review burden they imply
+have not yet been measured.**
 
 ## 1. Identity — fill before looking at any output
 
@@ -65,9 +71,16 @@ is for the human reader, not a substitute for running the CLI.
 | `n_valid` recent years (must be ≥ 2) | | | | |
 
 Frozen settings that must match the manifest on every row, none of which may be changed for this
-run: early years 2018–2021, recent years 2023–2026, CRS EPSG:3857, scale 10 m, control ring
+run: early years 2018–2021, recent years 2023–2026, CRS EPSG:3857, nominal scale 10, control ring
 200–800 m, minimum 500 control pixels, month 7, `z_min` 1.0, yearly effect floor 0.02, persistence
 2/3, minimum 2 valid recent years, minimum component size 50 pixels.
+
+**Record the grid's physical meaning alongside these, do not assume it.** The CRS is Web Mercator, so
+a nominal-10 pixel spans roughly **6.6–7.0 m** of ground across the registered latitudes, and the
+50-pixel component threshold corresponds to about **2,200–2,500 m²** rather than 5,000 m². `BSI`
+additionally draws on B11, whose native sampling is 20 m. Enter the exported affine transform,
+`pixelArea` and the nominal scale here rather than converting from an assumed 10 m — see C19 in the
+[claim ledger](../literature/claim-ledger.md).
 
 ## 4. Primary decision — recorded before any sensitivity run
 
