@@ -333,3 +333,47 @@ exit 0 · both presentation checks exit 0 · `git diff --check` clean · all six
 No site, coordinate, role or flag was changed. No imagery was inspected. CR-08 remains blocked on
 one dated source-image judgment, and the first-site order (`dev-01-braided` proposed,
 `negative-01` the named alternative) is still an open owner decision.
+
+---
+
+# Day 5 — 2026-09-23 — evaluation protocol and the next-experiment design (W4)
+
+Base: `main` at `2dd6992`. Two design documents, no implementation, no code change.
+
+## Artifacts
+- [docs/PHASE1_EVALUATION_PACKET.md](../../docs/PHASE1_EVALUATION_PACKET.md) — the blank template a
+  real Phase-1 run fills in: identity and hashes, Earth Engine task ids with their **terminal state**
+  (a launch is not a completed export), per-site metrics against the frozen settings read from
+  `phase1_gate.py`, the primary decision recorded **before** any sensitivity run, exclusions, and an
+  explicit list of what a SCREEN_PASS does not establish. It restates the collection check found on
+  2026-09-22: the Processing Baseline 04.00 offset falls between the two analysis windows, so a
+  non-harmonized collection would inject a false step change into exactly this comparison.
+- [docs/specs/phase-2-topology-followup/plan.md](../../docs/specs/phase-2-topology-followup/plan.md) —
+  Options A, B and C for the one-path-per-component ceiling, each with its required input,
+  dependency, exposing synthetic cases, invariant metrics, false-positive modes, cost and promotion
+  trigger.
+
+## Recommendation and why it is not inertia
+**Option C (defer topology) stands**, on three grounds the literature review supplied:
+
+1. Hannink 2014 places the junction loss **in the Hessian filter**, so Options A and B both operate
+   on a component the filter already merged or dropped. Neither can recover a crossing downstream.
+2. No site is verified and no export exists, so improving candidate geometry optimises a quantity
+   that has never been compared to a real corridor.
+3. The dominant error is **not topological**. The extractor fabricates a river-bank-shaped feature
+   as its strongest candidate, and Liu 2016, Nagel 2024 and Queiroz 2020 show that is a field-wide
+   failure. Better line geometry does not improve road versus non-road discrimination.
+
+The note therefore ranks four non-topology alternatives instead, led by the per-band median
+composite issue (Roberts 2017), which is a correctness question upstream of everything else.
+
+## CAD scope, asked and answered
+No part of Day 5 requires CAD or FEA. The owner's own recorded guidance
+([ENGINEERING_AUDIT_PLANNING_GUIDANCE_2026-09-21.txt](../../docs/ENGINEERING_AUDIT_PLANNING_GUIDANCE_2026-09-21.txt))
+states that reusable CAD/FEA machinery belongs in `500ft/engineering-audit` and that **no CAD/FEA
+work is added to this satellite-mapping project** by that reference. Nothing was added.
+
+## Checks observed
+`tools/check_presentation.py` issues: [] with 78 local links · `tools/test_presentation.py` OK ·
+`git diff --check` clean. No code, test, record, threshold, site or gate touched; all six `verified`
+flags remain `false`; CR-08 unchanged.
