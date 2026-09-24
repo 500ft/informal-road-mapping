@@ -106,7 +106,7 @@ evidence and the gallery, and reconcile only the authoritative ledger rows and d
 entries. If the owner did not approve, or asked for a correction: implement the one named bounded
 correction with its acceptance test, and leave the stack open. Either way CR-08 is untouched.
 
-### Day 5 — 2026-09-23 — evaluation protocol and the next-experiment design
+### Day 5 — 2026-09-23 — evaluation protocol and the next-experiment design — **done**
 Artifacts: the real evaluation packet template from the draft's Task 5.2 (source commit and manifest
 hash, site role and verification provenance, Earth Engine script revision, four per-site CSVs, eight
 scene counts, coverage and `n_valid`, primary gate decision, sensitivity only after the primary
