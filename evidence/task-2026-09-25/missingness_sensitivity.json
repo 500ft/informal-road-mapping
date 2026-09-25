@@ -1,0 +1,4631 @@
+{
+ "status": "MODEL_CHECKED",
+ "not_established": [
+  "This is an arithmetic model of the decision rule, not an execution of the Earth Engine calculation. No pixel persistence was computed.",
+  "Uniform enumeration is NOT an empirical probability model for cloud-related missingness. Any percentage here is a fraction of enumerated cases, not an estimated field failure rate.",
+  "176 pairs are enumerated scenarios; several share an observed retained history, so they are not 176 independent samples.",
+  "Early-baseline (2018-2021) support is not modelled. All recent comparisons share that baseline and are not independent replications.",
+  "Actual per-pixel clear-observation counts are a real-data follow-up; AOI scene counts do not prove per-pixel usable data."
+ ],
+ "rule": {
+  "source": "gee/ndvi_change.js",
+  "disturbed": "yearlyComp > YEARLY_EFFECT_MIN (strict)",
+  "persistence": "k/n >= PERSISTENCE_MIN (2/3), evaluated as 3k >= 2n",
+  "eligibility": "n >= MIN_VALID_RECENT_YEARS (2)",
+  "masked_years": "absent from both k and n; never imputed as quiet"
+ },
+ "source_binding": {
+  "yearly_effect_is_strict_gt": true,
+  "persistence_is_gte": true,
+  "valid_count_is_gte": true,
+  "yearly_effect_min_is_0_02": true,
+  "persistence_min_is_two_thirds": true,
+  "min_valid_recent_years_is_2": true
+ },
+ "counts": {
+  "histories": 16,
+  "masks": 11,
+  "pairs": 176
+ },
+ "summary": {
+  "by_flip": {
+   "unchanged": 146,
+   "fail_to_pass": 18,
+   "pass_to_fail": 12
+  },
+  "by_retained_n": {
+   "n=2": {
+    "unchanged": 78,
+    "fail_to_pass": 6,
+    "pass_to_fail": 12
+   },
+   "n=3": {
+    "unchanged": 52,
+    "fail_to_pass": 12
+   },
+   "n=4": {
+    "unchanged": 16
+   }
+  },
+  "by_full_disturbed": {
+   "full_disturbed=0": {
+    "unchanged": 11
+   },
+   "full_disturbed=1": {
+    "unchanged": 44
+   },
+   "full_disturbed=2": {
+    "fail_to_pass": 18,
+    "unchanged": 48
+   },
+   "full_disturbed=3": {
+    "unchanged": 32,
+    "pass_to_fail": 12
+   },
+   "full_disturbed=4": {
+    "unchanged": 11
+   }
+  },
+  "dropping_only_quiet_years": {
+   "cases": 56,
+   "fail_to_pass": 18,
+   "pass_to_fail": 0
+  },
+  "dropping_only_disturbed_years": {
+   "cases": 56,
+   "fail_to_pass": 0,
+   "pass_to_fail": 12
+  }
+ },
+ "worked_examples": {
+  "fail_to_pass": {
+   "history": [
+    1,
+    1,
+    0,
+    0
+   ],
+   "mask": [
+    1,
+    1,
+    0,
+    0
+   ],
+   "full": {
+    "n": 4,
+    "k": 2,
+    "eligible": true,
+    "persist": false,
+    "pass": false
+   },
+   "retained": {
+    "n": 2,
+    "k": 2,
+    "eligible": true,
+    "persist": true,
+    "pass": true
+   }
+  },
+  "pass_to_fail": {
+   "history": [
+    1,
+    1,
+    1,
+    0
+   ],
+   "mask": [
+    1,
+    0,
+    0,
+    1
+   ],
+   "full": {
+    "n": 4,
+    "k": 3,
+    "eligible": true,
+    "persist": true,
+    "pass": true
+   },
+   "retained": {
+    "n": 2,
+    "k": 1,
+    "eligible": true,
+    "persist": false,
+    "pass": false
+   }
+  }
+ },
+ "edge_cases": {
+  "n_equals_1_is_ineligible": {
+   "n": 1,
+   "k": 1,
+   "eligible": false,
+   "persist": false,
+   "pass": false
+  },
+  "n_equals_0_is_ineligible": {
+   "n": 0,
+   "k": 0,
+   "eligible": false,
+   "persist": false,
+   "pass": false
+  },
+  "yearly_effect_boundary": {
+   "note": "disturbed uses strict >, so an effect of exactly YEARLY_EFFECT_MIN is NOT disturbed",
+   "effect_0.0199_disturbed": false,
+   "effect_0.0200_disturbed": false,
+   "effect_0.0201_disturbed": true
+  },
+  "minimum_passing_counts": {
+   "n=2": 2,
+   "n=3": 2,
+   "n=4": 3
+  }
+ },
+ "pairs": [
+  {
+   "history": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "mask": [
+    0,
+    0,
+    1,
+    1
+   ],
+   "retained_n": 2,
+   "retained_k": 0,
+   "full_disturbed": 0,
+   "full_pass": false,
+   "retained_pass": false,
+   "flip": "unchanged",
+   "dropped_years": [
+    2023,
+    2024
+   ],
+   "dropped_disturbed": 0,
+   "dropped_quiet": 2
+  },
+  {
+   "history": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "mask": [
+    0,
+    1,
+    0,
+    1
+   ],
+   "retained_n": 2,
+   "retained_k": 0,
+   "full_disturbed": 0,
+   "full_pass": false,
+   "retained_pass": false,
+   "flip": "unchanged",
+   "dropped_years": [
+    2023,
+    2025
+   ],
+   "dropped_disturbed": 0,
+   "dropped_quiet": 2
+  },
+  {
+   "history": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "mask": [
+    0,
+    1,
+    1,
+    0
+   ],
+   "retained_n": 2,
+   "retained_k": 0,
+   "full_disturbed": 0,
+   "full_pass": false,
+   "retained_pass": false,
+   "flip": "unchanged",
+   "dropped_years": [
+    2023,
+    2026
+   ],
+   "dropped_disturbed": 0,
+   "dropped_quiet": 2
+  },
+  {
+   "history": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "mask": [
+    0,
+    1,
+    1,
+    1
+   ],
+   "retained_n": 3,
+   "retained_k": 0,
+   "full_disturbed": 0,
+   "full_pass": false,
+   "retained_pass": false,
+   "flip": "unchanged",
+   "dropped_years": [
+    2023
+   ],
+   "dropped_disturbed": 0,
+   "dropped_quiet": 1
+  },
+  {
+   "history": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "mask": [
+    1,
+    0,
+    0,
+    1
+   ],
+   "retained_n": 2,
+   "retained_k": 0,
+   "full_disturbed": 0,
+   "full_pass": false,
+   "retained_pass": false,
+   "flip": "unchanged",
+   "dropped_years": [
+    2024,
+    2025
+   ],
+   "dropped_disturbed": 0,
+   "dropped_quiet": 2
+  },
+  {
+   "history": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "mask": [
+    1,
+    0,
+    1,
+    0
+   ],
+   "retained_n": 2,
+   "retained_k": 0,
+   "full_disturbed": 0,
+   "full_pass": false,
+   "retained_pass": false,
+   "flip": "unchanged",
+   "dropped_years": [
+    2024,
+    2026
+   ],
+   "dropped_disturbed": 0,
+   "dropped_quiet": 2
+  },
+  {
+   "history": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "mask": [
+    1,
+    0,
+    1,
+    1
+   ],
+   "retained_n": 3,
+   "retained_k": 0,
+   "full_disturbed": 0,
+   "full_pass": false,
+   "retained_pass": false,
+   "flip": "unchanged",
+   "dropped_years": [
+    2024
+   ],
+   "dropped_disturbed": 0,
+   "dropped_quiet": 1
+  },
+  {
+   "history": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "mask": [
+    1,
+    1,
+    0,
+    0
+   ],
+   "retained_n": 2,
+   "retained_k": 0,
+   "full_disturbed": 0,
+   "full_pass": false,
+   "retained_pass": false,
+   "flip": "unchanged",
+   "dropped_years": [
+    2025,
+    2026
+   ],
+   "dropped_disturbed": 0,
+   "dropped_quiet": 2
+  },
+  {
+   "history": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "mask": [
+    1,
+    1,
+    0,
+    1
+   ],
+   "retained_n": 3,
+   "retained_k": 0,
+   "full_disturbed": 0,
+   "full_pass": false,
+   "retained_pass": false,
+   "flip": "unchanged",
+   "dropped_years": [
+    2025
+   ],
+   "dropped_disturbed": 0,
+   "dropped_quiet": 1
+  },
+  {
+   "history": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "mask": [
+    1,
+    1,
+    1,
+    0
+   ],
+   "retained_n": 3,
+   "retained_k": 0,
+   "full_disturbed": 0,
+   "full_pass": false,
+   "retained_pass": false,
+   "flip": "unchanged",
+   "dropped_years": [
+    2026
+   ],
+   "dropped_disturbed": 0,
+   "dropped_quiet": 1
+  },
+  {
+   "history": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "mask": [
+    1,
+    1,
+    1,
+    1
+   ],
+   "retained_n": 4,
+   "retained_k": 0,
+   "full_disturbed": 0,
+   "full_pass": false,
+   "retained_pass": false,
+   "flip": "unchanged",
+   "dropped_years": [],
+   "dropped_disturbed": 0,
+   "dropped_quiet": 0
+  },
+  {
+   "history": [
+    0,
+    0,
+    0,
+    1
+   ],
+   "mask": [
+    0,
+    0,
+    1,
+    1
+   ],
+   "retained_n": 2,
+   "retained_k": 1,
+   "full_disturbed": 1,
+   "full_pass": false,
+   "retained_pass": false,
+   "flip": "unchanged",
+   "dropped_years": [
+    2023,
+    2024
+   ],
+   "dropped_disturbed": 0,
+   "dropped_quiet": 2
+  },
+  {
+   "history": [
+    0,
+    0,
+    0,
+    1
+   ],
+   "mask": [
+    0,
+    1,
+    0,
+    1
+   ],
+   "retained_n": 2,
+   "retained_k": 1,
+   "full_disturbed": 1,
+   "full_pass": false,
+   "retained_pass": false,
+   "flip": "unchanged",
+   "dropped_years": [
+    2023,
+    2025
+   ],
+   "dropped_disturbed": 0,
+   "dropped_quiet": 2
+  },
+  {
+   "history": [
+    0,
+    0,
+    0,
+    1
+   ],
+   "mask": [
+    0,
+    1,
+    1,
+    0
+   ],
+   "retained_n": 2,
+   "retained_k": 0,
+   "full_disturbed": 1,
+   "full_pass": false,
+   "retained_pass": false,
+   "flip": "unchanged",
+   "dropped_years": [
+    2023,
+    2026
+   ],
+   "dropped_disturbed": 1,
+   "dropped_quiet": 1
+  },
+  {
+   "history": [
+    0,
+    0,
+    0,
+    1
+   ],
+   "mask": [
+    0,
+    1,
+    1,
+    1
+   ],
+   "retained_n": 3,
+   "retained_k": 1,
+   "full_disturbed": 1,
+   "full_pass": false,
+   "retained_pass": false,
+   "flip": "unchanged",
+   "dropped_years": [
+    2023
+   ],
+   "dropped_disturbed": 0,
+   "dropped_quiet": 1
+  },
+  {
+   "history": [
+    0,
+    0,
+    0,
+    1
+   ],
+   "mask": [
+    1,
+    0,
+    0,
+    1
+   ],
+   "retained_n": 2,
+   "retained_k": 1,
+   "full_disturbed": 1,
+   "full_pass": false,
+   "retained_pass": false,
+   "flip": "unchanged",
+   "dropped_years": [
+    2024,
+    2025
+   ],
+   "dropped_disturbed": 0,
+   "dropped_quiet": 2
+  },
+  {
+   "history": [
+    0,
+    0,
+    0,
+    1
+   ],
+   "mask": [
+    1,
+    0,
+    1,
+    0
+   ],
+   "retained_n": 2,
+   "retained_k": 0,
+   "full_disturbed": 1,
+   "full_pass": false,
+   "retained_pass": false,
+   "flip": "unchanged",
+   "dropped_years": [
+    2024,
+    2026
+   ],
+   "dropped_disturbed": 1,
+   "dropped_quiet": 1
+  },
+  {
+   "history": [
+    0,
+    0,
+    0,
+    1
+   ],
+   "mask": [
+    1,
+    0,
+    1,
+    1
+   ],
+   "retained_n": 3,
+   "retained_k": 1,
+   "full_disturbed": 1,
+   "full_pass": false,
+   "retained_pass": false,
+   "flip": "unchanged",
+   "dropped_years": [
+    2024
+   ],
+   "dropped_disturbed": 0,
+   "dropped_quiet": 1
+  },
+  {
+   "history": [
+    0,
+    0,
+    0,
+    1
+   ],
+   "mask": [
+    1,
+    1,
+    0,
+    0
+   ],
+   "retained_n": 2,
+   "retained_k": 0,
+   "full_disturbed": 1,
+   "full_pass": false,
+   "retained_pass": false,
+   "flip": "unchanged",
+   "dropped_years": [
+    2025,
+    2026
+   ],
+   "dropped_disturbed": 1,
+   "dropped_quiet": 1
+  },
+  {
+   "history": [
+    0,
+    0,
+    0,
+    1
+   ],
+   "mask": [
+    1,
+    1,
+    0,
+    1
+   ],
+   "retained_n": 3,
+   "retained_k": 1,
+   "full_disturbed": 1,
+   "full_pass": false,
+   "retained_pass": false,
+   "flip": "unchanged",
+   "dropped_years": [
+    2025
+   ],
+   "dropped_disturbed": 0,
+   "dropped_quiet": 1
+  },
+  {
+   "history": [
+    0,
+    0,
+    0,
+    1
+   ],
+   "mask": [
+    1,
+    1,
+    1,
+    0
+   ],
+   "retained_n": 3,
+   "retained_k": 0,
+   "full_disturbed": 1,
+   "full_pass": false,
+   "retained_pass": false,
+   "flip": "unchanged",
+   "dropped_years": [
+    2026
+   ],
+   "dropped_disturbed": 1,
+   "dropped_quiet": 0
+  },
+  {
+   "history": [
+    0,
+    0,
+    0,
+    1
+   ],
+   "mask": [
+    1,
+    1,
+    1,
+    1
+   ],
+   "retained_n": 4,
+   "retained_k": 1,
+   "full_disturbed": 1,
+   "full_pass": false,
+   "retained_pass": false,
+   "flip": "unchanged",
+   "dropped_years": [],
+   "dropped_disturbed": 0,
+   "dropped_quiet": 0
+  },
+  {
+   "history": [
+    0,
+    0,
+    1,
+    0
+   ],
+   "mask": [
+    0,
+    0,
+    1,
+    1
+   ],
+   "retained_n": 2,
+   "retained_k": 1,
+   "full_disturbed": 1,
+   "full_pass": false,
+   "retained_pass": false,
+   "flip": "unchanged",
+   "dropped_years": [
+    2023,
+    2024
+   ],
+   "dropped_disturbed": 0,
+   "dropped_quiet": 2
+  },
+  {
+   "history": [
+    0,
+    0,
+    1,
+    0
+   ],
+   "mask": [
+    0,
+    1,
+    0,
+    1
+   ],
+   "retained_n": 2,
+   "retained_k": 0,
+   "full_disturbed": 1,
+   "full_pass": false,
+   "retained_pass": false,
+   "flip": "unchanged",
+   "dropped_years": [
+    2023,
+    2025
+   ],
+   "dropped_disturbed": 1,
+   "dropped_quiet": 1
+  },
+  {
+   "history": [
+    0,
+    0,
+    1,
+    0
+   ],
+   "mask": [
+    0,
+    1,
+    1,
+    0
+   ],
+   "retained_n": 2,
+   "retained_k": 1,
+   "full_disturbed": 1,
+   "full_pass": false,
+   "retained_pass": false,
+   "flip": "unchanged",
+   "dropped_years": [
+    2023,
+    2026
+   ],
+   "dropped_disturbed": 0,
+   "dropped_quiet": 2
+  },
+  {
+   "history": [
+    0,
+    0,
+    1,
+    0
+   ],
+   "mask": [
+    0,
+    1,
+    1,
+    1
+   ],
+   "retained_n": 3,
+   "retained_k": 1,
+   "full_disturbed": 1,
+   "full_pass": false,
+   "retained_pass": false,
+   "flip": "unchanged",
+   "dropped_years": [
+    2023
+   ],
+   "dropped_disturbed": 0,
+   "dropped_quiet": 1
+  },
+  {
+   "history": [
+    0,
+    0,
+    1,
+    0
+   ],
+   "mask": [
+    1,
+    0,
+    0,
+    1
+   ],
+   "retained_n": 2,
+   "retained_k": 0,
+   "full_disturbed": 1,
+   "full_pass": false,
+   "retained_pass": false,
+   "flip": "unchanged",
+   "dropped_years": [
+    2024,
+    2025
+   ],
+   "dropped_disturbed": 1,
+   "dropped_quiet": 1
+  },
+  {
+   "history": [
+    0,
+    0,
+    1,
+    0
+   ],
+   "mask": [
+    1,
+    0,
+    1,
+    0
+   ],
+   "retained_n": 2,
+   "retained_k": 1,
+   "full_disturbed": 1,
+   "full_pass": false,
+   "retained_pass": false,
+   "flip": "unchanged",
+   "dropped_years": [
+    2024,
+    2026
+   ],
+   "dropped_disturbed": 0,
+   "dropped_quiet": 2
+  },
+  {
+   "history": [
+    0,
+    0,
+    1,
+    0
+   ],
+   "mask": [
+    1,
+    0,
+    1,
+    1
+   ],
+   "retained_n": 3,
+   "retained_k": 1,
+   "full_disturbed": 1,
+   "full_pass": false,
+   "retained_pass": false,
+   "flip": "unchanged",
+   "dropped_years": [
+    2024
+   ],
+   "dropped_disturbed": 0,
+   "dropped_quiet": 1
+  },
+  {
+   "history": [
+    0,
+    0,
+    1,
+    0
+   ],
+   "mask": [
+    1,
+    1,
+    0,
+    0
+   ],
+   "retained_n": 2,
+   "retained_k": 0,
+   "full_disturbed": 1,
+   "full_pass": false,
+   "retained_pass": false,
+   "flip": "unchanged",
+   "dropped_years": [
+    2025,
+    2026
+   ],
+   "dropped_disturbed": 1,
+   "dropped_quiet": 1
+  },
+  {
+   "history": [
+    0,
+    0,
+    1,
+    0
+   ],
+   "mask": [
+    1,
+    1,
+    0,
+    1
+   ],
+   "retained_n": 3,
+   "retained_k": 0,
+   "full_disturbed": 1,
+   "full_pass": false,
+   "retained_pass": false,
+   "flip": "unchanged",
+   "dropped_years": [
+    2025
+   ],
+   "dropped_disturbed": 1,
+   "dropped_quiet": 0
+  },
+  {
+   "history": [
+    0,
+    0,
+    1,
+    0
+   ],
+   "mask": [
+    1,
+    1,
+    1,
+    0
+   ],
+   "retained_n": 3,
+   "retained_k": 1,
+   "full_disturbed": 1,
+   "full_pass": false,
+   "retained_pass": false,
+   "flip": "unchanged",
+   "dropped_years": [
+    2026
+   ],
+   "dropped_disturbed": 0,
+   "dropped_quiet": 1
+  },
+  {
+   "history": [
+    0,
+    0,
+    1,
+    0
+   ],
+   "mask": [
+    1,
+    1,
+    1,
+    1
+   ],
+   "retained_n": 4,
+   "retained_k": 1,
+   "full_disturbed": 1,
+   "full_pass": false,
+   "retained_pass": false,
+   "flip": "unchanged",
+   "dropped_years": [],
+   "dropped_disturbed": 0,
+   "dropped_quiet": 0
+  },
+  {
+   "history": [
+    0,
+    0,
+    1,
+    1
+   ],
+   "mask": [
+    0,
+    0,
+    1,
+    1
+   ],
+   "retained_n": 2,
+   "retained_k": 2,
+   "full_disturbed": 2,
+   "full_pass": false,
+   "retained_pass": true,
+   "flip": "fail_to_pass",
+   "dropped_years": [
+    2023,
+    2024
+   ],
+   "dropped_disturbed": 0,
+   "dropped_quiet": 2
+  },
+  {
+   "history": [
+    0,
+    0,
+    1,
+    1
+   ],
+   "mask": [
+    0,
+    1,
+    0,
+    1
+   ],
+   "retained_n": 2,
+   "retained_k": 1,
+   "full_disturbed": 2,
+   "full_pass": false,
+   "retained_pass": false,
+   "flip": "unchanged",
+   "dropped_years": [
+    2023,
+    2025
+   ],
+   "dropped_disturbed": 1,
+   "dropped_quiet": 1
+  },
+  {
+   "history": [
+    0,
+    0,
+    1,
+    1
+   ],
+   "mask": [
+    0,
+    1,
+    1,
+    0
+   ],
+   "retained_n": 2,
+   "retained_k": 1,
+   "full_disturbed": 2,
+   "full_pass": false,
+   "retained_pass": false,
+   "flip": "unchanged",
+   "dropped_years": [
+    2023,
+    2026
+   ],
+   "dropped_disturbed": 1,
+   "dropped_quiet": 1
+  },
+  {
+   "history": [
+    0,
+    0,
+    1,
+    1
+   ],
+   "mask": [
+    0,
+    1,
+    1,
+    1
+   ],
+   "retained_n": 3,
+   "retained_k": 2,
+   "full_disturbed": 2,
+   "full_pass": false,
+   "retained_pass": true,
+   "flip": "fail_to_pass",
+   "dropped_years": [
+    2023
+   ],
+   "dropped_disturbed": 0,
+   "dropped_quiet": 1
+  },
+  {
+   "history": [
+    0,
+    0,
+    1,
+    1
+   ],
+   "mask": [
+    1,
+    0,
+    0,
+    1
+   ],
+   "retained_n": 2,
+   "retained_k": 1,
+   "full_disturbed": 2,
+   "full_pass": false,
+   "retained_pass": false,
+   "flip": "unchanged",
+   "dropped_years": [
+    2024,
+    2025
+   ],
+   "dropped_disturbed": 1,
+   "dropped_quiet": 1
+  },
+  {
+   "history": [
+    0,
+    0,
+    1,
+    1
+   ],
+   "mask": [
+    1,
+    0,
+    1,
+    0
+   ],
+   "retained_n": 2,
+   "retained_k": 1,
+   "full_disturbed": 2,
+   "full_pass": false,
+   "retained_pass": false,
+   "flip": "unchanged",
+   "dropped_years": [
+    2024,
+    2026
+   ],
+   "dropped_disturbed": 1,
+   "dropped_quiet": 1
+  },
+  {
+   "history": [
+    0,
+    0,
+    1,
+    1
+   ],
+   "mask": [
+    1,
+    0,
+    1,
+    1
+   ],
+   "retained_n": 3,
+   "retained_k": 2,
+   "full_disturbed": 2,
+   "full_pass": false,
+   "retained_pass": true,
+   "flip": "fail_to_pass",
+   "dropped_years": [
+    2024
+   ],
+   "dropped_disturbed": 0,
+   "dropped_quiet": 1
+  },
+  {
+   "history": [
+    0,
+    0,
+    1,
+    1
+   ],
+   "mask": [
+    1,
+    1,
+    0,
+    0
+   ],
+   "retained_n": 2,
+   "retained_k": 0,
+   "full_disturbed": 2,
+   "full_pass": false,
+   "retained_pass": false,
+   "flip": "unchanged",
+   "dropped_years": [
+    2025,
+    2026
+   ],
+   "dropped_disturbed": 2,
+   "dropped_quiet": 0
+  },
+  {
+   "history": [
+    0,
+    0,
+    1,
+    1
+   ],
+   "mask": [
+    1,
+    1,
+    0,
+    1
+   ],
+   "retained_n": 3,
+   "retained_k": 1,
+   "full_disturbed": 2,
+   "full_pass": false,
+   "retained_pass": false,
+   "flip": "unchanged",
+   "dropped_years": [
+    2025
+   ],
+   "dropped_disturbed": 1,
+   "dropped_quiet": 0
+  },
+  {
+   "history": [
+    0,
+    0,
+    1,
+    1
+   ],
+   "mask": [
+    1,
+    1,
+    1,
+    0
+   ],
+   "retained_n": 3,
+   "retained_k": 1,
+   "full_disturbed": 2,
+   "full_pass": false,
+   "retained_pass": false,
+   "flip": "unchanged",
+   "dropped_years": [
+    2026
+   ],
+   "dropped_disturbed": 1,
+   "dropped_quiet": 0
+  },
+  {
+   "history": [
+    0,
+    0,
+    1,
+    1
+   ],
+   "mask": [
+    1,
+    1,
+    1,
+    1
+   ],
+   "retained_n": 4,
+   "retained_k": 2,
+   "full_disturbed": 2,
+   "full_pass": false,
+   "retained_pass": false,
+   "flip": "unchanged",
+   "dropped_years": [],
+   "dropped_disturbed": 0,
+   "dropped_quiet": 0
+  },
+  {
+   "history": [
+    0,
+    1,
+    0,
+    0
+   ],
+   "mask": [
+    0,
+    0,
+    1,
+    1
+   ],
+   "retained_n": 2,
+   "retained_k": 0,
+   "full_disturbed": 1,
+   "full_pass": false,
+   "retained_pass": false,
+   "flip": "unchanged",
+   "dropped_years": [
+    2023,
+    2024
+   ],
+   "dropped_disturbed": 1,
+   "dropped_quiet": 1
+  },
+  {
+   "history": [
+    0,
+    1,
+    0,
+    0
+   ],
+   "mask": [
+    0,
+    1,
+    0,
+    1
+   ],
+   "retained_n": 2,
+   "retained_k": 1,
+   "full_disturbed": 1,
+   "full_pass": false,
+   "retained_pass": false,
+   "flip": "unchanged",
+   "dropped_years": [
+    2023,
+    2025
+   ],
+   "dropped_disturbed": 0,
+   "dropped_quiet": 2
+  },
+  {
+   "history": [
+    0,
+    1,
+    0,
+    0
+   ],
+   "mask": [
+    0,
+    1,
+    1,
+    0
+   ],
+   "retained_n": 2,
+   "retained_k": 1,
+   "full_disturbed": 1,
+   "full_pass": false,
+   "retained_pass": false,
+   "flip": "unchanged",
+   "dropped_years": [
+    2023,
+    2026
+   ],
+   "dropped_disturbed": 0,
+   "dropped_quiet": 2
+  },
+  {
+   "history": [
+    0,
+    1,
+    0,
+    0
+   ],
+   "mask": [
+    0,
+    1,
+    1,
+    1
+   ],
+   "retained_n": 3,
+   "retained_k": 1,
+   "full_disturbed": 1,
+   "full_pass": false,
+   "retained_pass": false,
+   "flip": "unchanged",
+   "dropped_years": [
+    2023
+   ],
+   "dropped_disturbed": 0,
+   "dropped_quiet": 1
+  },
+  {
+   "history": [
+    0,
+    1,
+    0,
+    0
+   ],
+   "mask": [
+    1,
+    0,
+    0,
+    1
+   ],
+   "retained_n": 2,
+   "retained_k": 0,
+   "full_disturbed": 1,
+   "full_pass": false,
+   "retained_pass": false,
+   "flip": "unchanged",
+   "dropped_years": [
+    2024,
+    2025
+   ],
+   "dropped_disturbed": 1,
+   "dropped_quiet": 1
+  },
+  {
+   "history": [
+    0,
+    1,
+    0,
+    0
+   ],
+   "mask": [
+    1,
+    0,
+    1,
+    0
+   ],
+   "retained_n": 2,
+   "retained_k": 0,
+   "full_disturbed": 1,
+   "full_pass": false,
+   "retained_pass": false,
+   "flip": "unchanged",
+   "dropped_years": [
+    2024,
+    2026
+   ],
+   "dropped_disturbed": 1,
+   "dropped_quiet": 1
+  },
+  {
+   "history": [
+    0,
+    1,
+    0,
+    0
+   ],
+   "mask": [
+    1,
+    0,
+    1,
+    1
+   ],
+   "retained_n": 3,
+   "retained_k": 0,
+   "full_disturbed": 1,
+   "full_pass": false,
+   "retained_pass": false,
+   "flip": "unchanged",
+   "dropped_years": [
+    2024
+   ],
+   "dropped_disturbed": 1,
+   "dropped_quiet": 0
+  },
+  {
+   "history": [
+    0,
+    1,
+    0,
+    0
+   ],
+   "mask": [
+    1,
+    1,
+    0,
+    0
+   ],
+   "retained_n": 2,
+   "retained_k": 1,
+   "full_disturbed": 1,
+   "full_pass": false,
+   "retained_pass": false,
+   "flip": "unchanged",
+   "dropped_years": [
+    2025,
+    2026
+   ],
+   "dropped_disturbed": 0,
+   "dropped_quiet": 2
+  },
+  {
+   "history": [
+    0,
+    1,
+    0,
+    0
+   ],
+   "mask": [
+    1,
+    1,
+    0,
+    1
+   ],
+   "retained_n": 3,
+   "retained_k": 1,
+   "full_disturbed": 1,
+   "full_pass": false,
+   "retained_pass": false,
+   "flip": "unchanged",
+   "dropped_years": [
+    2025
+   ],
+   "dropped_disturbed": 0,
+   "dropped_quiet": 1
+  },
+  {
+   "history": [
+    0,
+    1,
+    0,
+    0
+   ],
+   "mask": [
+    1,
+    1,
+    1,
+    0
+   ],
+   "retained_n": 3,
+   "retained_k": 1,
+   "full_disturbed": 1,
+   "full_pass": false,
+   "retained_pass": false,
+   "flip": "unchanged",
+   "dropped_years": [
+    2026
+   ],
+   "dropped_disturbed": 0,
+   "dropped_quiet": 1
+  },
+  {
+   "history": [
+    0,
+    1,
+    0,
+    0
+   ],
+   "mask": [
+    1,
+    1,
+    1,
+    1
+   ],
+   "retained_n": 4,
+   "retained_k": 1,
+   "full_disturbed": 1,
+   "full_pass": false,
+   "retained_pass": false,
+   "flip": "unchanged",
+   "dropped_years": [],
+   "dropped_disturbed": 0,
+   "dropped_quiet": 0
+  },
+  {
+   "history": [
+    0,
+    1,
+    0,
+    1
+   ],
+   "mask": [
+    0,
+    0,
+    1,
+    1
+   ],
+   "retained_n": 2,
+   "retained_k": 1,
+   "full_disturbed": 2,
+   "full_pass": false,
+   "retained_pass": false,
+   "flip": "unchanged",
+   "dropped_years": [
+    2023,
+    2024
+   ],
+   "dropped_disturbed": 1,
+   "dropped_quiet": 1
+  },
+  {
+   "history": [
+    0,
+    1,
+    0,
+    1
+   ],
+   "mask": [
+    0,
+    1,
+    0,
+    1
+   ],
+   "retained_n": 2,
+   "retained_k": 2,
+   "full_disturbed": 2,
+   "full_pass": false,
+   "retained_pass": true,
+   "flip": "fail_to_pass",
+   "dropped_years": [
+    2023,
+    2025
+   ],
+   "dropped_disturbed": 0,
+   "dropped_quiet": 2
+  },
+  {
+   "history": [
+    0,
+    1,
+    0,
+    1
+   ],
+   "mask": [
+    0,
+    1,
+    1,
+    0
+   ],
+   "retained_n": 2,
+   "retained_k": 1,
+   "full_disturbed": 2,
+   "full_pass": false,
+   "retained_pass": false,
+   "flip": "unchanged",
+   "dropped_years": [
+    2023,
+    2026
+   ],
+   "dropped_disturbed": 1,
+   "dropped_quiet": 1
+  },
+  {
+   "history": [
+    0,
+    1,
+    0,
+    1
+   ],
+   "mask": [
+    0,
+    1,
+    1,
+    1
+   ],
+   "retained_n": 3,
+   "retained_k": 2,
+   "full_disturbed": 2,
+   "full_pass": false,
+   "retained_pass": true,
+   "flip": "fail_to_pass",
+   "dropped_years": [
+    2023
+   ],
+   "dropped_disturbed": 0,
+   "dropped_quiet": 1
+  },
+  {
+   "history": [
+    0,
+    1,
+    0,
+    1
+   ],
+   "mask": [
+    1,
+    0,
+    0,
+    1
+   ],
+   "retained_n": 2,
+   "retained_k": 1,
+   "full_disturbed": 2,
+   "full_pass": false,
+   "retained_pass": false,
+   "flip": "unchanged",
+   "dropped_years": [
+    2024,
+    2025
+   ],
+   "dropped_disturbed": 1,
+   "dropped_quiet": 1
+  },
+  {
+   "history": [
+    0,
+    1,
+    0,
+    1
+   ],
+   "mask": [
+    1,
+    0,
+    1,
+    0
+   ],
+   "retained_n": 2,
+   "retained_k": 0,
+   "full_disturbed": 2,
+   "full_pass": false,
+   "retained_pass": false,
+   "flip": "unchanged",
+   "dropped_years": [
+    2024,
+    2026
+   ],
+   "dropped_disturbed": 2,
+   "dropped_quiet": 0
+  },
+  {
+   "history": [
+    0,
+    1,
+    0,
+    1
+   ],
+   "mask": [
+    1,
+    0,
+    1,
+    1
+   ],
+   "retained_n": 3,
+   "retained_k": 1,
+   "full_disturbed": 2,
+   "full_pass": false,
+   "retained_pass": false,
+   "flip": "unchanged",
+   "dropped_years": [
+    2024
+   ],
+   "dropped_disturbed": 1,
+   "dropped_quiet": 0
+  },
+  {
+   "history": [
+    0,
+    1,
+    0,
+    1
+   ],
+   "mask": [
+    1,
+    1,
+    0,
+    0
+   ],
+   "retained_n": 2,
+   "retained_k": 1,
+   "full_disturbed": 2,
+   "full_pass": false,
+   "retained_pass": false,
+   "flip": "unchanged",
+   "dropped_years": [
+    2025,
+    2026
+   ],
+   "dropped_disturbed": 1,
+   "dropped_quiet": 1
+  },
+  {
+   "history": [
+    0,
+    1,
+    0,
+    1
+   ],
+   "mask": [
+    1,
+    1,
+    0,
+    1
+   ],
+   "retained_n": 3,
+   "retained_k": 2,
+   "full_disturbed": 2,
+   "full_pass": false,
+   "retained_pass": true,
+   "flip": "fail_to_pass",
+   "dropped_years": [
+    2025
+   ],
+   "dropped_disturbed": 0,
+   "dropped_quiet": 1
+  },
+  {
+   "history": [
+    0,
+    1,
+    0,
+    1
+   ],
+   "mask": [
+    1,
+    1,
+    1,
+    0
+   ],
+   "retained_n": 3,
+   "retained_k": 1,
+   "full_disturbed": 2,
+   "full_pass": false,
+   "retained_pass": false,
+   "flip": "unchanged",
+   "dropped_years": [
+    2026
+   ],
+   "dropped_disturbed": 1,
+   "dropped_quiet": 0
+  },
+  {
+   "history": [
+    0,
+    1,
+    0,
+    1
+   ],
+   "mask": [
+    1,
+    1,
+    1,
+    1
+   ],
+   "retained_n": 4,
+   "retained_k": 2,
+   "full_disturbed": 2,
+   "full_pass": false,
+   "retained_pass": false,
+   "flip": "unchanged",
+   "dropped_years": [],
+   "dropped_disturbed": 0,
+   "dropped_quiet": 0
+  },
+  {
+   "history": [
+    0,
+    1,
+    1,
+    0
+   ],
+   "mask": [
+    0,
+    0,
+    1,
+    1
+   ],
+   "retained_n": 2,
+   "retained_k": 1,
+   "full_disturbed": 2,
+   "full_pass": false,
+   "retained_pass": false,
+   "flip": "unchanged",
+   "dropped_years": [
+    2023,
+    2024
+   ],
+   "dropped_disturbed": 1,
+   "dropped_quiet": 1
+  },
+  {
+   "history": [
+    0,
+    1,
+    1,
+    0
+   ],
+   "mask": [
+    0,
+    1,
+    0,
+    1
+   ],
+   "retained_n": 2,
+   "retained_k": 1,
+   "full_disturbed": 2,
+   "full_pass": false,
+   "retained_pass": false,
+   "flip": "unchanged",
+   "dropped_years": [
+    2023,
+    2025
+   ],
+   "dropped_disturbed": 1,
+   "dropped_quiet": 1
+  },
+  {
+   "history": [
+    0,
+    1,
+    1,
+    0
+   ],
+   "mask": [
+    0,
+    1,
+    1,
+    0
+   ],
+   "retained_n": 2,
+   "retained_k": 2,
+   "full_disturbed": 2,
+   "full_pass": false,
+   "retained_pass": true,
+   "flip": "fail_to_pass",
+   "dropped_years": [
+    2023,
+    2026
+   ],
+   "dropped_disturbed": 0,
+   "dropped_quiet": 2
+  },
+  {
+   "history": [
+    0,
+    1,
+    1,
+    0
+   ],
+   "mask": [
+    0,
+    1,
+    1,
+    1
+   ],
+   "retained_n": 3,
+   "retained_k": 2,
+   "full_disturbed": 2,
+   "full_pass": false,
+   "retained_pass": true,
+   "flip": "fail_to_pass",
+   "dropped_years": [
+    2023
+   ],
+   "dropped_disturbed": 0,
+   "dropped_quiet": 1
+  },
+  {
+   "history": [
+    0,
+    1,
+    1,
+    0
+   ],
+   "mask": [
+    1,
+    0,
+    0,
+    1
+   ],
+   "retained_n": 2,
+   "retained_k": 0,
+   "full_disturbed": 2,
+   "full_pass": false,
+   "retained_pass": false,
+   "flip": "unchanged",
+   "dropped_years": [
+    2024,
+    2025
+   ],
+   "dropped_disturbed": 2,
+   "dropped_quiet": 0
+  },
+  {
+   "history": [
+    0,
+    1,
+    1,
+    0
+   ],
+   "mask": [
+    1,
+    0,
+    1,
+    0
+   ],
+   "retained_n": 2,
+   "retained_k": 1,
+   "full_disturbed": 2,
+   "full_pass": false,
+   "retained_pass": false,
+   "flip": "unchanged",
+   "dropped_years": [
+    2024,
+    2026
+   ],
+   "dropped_disturbed": 1,
+   "dropped_quiet": 1
+  },
+  {
+   "history": [
+    0,
+    1,
+    1,
+    0
+   ],
+   "mask": [
+    1,
+    0,
+    1,
+    1
+   ],
+   "retained_n": 3,
+   "retained_k": 1,
+   "full_disturbed": 2,
+   "full_pass": false,
+   "retained_pass": false,
+   "flip": "unchanged",
+   "dropped_years": [
+    2024
+   ],
+   "dropped_disturbed": 1,
+   "dropped_quiet": 0
+  },
+  {
+   "history": [
+    0,
+    1,
+    1,
+    0
+   ],
+   "mask": [
+    1,
+    1,
+    0,
+    0
+   ],
+   "retained_n": 2,
+   "retained_k": 1,
+   "full_disturbed": 2,
+   "full_pass": false,
+   "retained_pass": false,
+   "flip": "unchanged",
+   "dropped_years": [
+    2025,
+    2026
+   ],
+   "dropped_disturbed": 1,
+   "dropped_quiet": 1
+  },
+  {
+   "history": [
+    0,
+    1,
+    1,
+    0
+   ],
+   "mask": [
+    1,
+    1,
+    0,
+    1
+   ],
+   "retained_n": 3,
+   "retained_k": 1,
+   "full_disturbed": 2,
+   "full_pass": false,
+   "retained_pass": false,
+   "flip": "unchanged",
+   "dropped_years": [
+    2025
+   ],
+   "dropped_disturbed": 1,
+   "dropped_quiet": 0
+  },
+  {
+   "history": [
+    0,
+    1,
+    1,
+    0
+   ],
+   "mask": [
+    1,
+    1,
+    1,
+    0
+   ],
+   "retained_n": 3,
+   "retained_k": 2,
+   "full_disturbed": 2,
+   "full_pass": false,
+   "retained_pass": true,
+   "flip": "fail_to_pass",
+   "dropped_years": [
+    2026
+   ],
+   "dropped_disturbed": 0,
+   "dropped_quiet": 1
+  },
+  {
+   "history": [
+    0,
+    1,
+    1,
+    0
+   ],
+   "mask": [
+    1,
+    1,
+    1,
+    1
+   ],
+   "retained_n": 4,
+   "retained_k": 2,
+   "full_disturbed": 2,
+   "full_pass": false,
+   "retained_pass": false,
+   "flip": "unchanged",
+   "dropped_years": [],
+   "dropped_disturbed": 0,
+   "dropped_quiet": 0
+  },
+  {
+   "history": [
+    0,
+    1,
+    1,
+    1
+   ],
+   "mask": [
+    0,
+    0,
+    1,
+    1
+   ],
+   "retained_n": 2,
+   "retained_k": 2,
+   "full_disturbed": 3,
+   "full_pass": true,
+   "retained_pass": true,
+   "flip": "unchanged",
+   "dropped_years": [
+    2023,
+    2024
+   ],
+   "dropped_disturbed": 1,
+   "dropped_quiet": 1
+  },
+  {
+   "history": [
+    0,
+    1,
+    1,
+    1
+   ],
+   "mask": [
+    0,
+    1,
+    0,
+    1
+   ],
+   "retained_n": 2,
+   "retained_k": 2,
+   "full_disturbed": 3,
+   "full_pass": true,
+   "retained_pass": true,
+   "flip": "unchanged",
+   "dropped_years": [
+    2023,
+    2025
+   ],
+   "dropped_disturbed": 1,
+   "dropped_quiet": 1
+  },
+  {
+   "history": [
+    0,
+    1,
+    1,
+    1
+   ],
+   "mask": [
+    0,
+    1,
+    1,
+    0
+   ],
+   "retained_n": 2,
+   "retained_k": 2,
+   "full_disturbed": 3,
+   "full_pass": true,
+   "retained_pass": true,
+   "flip": "unchanged",
+   "dropped_years": [
+    2023,
+    2026
+   ],
+   "dropped_disturbed": 1,
+   "dropped_quiet": 1
+  },
+  {
+   "history": [
+    0,
+    1,
+    1,
+    1
+   ],
+   "mask": [
+    0,
+    1,
+    1,
+    1
+   ],
+   "retained_n": 3,
+   "retained_k": 3,
+   "full_disturbed": 3,
+   "full_pass": true,
+   "retained_pass": true,
+   "flip": "unchanged",
+   "dropped_years": [
+    2023
+   ],
+   "dropped_disturbed": 0,
+   "dropped_quiet": 1
+  },
+  {
+   "history": [
+    0,
+    1,
+    1,
+    1
+   ],
+   "mask": [
+    1,
+    0,
+    0,
+    1
+   ],
+   "retained_n": 2,
+   "retained_k": 1,
+   "full_disturbed": 3,
+   "full_pass": true,
+   "retained_pass": false,
+   "flip": "pass_to_fail",
+   "dropped_years": [
+    2024,
+    2025
+   ],
+   "dropped_disturbed": 2,
+   "dropped_quiet": 0
+  },
+  {
+   "history": [
+    0,
+    1,
+    1,
+    1
+   ],
+   "mask": [
+    1,
+    0,
+    1,
+    0
+   ],
+   "retained_n": 2,
+   "retained_k": 1,
+   "full_disturbed": 3,
+   "full_pass": true,
+   "retained_pass": false,
+   "flip": "pass_to_fail",
+   "dropped_years": [
+    2024,
+    2026
+   ],
+   "dropped_disturbed": 2,
+   "dropped_quiet": 0
+  },
+  {
+   "history": [
+    0,
+    1,
+    1,
+    1
+   ],
+   "mask": [
+    1,
+    0,
+    1,
+    1
+   ],
+   "retained_n": 3,
+   "retained_k": 2,
+   "full_disturbed": 3,
+   "full_pass": true,
+   "retained_pass": true,
+   "flip": "unchanged",
+   "dropped_years": [
+    2024
+   ],
+   "dropped_disturbed": 1,
+   "dropped_quiet": 0
+  },
+  {
+   "history": [
+    0,
+    1,
+    1,
+    1
+   ],
+   "mask": [
+    1,
+    1,
+    0,
+    0
+   ],
+   "retained_n": 2,
+   "retained_k": 1,
+   "full_disturbed": 3,
+   "full_pass": true,
+   "retained_pass": false,
+   "flip": "pass_to_fail",
+   "dropped_years": [
+    2025,
+    2026
+   ],
+   "dropped_disturbed": 2,
+   "dropped_quiet": 0
+  },
+  {
+   "history": [
+    0,
+    1,
+    1,
+    1
+   ],
+   "mask": [
+    1,
+    1,
+    0,
+    1
+   ],
+   "retained_n": 3,
+   "retained_k": 2,
+   "full_disturbed": 3,
+   "full_pass": true,
+   "retained_pass": true,
+   "flip": "unchanged",
+   "dropped_years": [
+    2025
+   ],
+   "dropped_disturbed": 1,
+   "dropped_quiet": 0
+  },
+  {
+   "history": [
+    0,
+    1,
+    1,
+    1
+   ],
+   "mask": [
+    1,
+    1,
+    1,
+    0
+   ],
+   "retained_n": 3,
+   "retained_k": 2,
+   "full_disturbed": 3,
+   "full_pass": true,
+   "retained_pass": true,
+   "flip": "unchanged",
+   "dropped_years": [
+    2026
+   ],
+   "dropped_disturbed": 1,
+   "dropped_quiet": 0
+  },
+  {
+   "history": [
+    0,
+    1,
+    1,
+    1
+   ],
+   "mask": [
+    1,
+    1,
+    1,
+    1
+   ],
+   "retained_n": 4,
+   "retained_k": 3,
+   "full_disturbed": 3,
+   "full_pass": true,
+   "retained_pass": true,
+   "flip": "unchanged",
+   "dropped_years": [],
+   "dropped_disturbed": 0,
+   "dropped_quiet": 0
+  },
+  {
+   "history": [
+    1,
+    0,
+    0,
+    0
+   ],
+   "mask": [
+    0,
+    0,
+    1,
+    1
+   ],
+   "retained_n": 2,
+   "retained_k": 0,
+   "full_disturbed": 1,
+   "full_pass": false,
+   "retained_pass": false,
+   "flip": "unchanged",
+   "dropped_years": [
+    2023,
+    2024
+   ],
+   "dropped_disturbed": 1,
+   "dropped_quiet": 1
+  },
+  {
+   "history": [
+    1,
+    0,
+    0,
+    0
+   ],
+   "mask": [
+    0,
+    1,
+    0,
+    1
+   ],
+   "retained_n": 2,
+   "retained_k": 0,
+   "full_disturbed": 1,
+   "full_pass": false,
+   "retained_pass": false,
+   "flip": "unchanged",
+   "dropped_years": [
+    2023,
+    2025
+   ],
+   "dropped_disturbed": 1,
+   "dropped_quiet": 1
+  },
+  {
+   "history": [
+    1,
+    0,
+    0,
+    0
+   ],
+   "mask": [
+    0,
+    1,
+    1,
+    0
+   ],
+   "retained_n": 2,
+   "retained_k": 0,
+   "full_disturbed": 1,
+   "full_pass": false,
+   "retained_pass": false,
+   "flip": "unchanged",
+   "dropped_years": [
+    2023,
+    2026
+   ],
+   "dropped_disturbed": 1,
+   "dropped_quiet": 1
+  },
+  {
+   "history": [
+    1,
+    0,
+    0,
+    0
+   ],
+   "mask": [
+    0,
+    1,
+    1,
+    1
+   ],
+   "retained_n": 3,
+   "retained_k": 0,
+   "full_disturbed": 1,
+   "full_pass": false,
+   "retained_pass": false,
+   "flip": "unchanged",
+   "dropped_years": [
+    2023
+   ],
+   "dropped_disturbed": 1,
+   "dropped_quiet": 0
+  },
+  {
+   "history": [
+    1,
+    0,
+    0,
+    0
+   ],
+   "mask": [
+    1,
+    0,
+    0,
+    1
+   ],
+   "retained_n": 2,
+   "retained_k": 1,
+   "full_disturbed": 1,
+   "full_pass": false,
+   "retained_pass": false,
+   "flip": "unchanged",
+   "dropped_years": [
+    2024,
+    2025
+   ],
+   "dropped_disturbed": 0,
+   "dropped_quiet": 2
+  },
+  {
+   "history": [
+    1,
+    0,
+    0,
+    0
+   ],
+   "mask": [
+    1,
+    0,
+    1,
+    0
+   ],
+   "retained_n": 2,
+   "retained_k": 1,
+   "full_disturbed": 1,
+   "full_pass": false,
+   "retained_pass": false,
+   "flip": "unchanged",
+   "dropped_years": [
+    2024,
+    2026
+   ],
+   "dropped_disturbed": 0,
+   "dropped_quiet": 2
+  },
+  {
+   "history": [
+    1,
+    0,
+    0,
+    0
+   ],
+   "mask": [
+    1,
+    0,
+    1,
+    1
+   ],
+   "retained_n": 3,
+   "retained_k": 1,
+   "full_disturbed": 1,
+   "full_pass": false,
+   "retained_pass": false,
+   "flip": "unchanged",
+   "dropped_years": [
+    2024
+   ],
+   "dropped_disturbed": 0,
+   "dropped_quiet": 1
+  },
+  {
+   "history": [
+    1,
+    0,
+    0,
+    0
+   ],
+   "mask": [
+    1,
+    1,
+    0,
+    0
+   ],
+   "retained_n": 2,
+   "retained_k": 1,
+   "full_disturbed": 1,
+   "full_pass": false,
+   "retained_pass": false,
+   "flip": "unchanged",
+   "dropped_years": [
+    2025,
+    2026
+   ],
+   "dropped_disturbed": 0,
+   "dropped_quiet": 2
+  },
+  {
+   "history": [
+    1,
+    0,
+    0,
+    0
+   ],
+   "mask": [
+    1,
+    1,
+    0,
+    1
+   ],
+   "retained_n": 3,
+   "retained_k": 1,
+   "full_disturbed": 1,
+   "full_pass": false,
+   "retained_pass": false,
+   "flip": "unchanged",
+   "dropped_years": [
+    2025
+   ],
+   "dropped_disturbed": 0,
+   "dropped_quiet": 1
+  },
+  {
+   "history": [
+    1,
+    0,
+    0,
+    0
+   ],
+   "mask": [
+    1,
+    1,
+    1,
+    0
+   ],
+   "retained_n": 3,
+   "retained_k": 1,
+   "full_disturbed": 1,
+   "full_pass": false,
+   "retained_pass": false,
+   "flip": "unchanged",
+   "dropped_years": [
+    2026
+   ],
+   "dropped_disturbed": 0,
+   "dropped_quiet": 1
+  },
+  {
+   "history": [
+    1,
+    0,
+    0,
+    0
+   ],
+   "mask": [
+    1,
+    1,
+    1,
+    1
+   ],
+   "retained_n": 4,
+   "retained_k": 1,
+   "full_disturbed": 1,
+   "full_pass": false,
+   "retained_pass": false,
+   "flip": "unchanged",
+   "dropped_years": [],
+   "dropped_disturbed": 0,
+   "dropped_quiet": 0
+  },
+  {
+   "history": [
+    1,
+    0,
+    0,
+    1
+   ],
+   "mask": [
+    0,
+    0,
+    1,
+    1
+   ],
+   "retained_n": 2,
+   "retained_k": 1,
+   "full_disturbed": 2,
+   "full_pass": false,
+   "retained_pass": false,
+   "flip": "unchanged",
+   "dropped_years": [
+    2023,
+    2024
+   ],
+   "dropped_disturbed": 1,
+   "dropped_quiet": 1
+  },
+  {
+   "history": [
+    1,
+    0,
+    0,
+    1
+   ],
+   "mask": [
+    0,
+    1,
+    0,
+    1
+   ],
+   "retained_n": 2,
+   "retained_k": 1,
+   "full_disturbed": 2,
+   "full_pass": false,
+   "retained_pass": false,
+   "flip": "unchanged",
+   "dropped_years": [
+    2023,
+    2025
+   ],
+   "dropped_disturbed": 1,
+   "dropped_quiet": 1
+  },
+  {
+   "history": [
+    1,
+    0,
+    0,
+    1
+   ],
+   "mask": [
+    0,
+    1,
+    1,
+    0
+   ],
+   "retained_n": 2,
+   "retained_k": 0,
+   "full_disturbed": 2,
+   "full_pass": false,
+   "retained_pass": false,
+   "flip": "unchanged",
+   "dropped_years": [
+    2023,
+    2026
+   ],
+   "dropped_disturbed": 2,
+   "dropped_quiet": 0
+  },
+  {
+   "history": [
+    1,
+    0,
+    0,
+    1
+   ],
+   "mask": [
+    0,
+    1,
+    1,
+    1
+   ],
+   "retained_n": 3,
+   "retained_k": 1,
+   "full_disturbed": 2,
+   "full_pass": false,
+   "retained_pass": false,
+   "flip": "unchanged",
+   "dropped_years": [
+    2023
+   ],
+   "dropped_disturbed": 1,
+   "dropped_quiet": 0
+  },
+  {
+   "history": [
+    1,
+    0,
+    0,
+    1
+   ],
+   "mask": [
+    1,
+    0,
+    0,
+    1
+   ],
+   "retained_n": 2,
+   "retained_k": 2,
+   "full_disturbed": 2,
+   "full_pass": false,
+   "retained_pass": true,
+   "flip": "fail_to_pass",
+   "dropped_years": [
+    2024,
+    2025
+   ],
+   "dropped_disturbed": 0,
+   "dropped_quiet": 2
+  },
+  {
+   "history": [
+    1,
+    0,
+    0,
+    1
+   ],
+   "mask": [
+    1,
+    0,
+    1,
+    0
+   ],
+   "retained_n": 2,
+   "retained_k": 1,
+   "full_disturbed": 2,
+   "full_pass": false,
+   "retained_pass": false,
+   "flip": "unchanged",
+   "dropped_years": [
+    2024,
+    2026
+   ],
+   "dropped_disturbed": 1,
+   "dropped_quiet": 1
+  },
+  {
+   "history": [
+    1,
+    0,
+    0,
+    1
+   ],
+   "mask": [
+    1,
+    0,
+    1,
+    1
+   ],
+   "retained_n": 3,
+   "retained_k": 2,
+   "full_disturbed": 2,
+   "full_pass": false,
+   "retained_pass": true,
+   "flip": "fail_to_pass",
+   "dropped_years": [
+    2024
+   ],
+   "dropped_disturbed": 0,
+   "dropped_quiet": 1
+  },
+  {
+   "history": [
+    1,
+    0,
+    0,
+    1
+   ],
+   "mask": [
+    1,
+    1,
+    0,
+    0
+   ],
+   "retained_n": 2,
+   "retained_k": 1,
+   "full_disturbed": 2,
+   "full_pass": false,
+   "retained_pass": false,
+   "flip": "unchanged",
+   "dropped_years": [
+    2025,
+    2026
+   ],
+   "dropped_disturbed": 1,
+   "dropped_quiet": 1
+  },
+  {
+   "history": [
+    1,
+    0,
+    0,
+    1
+   ],
+   "mask": [
+    1,
+    1,
+    0,
+    1
+   ],
+   "retained_n": 3,
+   "retained_k": 2,
+   "full_disturbed": 2,
+   "full_pass": false,
+   "retained_pass": true,
+   "flip": "fail_to_pass",
+   "dropped_years": [
+    2025
+   ],
+   "dropped_disturbed": 0,
+   "dropped_quiet": 1
+  },
+  {
+   "history": [
+    1,
+    0,
+    0,
+    1
+   ],
+   "mask": [
+    1,
+    1,
+    1,
+    0
+   ],
+   "retained_n": 3,
+   "retained_k": 1,
+   "full_disturbed": 2,
+   "full_pass": false,
+   "retained_pass": false,
+   "flip": "unchanged",
+   "dropped_years": [
+    2026
+   ],
+   "dropped_disturbed": 1,
+   "dropped_quiet": 0
+  },
+  {
+   "history": [
+    1,
+    0,
+    0,
+    1
+   ],
+   "mask": [
+    1,
+    1,
+    1,
+    1
+   ],
+   "retained_n": 4,
+   "retained_k": 2,
+   "full_disturbed": 2,
+   "full_pass": false,
+   "retained_pass": false,
+   "flip": "unchanged",
+   "dropped_years": [],
+   "dropped_disturbed": 0,
+   "dropped_quiet": 0
+  },
+  {
+   "history": [
+    1,
+    0,
+    1,
+    0
+   ],
+   "mask": [
+    0,
+    0,
+    1,
+    1
+   ],
+   "retained_n": 2,
+   "retained_k": 1,
+   "full_disturbed": 2,
+   "full_pass": false,
+   "retained_pass": false,
+   "flip": "unchanged",
+   "dropped_years": [
+    2023,
+    2024
+   ],
+   "dropped_disturbed": 1,
+   "dropped_quiet": 1
+  },
+  {
+   "history": [
+    1,
+    0,
+    1,
+    0
+   ],
+   "mask": [
+    0,
+    1,
+    0,
+    1
+   ],
+   "retained_n": 2,
+   "retained_k": 0,
+   "full_disturbed": 2,
+   "full_pass": false,
+   "retained_pass": false,
+   "flip": "unchanged",
+   "dropped_years": [
+    2023,
+    2025
+   ],
+   "dropped_disturbed": 2,
+   "dropped_quiet": 0
+  },
+  {
+   "history": [
+    1,
+    0,
+    1,
+    0
+   ],
+   "mask": [
+    0,
+    1,
+    1,
+    0
+   ],
+   "retained_n": 2,
+   "retained_k": 1,
+   "full_disturbed": 2,
+   "full_pass": false,
+   "retained_pass": false,
+   "flip": "unchanged",
+   "dropped_years": [
+    2023,
+    2026
+   ],
+   "dropped_disturbed": 1,
+   "dropped_quiet": 1
+  },
+  {
+   "history": [
+    1,
+    0,
+    1,
+    0
+   ],
+   "mask": [
+    0,
+    1,
+    1,
+    1
+   ],
+   "retained_n": 3,
+   "retained_k": 1,
+   "full_disturbed": 2,
+   "full_pass": false,
+   "retained_pass": false,
+   "flip": "unchanged",
+   "dropped_years": [
+    2023
+   ],
+   "dropped_disturbed": 1,
+   "dropped_quiet": 0
+  },
+  {
+   "history": [
+    1,
+    0,
+    1,
+    0
+   ],
+   "mask": [
+    1,
+    0,
+    0,
+    1
+   ],
+   "retained_n": 2,
+   "retained_k": 1,
+   "full_disturbed": 2,
+   "full_pass": false,
+   "retained_pass": false,
+   "flip": "unchanged",
+   "dropped_years": [
+    2024,
+    2025
+   ],
+   "dropped_disturbed": 1,
+   "dropped_quiet": 1
+  },
+  {
+   "history": [
+    1,
+    0,
+    1,
+    0
+   ],
+   "mask": [
+    1,
+    0,
+    1,
+    0
+   ],
+   "retained_n": 2,
+   "retained_k": 2,
+   "full_disturbed": 2,
+   "full_pass": false,
+   "retained_pass": true,
+   "flip": "fail_to_pass",
+   "dropped_years": [
+    2024,
+    2026
+   ],
+   "dropped_disturbed": 0,
+   "dropped_quiet": 2
+  },
+  {
+   "history": [
+    1,
+    0,
+    1,
+    0
+   ],
+   "mask": [
+    1,
+    0,
+    1,
+    1
+   ],
+   "retained_n": 3,
+   "retained_k": 2,
+   "full_disturbed": 2,
+   "full_pass": false,
+   "retained_pass": true,
+   "flip": "fail_to_pass",
+   "dropped_years": [
+    2024
+   ],
+   "dropped_disturbed": 0,
+   "dropped_quiet": 1
+  },
+  {
+   "history": [
+    1,
+    0,
+    1,
+    0
+   ],
+   "mask": [
+    1,
+    1,
+    0,
+    0
+   ],
+   "retained_n": 2,
+   "retained_k": 1,
+   "full_disturbed": 2,
+   "full_pass": false,
+   "retained_pass": false,
+   "flip": "unchanged",
+   "dropped_years": [
+    2025,
+    2026
+   ],
+   "dropped_disturbed": 1,
+   "dropped_quiet": 1
+  },
+  {
+   "history": [
+    1,
+    0,
+    1,
+    0
+   ],
+   "mask": [
+    1,
+    1,
+    0,
+    1
+   ],
+   "retained_n": 3,
+   "retained_k": 1,
+   "full_disturbed": 2,
+   "full_pass": false,
+   "retained_pass": false,
+   "flip": "unchanged",
+   "dropped_years": [
+    2025
+   ],
+   "dropped_disturbed": 1,
+   "dropped_quiet": 0
+  },
+  {
+   "history": [
+    1,
+    0,
+    1,
+    0
+   ],
+   "mask": [
+    1,
+    1,
+    1,
+    0
+   ],
+   "retained_n": 3,
+   "retained_k": 2,
+   "full_disturbed": 2,
+   "full_pass": false,
+   "retained_pass": true,
+   "flip": "fail_to_pass",
+   "dropped_years": [
+    2026
+   ],
+   "dropped_disturbed": 0,
+   "dropped_quiet": 1
+  },
+  {
+   "history": [
+    1,
+    0,
+    1,
+    0
+   ],
+   "mask": [
+    1,
+    1,
+    1,
+    1
+   ],
+   "retained_n": 4,
+   "retained_k": 2,
+   "full_disturbed": 2,
+   "full_pass": false,
+   "retained_pass": false,
+   "flip": "unchanged",
+   "dropped_years": [],
+   "dropped_disturbed": 0,
+   "dropped_quiet": 0
+  },
+  {
+   "history": [
+    1,
+    0,
+    1,
+    1
+   ],
+   "mask": [
+    0,
+    0,
+    1,
+    1
+   ],
+   "retained_n": 2,
+   "retained_k": 2,
+   "full_disturbed": 3,
+   "full_pass": true,
+   "retained_pass": true,
+   "flip": "unchanged",
+   "dropped_years": [
+    2023,
+    2024
+   ],
+   "dropped_disturbed": 1,
+   "dropped_quiet": 1
+  },
+  {
+   "history": [
+    1,
+    0,
+    1,
+    1
+   ],
+   "mask": [
+    0,
+    1,
+    0,
+    1
+   ],
+   "retained_n": 2,
+   "retained_k": 1,
+   "full_disturbed": 3,
+   "full_pass": true,
+   "retained_pass": false,
+   "flip": "pass_to_fail",
+   "dropped_years": [
+    2023,
+    2025
+   ],
+   "dropped_disturbed": 2,
+   "dropped_quiet": 0
+  },
+  {
+   "history": [
+    1,
+    0,
+    1,
+    1
+   ],
+   "mask": [
+    0,
+    1,
+    1,
+    0
+   ],
+   "retained_n": 2,
+   "retained_k": 1,
+   "full_disturbed": 3,
+   "full_pass": true,
+   "retained_pass": false,
+   "flip": "pass_to_fail",
+   "dropped_years": [
+    2023,
+    2026
+   ],
+   "dropped_disturbed": 2,
+   "dropped_quiet": 0
+  },
+  {
+   "history": [
+    1,
+    0,
+    1,
+    1
+   ],
+   "mask": [
+    0,
+    1,
+    1,
+    1
+   ],
+   "retained_n": 3,
+   "retained_k": 2,
+   "full_disturbed": 3,
+   "full_pass": true,
+   "retained_pass": true,
+   "flip": "unchanged",
+   "dropped_years": [
+    2023
+   ],
+   "dropped_disturbed": 1,
+   "dropped_quiet": 0
+  },
+  {
+   "history": [
+    1,
+    0,
+    1,
+    1
+   ],
+   "mask": [
+    1,
+    0,
+    0,
+    1
+   ],
+   "retained_n": 2,
+   "retained_k": 2,
+   "full_disturbed": 3,
+   "full_pass": true,
+   "retained_pass": true,
+   "flip": "unchanged",
+   "dropped_years": [
+    2024,
+    2025
+   ],
+   "dropped_disturbed": 1,
+   "dropped_quiet": 1
+  },
+  {
+   "history": [
+    1,
+    0,
+    1,
+    1
+   ],
+   "mask": [
+    1,
+    0,
+    1,
+    0
+   ],
+   "retained_n": 2,
+   "retained_k": 2,
+   "full_disturbed": 3,
+   "full_pass": true,
+   "retained_pass": true,
+   "flip": "unchanged",
+   "dropped_years": [
+    2024,
+    2026
+   ],
+   "dropped_disturbed": 1,
+   "dropped_quiet": 1
+  },
+  {
+   "history": [
+    1,
+    0,
+    1,
+    1
+   ],
+   "mask": [
+    1,
+    0,
+    1,
+    1
+   ],
+   "retained_n": 3,
+   "retained_k": 3,
+   "full_disturbed": 3,
+   "full_pass": true,
+   "retained_pass": true,
+   "flip": "unchanged",
+   "dropped_years": [
+    2024
+   ],
+   "dropped_disturbed": 0,
+   "dropped_quiet": 1
+  },
+  {
+   "history": [
+    1,
+    0,
+    1,
+    1
+   ],
+   "mask": [
+    1,
+    1,
+    0,
+    0
+   ],
+   "retained_n": 2,
+   "retained_k": 1,
+   "full_disturbed": 3,
+   "full_pass": true,
+   "retained_pass": false,
+   "flip": "pass_to_fail",
+   "dropped_years": [
+    2025,
+    2026
+   ],
+   "dropped_disturbed": 2,
+   "dropped_quiet": 0
+  },
+  {
+   "history": [
+    1,
+    0,
+    1,
+    1
+   ],
+   "mask": [
+    1,
+    1,
+    0,
+    1
+   ],
+   "retained_n": 3,
+   "retained_k": 2,
+   "full_disturbed": 3,
+   "full_pass": true,
+   "retained_pass": true,
+   "flip": "unchanged",
+   "dropped_years": [
+    2025
+   ],
+   "dropped_disturbed": 1,
+   "dropped_quiet": 0
+  },
+  {
+   "history": [
+    1,
+    0,
+    1,
+    1
+   ],
+   "mask": [
+    1,
+    1,
+    1,
+    0
+   ],
+   "retained_n": 3,
+   "retained_k": 2,
+   "full_disturbed": 3,
+   "full_pass": true,
+   "retained_pass": true,
+   "flip": "unchanged",
+   "dropped_years": [
+    2026
+   ],
+   "dropped_disturbed": 1,
+   "dropped_quiet": 0
+  },
+  {
+   "history": [
+    1,
+    0,
+    1,
+    1
+   ],
+   "mask": [
+    1,
+    1,
+    1,
+    1
+   ],
+   "retained_n": 4,
+   "retained_k": 3,
+   "full_disturbed": 3,
+   "full_pass": true,
+   "retained_pass": true,
+   "flip": "unchanged",
+   "dropped_years": [],
+   "dropped_disturbed": 0,
+   "dropped_quiet": 0
+  },
+  {
+   "history": [
+    1,
+    1,
+    0,
+    0
+   ],
+   "mask": [
+    0,
+    0,
+    1,
+    1
+   ],
+   "retained_n": 2,
+   "retained_k": 0,
+   "full_disturbed": 2,
+   "full_pass": false,
+   "retained_pass": false,
+   "flip": "unchanged",
+   "dropped_years": [
+    2023,
+    2024
+   ],
+   "dropped_disturbed": 2,
+   "dropped_quiet": 0
+  },
+  {
+   "history": [
+    1,
+    1,
+    0,
+    0
+   ],
+   "mask": [
+    0,
+    1,
+    0,
+    1
+   ],
+   "retained_n": 2,
+   "retained_k": 1,
+   "full_disturbed": 2,
+   "full_pass": false,
+   "retained_pass": false,
+   "flip": "unchanged",
+   "dropped_years": [
+    2023,
+    2025
+   ],
+   "dropped_disturbed": 1,
+   "dropped_quiet": 1
+  },
+  {
+   "history": [
+    1,
+    1,
+    0,
+    0
+   ],
+   "mask": [
+    0,
+    1,
+    1,
+    0
+   ],
+   "retained_n": 2,
+   "retained_k": 1,
+   "full_disturbed": 2,
+   "full_pass": false,
+   "retained_pass": false,
+   "flip": "unchanged",
+   "dropped_years": [
+    2023,
+    2026
+   ],
+   "dropped_disturbed": 1,
+   "dropped_quiet": 1
+  },
+  {
+   "history": [
+    1,
+    1,
+    0,
+    0
+   ],
+   "mask": [
+    0,
+    1,
+    1,
+    1
+   ],
+   "retained_n": 3,
+   "retained_k": 1,
+   "full_disturbed": 2,
+   "full_pass": false,
+   "retained_pass": false,
+   "flip": "unchanged",
+   "dropped_years": [
+    2023
+   ],
+   "dropped_disturbed": 1,
+   "dropped_quiet": 0
+  },
+  {
+   "history": [
+    1,
+    1,
+    0,
+    0
+   ],
+   "mask": [
+    1,
+    0,
+    0,
+    1
+   ],
+   "retained_n": 2,
+   "retained_k": 1,
+   "full_disturbed": 2,
+   "full_pass": false,
+   "retained_pass": false,
+   "flip": "unchanged",
+   "dropped_years": [
+    2024,
+    2025
+   ],
+   "dropped_disturbed": 1,
+   "dropped_quiet": 1
+  },
+  {
+   "history": [
+    1,
+    1,
+    0,
+    0
+   ],
+   "mask": [
+    1,
+    0,
+    1,
+    0
+   ],
+   "retained_n": 2,
+   "retained_k": 1,
+   "full_disturbed": 2,
+   "full_pass": false,
+   "retained_pass": false,
+   "flip": "unchanged",
+   "dropped_years": [
+    2024,
+    2026
+   ],
+   "dropped_disturbed": 1,
+   "dropped_quiet": 1
+  },
+  {
+   "history": [
+    1,
+    1,
+    0,
+    0
+   ],
+   "mask": [
+    1,
+    0,
+    1,
+    1
+   ],
+   "retained_n": 3,
+   "retained_k": 1,
+   "full_disturbed": 2,
+   "full_pass": false,
+   "retained_pass": false,
+   "flip": "unchanged",
+   "dropped_years": [
+    2024
+   ],
+   "dropped_disturbed": 1,
+   "dropped_quiet": 0
+  },
+  {
+   "history": [
+    1,
+    1,
+    0,
+    0
+   ],
+   "mask": [
+    1,
+    1,
+    0,
+    0
+   ],
+   "retained_n": 2,
+   "retained_k": 2,
+   "full_disturbed": 2,
+   "full_pass": false,
+   "retained_pass": true,
+   "flip": "fail_to_pass",
+   "dropped_years": [
+    2025,
+    2026
+   ],
+   "dropped_disturbed": 0,
+   "dropped_quiet": 2
+  },
+  {
+   "history": [
+    1,
+    1,
+    0,
+    0
+   ],
+   "mask": [
+    1,
+    1,
+    0,
+    1
+   ],
+   "retained_n": 3,
+   "retained_k": 2,
+   "full_disturbed": 2,
+   "full_pass": false,
+   "retained_pass": true,
+   "flip": "fail_to_pass",
+   "dropped_years": [
+    2025
+   ],
+   "dropped_disturbed": 0,
+   "dropped_quiet": 1
+  },
+  {
+   "history": [
+    1,
+    1,
+    0,
+    0
+   ],
+   "mask": [
+    1,
+    1,
+    1,
+    0
+   ],
+   "retained_n": 3,
+   "retained_k": 2,
+   "full_disturbed": 2,
+   "full_pass": false,
+   "retained_pass": true,
+   "flip": "fail_to_pass",
+   "dropped_years": [
+    2026
+   ],
+   "dropped_disturbed": 0,
+   "dropped_quiet": 1
+  },
+  {
+   "history": [
+    1,
+    1,
+    0,
+    0
+   ],
+   "mask": [
+    1,
+    1,
+    1,
+    1
+   ],
+   "retained_n": 4,
+   "retained_k": 2,
+   "full_disturbed": 2,
+   "full_pass": false,
+   "retained_pass": false,
+   "flip": "unchanged",
+   "dropped_years": [],
+   "dropped_disturbed": 0,
+   "dropped_quiet": 0
+  },
+  {
+   "history": [
+    1,
+    1,
+    0,
+    1
+   ],
+   "mask": [
+    0,
+    0,
+    1,
+    1
+   ],
+   "retained_n": 2,
+   "retained_k": 1,
+   "full_disturbed": 3,
+   "full_pass": true,
+   "retained_pass": false,
+   "flip": "pass_to_fail",
+   "dropped_years": [
+    2023,
+    2024
+   ],
+   "dropped_disturbed": 2,
+   "dropped_quiet": 0
+  },
+  {
+   "history": [
+    1,
+    1,
+    0,
+    1
+   ],
+   "mask": [
+    0,
+    1,
+    0,
+    1
+   ],
+   "retained_n": 2,
+   "retained_k": 2,
+   "full_disturbed": 3,
+   "full_pass": true,
+   "retained_pass": true,
+   "flip": "unchanged",
+   "dropped_years": [
+    2023,
+    2025
+   ],
+   "dropped_disturbed": 1,
+   "dropped_quiet": 1
+  },
+  {
+   "history": [
+    1,
+    1,
+    0,
+    1
+   ],
+   "mask": [
+    0,
+    1,
+    1,
+    0
+   ],
+   "retained_n": 2,
+   "retained_k": 1,
+   "full_disturbed": 3,
+   "full_pass": true,
+   "retained_pass": false,
+   "flip": "pass_to_fail",
+   "dropped_years": [
+    2023,
+    2026
+   ],
+   "dropped_disturbed": 2,
+   "dropped_quiet": 0
+  },
+  {
+   "history": [
+    1,
+    1,
+    0,
+    1
+   ],
+   "mask": [
+    0,
+    1,
+    1,
+    1
+   ],
+   "retained_n": 3,
+   "retained_k": 2,
+   "full_disturbed": 3,
+   "full_pass": true,
+   "retained_pass": true,
+   "flip": "unchanged",
+   "dropped_years": [
+    2023
+   ],
+   "dropped_disturbed": 1,
+   "dropped_quiet": 0
+  },
+  {
+   "history": [
+    1,
+    1,
+    0,
+    1
+   ],
+   "mask": [
+    1,
+    0,
+    0,
+    1
+   ],
+   "retained_n": 2,
+   "retained_k": 2,
+   "full_disturbed": 3,
+   "full_pass": true,
+   "retained_pass": true,
+   "flip": "unchanged",
+   "dropped_years": [
+    2024,
+    2025
+   ],
+   "dropped_disturbed": 1,
+   "dropped_quiet": 1
+  },
+  {
+   "history": [
+    1,
+    1,
+    0,
+    1
+   ],
+   "mask": [
+    1,
+    0,
+    1,
+    0
+   ],
+   "retained_n": 2,
+   "retained_k": 1,
+   "full_disturbed": 3,
+   "full_pass": true,
+   "retained_pass": false,
+   "flip": "pass_to_fail",
+   "dropped_years": [
+    2024,
+    2026
+   ],
+   "dropped_disturbed": 2,
+   "dropped_quiet": 0
+  },
+  {
+   "history": [
+    1,
+    1,
+    0,
+    1
+   ],
+   "mask": [
+    1,
+    0,
+    1,
+    1
+   ],
+   "retained_n": 3,
+   "retained_k": 2,
+   "full_disturbed": 3,
+   "full_pass": true,
+   "retained_pass": true,
+   "flip": "unchanged",
+   "dropped_years": [
+    2024
+   ],
+   "dropped_disturbed": 1,
+   "dropped_quiet": 0
+  },
+  {
+   "history": [
+    1,
+    1,
+    0,
+    1
+   ],
+   "mask": [
+    1,
+    1,
+    0,
+    0
+   ],
+   "retained_n": 2,
+   "retained_k": 2,
+   "full_disturbed": 3,
+   "full_pass": true,
+   "retained_pass": true,
+   "flip": "unchanged",
+   "dropped_years": [
+    2025,
+    2026
+   ],
+   "dropped_disturbed": 1,
+   "dropped_quiet": 1
+  },
+  {
+   "history": [
+    1,
+    1,
+    0,
+    1
+   ],
+   "mask": [
+    1,
+    1,
+    0,
+    1
+   ],
+   "retained_n": 3,
+   "retained_k": 3,
+   "full_disturbed": 3,
+   "full_pass": true,
+   "retained_pass": true,
+   "flip": "unchanged",
+   "dropped_years": [
+    2025
+   ],
+   "dropped_disturbed": 0,
+   "dropped_quiet": 1
+  },
+  {
+   "history": [
+    1,
+    1,
+    0,
+    1
+   ],
+   "mask": [
+    1,
+    1,
+    1,
+    0
+   ],
+   "retained_n": 3,
+   "retained_k": 2,
+   "full_disturbed": 3,
+   "full_pass": true,
+   "retained_pass": true,
+   "flip": "unchanged",
+   "dropped_years": [
+    2026
+   ],
+   "dropped_disturbed": 1,
+   "dropped_quiet": 0
+  },
+  {
+   "history": [
+    1,
+    1,
+    0,
+    1
+   ],
+   "mask": [
+    1,
+    1,
+    1,
+    1
+   ],
+   "retained_n": 4,
+   "retained_k": 3,
+   "full_disturbed": 3,
+   "full_pass": true,
+   "retained_pass": true,
+   "flip": "unchanged",
+   "dropped_years": [],
+   "dropped_disturbed": 0,
+   "dropped_quiet": 0
+  },
+  {
+   "history": [
+    1,
+    1,
+    1,
+    0
+   ],
+   "mask": [
+    0,
+    0,
+    1,
+    1
+   ],
+   "retained_n": 2,
+   "retained_k": 1,
+   "full_disturbed": 3,
+   "full_pass": true,
+   "retained_pass": false,
+   "flip": "pass_to_fail",
+   "dropped_years": [
+    2023,
+    2024
+   ],
+   "dropped_disturbed": 2,
+   "dropped_quiet": 0
+  },
+  {
+   "history": [
+    1,
+    1,
+    1,
+    0
+   ],
+   "mask": [
+    0,
+    1,
+    0,
+    1
+   ],
+   "retained_n": 2,
+   "retained_k": 1,
+   "full_disturbed": 3,
+   "full_pass": true,
+   "retained_pass": false,
+   "flip": "pass_to_fail",
+   "dropped_years": [
+    2023,
+    2025
+   ],
+   "dropped_disturbed": 2,
+   "dropped_quiet": 0
+  },
+  {
+   "history": [
+    1,
+    1,
+    1,
+    0
+   ],
+   "mask": [
+    0,
+    1,
+    1,
+    0
+   ],
+   "retained_n": 2,
+   "retained_k": 2,
+   "full_disturbed": 3,
+   "full_pass": true,
+   "retained_pass": true,
+   "flip": "unchanged",
+   "dropped_years": [
+    2023,
+    2026
+   ],
+   "dropped_disturbed": 1,
+   "dropped_quiet": 1
+  },
+  {
+   "history": [
+    1,
+    1,
+    1,
+    0
+   ],
+   "mask": [
+    0,
+    1,
+    1,
+    1
+   ],
+   "retained_n": 3,
+   "retained_k": 2,
+   "full_disturbed": 3,
+   "full_pass": true,
+   "retained_pass": true,
+   "flip": "unchanged",
+   "dropped_years": [
+    2023
+   ],
+   "dropped_disturbed": 1,
+   "dropped_quiet": 0
+  },
+  {
+   "history": [
+    1,
+    1,
+    1,
+    0
+   ],
+   "mask": [
+    1,
+    0,
+    0,
+    1
+   ],
+   "retained_n": 2,
+   "retained_k": 1,
+   "full_disturbed": 3,
+   "full_pass": true,
+   "retained_pass": false,
+   "flip": "pass_to_fail",
+   "dropped_years": [
+    2024,
+    2025
+   ],
+   "dropped_disturbed": 2,
+   "dropped_quiet": 0
+  },
+  {
+   "history": [
+    1,
+    1,
+    1,
+    0
+   ],
+   "mask": [
+    1,
+    0,
+    1,
+    0
+   ],
+   "retained_n": 2,
+   "retained_k": 2,
+   "full_disturbed": 3,
+   "full_pass": true,
+   "retained_pass": true,
+   "flip": "unchanged",
+   "dropped_years": [
+    2024,
+    2026
+   ],
+   "dropped_disturbed": 1,
+   "dropped_quiet": 1
+  },
+  {
+   "history": [
+    1,
+    1,
+    1,
+    0
+   ],
+   "mask": [
+    1,
+    0,
+    1,
+    1
+   ],
+   "retained_n": 3,
+   "retained_k": 2,
+   "full_disturbed": 3,
+   "full_pass": true,
+   "retained_pass": true,
+   "flip": "unchanged",
+   "dropped_years": [
+    2024
+   ],
+   "dropped_disturbed": 1,
+   "dropped_quiet": 0
+  },
+  {
+   "history": [
+    1,
+    1,
+    1,
+    0
+   ],
+   "mask": [
+    1,
+    1,
+    0,
+    0
+   ],
+   "retained_n": 2,
+   "retained_k": 2,
+   "full_disturbed": 3,
+   "full_pass": true,
+   "retained_pass": true,
+   "flip": "unchanged",
+   "dropped_years": [
+    2025,
+    2026
+   ],
+   "dropped_disturbed": 1,
+   "dropped_quiet": 1
+  },
+  {
+   "history": [
+    1,
+    1,
+    1,
+    0
+   ],
+   "mask": [
+    1,
+    1,
+    0,
+    1
+   ],
+   "retained_n": 3,
+   "retained_k": 2,
+   "full_disturbed": 3,
+   "full_pass": true,
+   "retained_pass": true,
+   "flip": "unchanged",
+   "dropped_years": [
+    2025
+   ],
+   "dropped_disturbed": 1,
+   "dropped_quiet": 0
+  },
+  {
+   "history": [
+    1,
+    1,
+    1,
+    0
+   ],
+   "mask": [
+    1,
+    1,
+    1,
+    0
+   ],
+   "retained_n": 3,
+   "retained_k": 3,
+   "full_disturbed": 3,
+   "full_pass": true,
+   "retained_pass": true,
+   "flip": "unchanged",
+   "dropped_years": [
+    2026
+   ],
+   "dropped_disturbed": 0,
+   "dropped_quiet": 1
+  },
+  {
+   "history": [
+    1,
+    1,
+    1,
+    0
+   ],
+   "mask": [
+    1,
+    1,
+    1,
+    1
+   ],
+   "retained_n": 4,
+   "retained_k": 3,
+   "full_disturbed": 3,
+   "full_pass": true,
+   "retained_pass": true,
+   "flip": "unchanged",
+   "dropped_years": [],
+   "dropped_disturbed": 0,
+   "dropped_quiet": 0
+  },
+  {
+   "history": [
+    1,
+    1,
+    1,
+    1
+   ],
+   "mask": [
+    0,
+    0,
+    1,
+    1
+   ],
+   "retained_n": 2,
+   "retained_k": 2,
+   "full_disturbed": 4,
+   "full_pass": true,
+   "retained_pass": true,
+   "flip": "unchanged",
+   "dropped_years": [
+    2023,
+    2024
+   ],
+   "dropped_disturbed": 2,
+   "dropped_quiet": 0
+  },
+  {
+   "history": [
+    1,
+    1,
+    1,
+    1
+   ],
+   "mask": [
+    0,
+    1,
+    0,
+    1
+   ],
+   "retained_n": 2,
+   "retained_k": 2,
+   "full_disturbed": 4,
+   "full_pass": true,
+   "retained_pass": true,
+   "flip": "unchanged",
+   "dropped_years": [
+    2023,
+    2025
+   ],
+   "dropped_disturbed": 2,
+   "dropped_quiet": 0
+  },
+  {
+   "history": [
+    1,
+    1,
+    1,
+    1
+   ],
+   "mask": [
+    0,
+    1,
+    1,
+    0
+   ],
+   "retained_n": 2,
+   "retained_k": 2,
+   "full_disturbed": 4,
+   "full_pass": true,
+   "retained_pass": true,
+   "flip": "unchanged",
+   "dropped_years": [
+    2023,
+    2026
+   ],
+   "dropped_disturbed": 2,
+   "dropped_quiet": 0
+  },
+  {
+   "history": [
+    1,
+    1,
+    1,
+    1
+   ],
+   "mask": [
+    0,
+    1,
+    1,
+    1
+   ],
+   "retained_n": 3,
+   "retained_k": 3,
+   "full_disturbed": 4,
+   "full_pass": true,
+   "retained_pass": true,
+   "flip": "unchanged",
+   "dropped_years": [
+    2023
+   ],
+   "dropped_disturbed": 1,
+   "dropped_quiet": 0
+  },
+  {
+   "history": [
+    1,
+    1,
+    1,
+    1
+   ],
+   "mask": [
+    1,
+    0,
+    0,
+    1
+   ],
+   "retained_n": 2,
+   "retained_k": 2,
+   "full_disturbed": 4,
+   "full_pass": true,
+   "retained_pass": true,
+   "flip": "unchanged",
+   "dropped_years": [
+    2024,
+    2025
+   ],
+   "dropped_disturbed": 2,
+   "dropped_quiet": 0
+  },
+  {
+   "history": [
+    1,
+    1,
+    1,
+    1
+   ],
+   "mask": [
+    1,
+    0,
+    1,
+    0
+   ],
+   "retained_n": 2,
+   "retained_k": 2,
+   "full_disturbed": 4,
+   "full_pass": true,
+   "retained_pass": true,
+   "flip": "unchanged",
+   "dropped_years": [
+    2024,
+    2026
+   ],
+   "dropped_disturbed": 2,
+   "dropped_quiet": 0
+  },
+  {
+   "history": [
+    1,
+    1,
+    1,
+    1
+   ],
+   "mask": [
+    1,
+    0,
+    1,
+    1
+   ],
+   "retained_n": 3,
+   "retained_k": 3,
+   "full_disturbed": 4,
+   "full_pass": true,
+   "retained_pass": true,
+   "flip": "unchanged",
+   "dropped_years": [
+    2024
+   ],
+   "dropped_disturbed": 1,
+   "dropped_quiet": 0
+  },
+  {
+   "history": [
+    1,
+    1,
+    1,
+    1
+   ],
+   "mask": [
+    1,
+    1,
+    0,
+    0
+   ],
+   "retained_n": 2,
+   "retained_k": 2,
+   "full_disturbed": 4,
+   "full_pass": true,
+   "retained_pass": true,
+   "flip": "unchanged",
+   "dropped_years": [
+    2025,
+    2026
+   ],
+   "dropped_disturbed": 2,
+   "dropped_quiet": 0
+  },
+  {
+   "history": [
+    1,
+    1,
+    1,
+    1
+   ],
+   "mask": [
+    1,
+    1,
+    0,
+    1
+   ],
+   "retained_n": 3,
+   "retained_k": 3,
+   "full_disturbed": 4,
+   "full_pass": true,
+   "retained_pass": true,
+   "flip": "unchanged",
+   "dropped_years": [
+    2025
+   ],
+   "dropped_disturbed": 1,
+   "dropped_quiet": 0
+  },
+  {
+   "history": [
+    1,
+    1,
+    1,
+    1
+   ],
+   "mask": [
+    1,
+    1,
+    1,
+    0
+   ],
+   "retained_n": 3,
+   "retained_k": 3,
+   "full_disturbed": 4,
+   "full_pass": true,
+   "retained_pass": true,
+   "flip": "unchanged",
+   "dropped_years": [
+    2026
+   ],
+   "dropped_disturbed": 1,
+   "dropped_quiet": 0
+  },
+  {
+   "history": [
+    1,
+    1,
+    1,
+    1
+   ],
+   "mask": [
+    1,
+    1,
+    1,
+    1
+   ],
+   "retained_n": 4,
+   "retained_k": 4,
+   "full_disturbed": 4,
+   "full_pass": true,
+   "retained_pass": true,
+   "flip": "unchanged",
+   "dropped_years": [],
+   "dropped_disturbed": 0,
+   "dropped_quiet": 0
+  }
+ ]
+}

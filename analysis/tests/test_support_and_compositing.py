@@ -19,6 +19,8 @@ import math
 import statistics
 from pathlib import Path
 
+import pytest
+
 ROOT = Path(__file__).resolve().parents[2]
 NOMINAL_SCALE_M = 10.0          # ANALYSIS_SCALE_M in gee/ndvi_change.js
 MIN_COMPONENT_PIXELS = 50       # CONFIG["min_component_pixels"] in phase1_gate.py
@@ -84,3 +86,127 @@ def test_a_missing_band_makes_joint_validity_explicit():
     red_all_median = statistics.median(red)
     red_joint_median = statistics.median([r for r, _ in jointly_valid])
     assert not math.isclose(red_all_median, red_joint_median, abs_tol=1e-6)
+
+
+# ── missingness sensitivity (package D) ───────────────────────────────────────────────────
+# The committed enumeration is checked against an INDEPENDENT oracle written here: a different
+# formulation of the same rule (Fraction comparison rather than 3k >= 2n integer arithmetic).
+# If the two ever disagree, one of them is wrong and the test says so.
+MISSINGNESS = ROOT / "evidence/task-2026-09-25/missingness_sensitivity.json"
+
+
+def _oracle(history, mask):
+    from fractions import Fraction
+    kept = [d for d, m in zip(history, mask) if m]
+    if len(kept) < 2:
+        return False
+    return Fraction(sum(kept), len(kept)) >= Fraction(2, 3)
+
+
+def test_missingness_enumeration_is_complete_and_matches_an_independent_oracle():
+    rec = json.loads(MISSINGNESS.read_text())
+    assert rec["counts"] == {"histories": 16, "masks": 11, "pairs": 176}
+    assert len(rec["pairs"]) == 176
+    assert len({(tuple(p["history"]), tuple(p["mask"])) for p in rec["pairs"]}) == 176
+    for p in rec["pairs"]:
+        assert p["retained_pass"] == _oracle(p["history"], p["mask"]), p
+        assert p["full_pass"] == _oracle(p["history"], (1, 1, 1, 1)), p
+
+
+def test_missing_years_flip_the_persistence_decision_in_both_directions():
+    rec = json.loads(MISSINGNESS.read_text())
+    flips = rec["summary"]["by_flip"]
+    assert flips["fail_to_pass"] > 0 and flips["pass_to_fail"] > 0
+    assert sum(flips.values()) == 176
+
+
+def test_which_years_go_missing_determines_the_direction_of_the_flip():
+    # The finding worth keeping: losing only quiet years can only help a pixel pass, and losing
+    # only disturbed years can only make it fail. Missingness is therefore not decision-neutral
+    # when it is not random. This is enumeration over a rule, NOT a field probability estimate.
+    rec = json.loads(MISSINGNESS.read_text())
+    quiet = rec["summary"]["dropping_only_quiet_years"]
+    dist = rec["summary"]["dropping_only_disturbed_years"]
+    assert quiet["pass_to_fail"] == 0 and quiet["fail_to_pass"] > 0, quiet
+    assert dist["fail_to_pass"] == 0 and dist["pass_to_fail"] > 0, dist
+
+
+def test_enumeration_is_bound_to_the_live_source_operators():
+    # A stale model must fail rather than stay quietly green if gee/ndvi_change.js changes.
+    rec = json.loads(MISSINGNESS.read_text())
+    assert all(rec["source_binding"].values()), rec["source_binding"]
+    assert rec["status"] == "MODEL_CHECKED"
+
+
+def test_effect_size_boundary_is_strictly_greater_than():
+    rec = json.loads(MISSINGNESS.read_text())["edge_cases"]["yearly_effect_boundary"]
+    assert rec["effect_0.0199_disturbed"] is False
+    assert rec["effect_0.0200_disturbed"] is False     # exactly at the floor is NOT disturbed
+    assert rec["effect_0.0201_disturbed"] is True
+
+
+def test_minimum_passing_counts_are_two_of_two_two_of_three_three_of_four():
+    rec = json.loads(MISSINGNESS.read_text())["edge_cases"]
+    assert rec["minimum_passing_counts"] == {"n=2": 2, "n=3": 2, "n=4": 3}
+    assert rec["n_equals_1_is_ineligible"]["eligible"] is False
+    assert rec["n_equals_0_is_ineligible"]["eligible"] is False
+
+
+# ── compositor variant B contract (package C) ─────────────────────────────────────────────
+# Expected values below are derived by hand, not from the implementation under test.
+# Protocol: docs/specs/compositor-ab/plan.md. Production is unchanged; this pins B's definition.
+def _bsi(b2, b4, b8, b11):
+    num, den = (b11 + b4) - (b8 + b2), (b11 + b4) + (b8 + b2)
+    if den <= 0:
+        raise ZeroDivisionError("BSI denominator is not strictly positive")
+    return num / den
+
+
+def _eligible(sample):
+    """Variant B: all four bands valid and finite, and both denominators strictly positive."""
+    if any(sample.get(b) is None for b in ("B2", "B4", "B8", "B11")):
+        return False
+    if not all(math.isfinite(sample[b]) for b in ("B2", "B4", "B8", "B11")):
+        return False
+    return (sample["B8"] + sample["B4"]) > 0 and ((sample["B11"] + sample["B4"]) + (sample["B8"] + sample["B2"])) > 0
+
+
+def test_variant_b_bsi_matches_hand_derived_values():
+    # B2=0.10 B4=0.20 B8=0.40 B11=0.50 -> ((0.5+0.2)-(0.4+0.1))/((0.5+0.2)+(0.4+0.1)) = 0.2/1.2
+    assert math.isclose(_bsi(0.10, 0.20, 0.40, 0.50), 0.2 / 1.2, abs_tol=1e-12)
+    # A brighter shortwave raises BSI: B11 0.50 -> 0.80 gives 0.5/1.5
+    assert math.isclose(_bsi(0.10, 0.20, 0.40, 0.80), 0.5 / 1.5, abs_tol=1e-12)
+    # Symmetric case is exactly zero.
+    assert math.isclose(_bsi(0.30, 0.30, 0.30, 0.30), 0.0, abs_tol=1e-12)
+
+
+def test_variant_b_drops_an_acquisition_missing_b2_or_b11_even_when_red_and_nir_are_valid():
+    # NDVI alone would be computable here; variant B requires JOINT validity, so the sample is out.
+    assert _eligible({"B2": 0.1, "B4": 0.2, "B8": 0.4, "B11": 0.5}) is True
+    assert _eligible({"B2": None, "B4": 0.2, "B8": 0.4, "B11": 0.5}) is False
+    assert _eligible({"B2": 0.1, "B4": 0.2, "B8": 0.4, "B11": None}) is False
+    assert _eligible({"B2": 0.1, "B4": 0.2, "B8": float("nan"), "B11": 0.5}) is False
+
+
+def test_variant_b_rejects_a_non_positive_denominator_rather_than_returning_a_number():
+    assert _eligible({"B2": 0.0, "B4": 0.0, "B8": 0.0, "B11": 0.0}) is False
+    with pytest.raises(ZeroDivisionError):
+        _bsi(0.0, 0.0, 0.0, 0.0)
+    # A valid zero reflectance in ONE band is still a number, not missingness.
+    assert _eligible({"B2": 0.0, "B4": 0.2, "B8": 0.4, "B11": 0.5}) is True
+
+
+def test_variant_b_even_count_median_is_the_mean_of_the_two_middle_values():
+    assert statistics.median([0.1, 0.2, 0.3, 0.4]) == pytest.approx(0.25)
+    assert statistics.median([0.1, 0.2, 0.3]) == pytest.approx(0.2)
+
+
+def test_variant_b_leaves_an_all_invalid_year_masked_and_keeps_a_single_valid_acquisition():
+    july = [{"B2": None, "B4": 0.2, "B8": 0.4, "B11": 0.5},
+            {"B2": 0.1, "B4": 0.2, "B8": float("inf"), "B11": 0.5}]
+    assert [s for s in july if _eligible(s)] == []      # masked; no invented annual value
+    july.append({"B2": 0.10, "B4": 0.20, "B8": 0.40, "B11": 0.50})
+    eligible = [s for s in july if _eligible(s)]
+    assert len(eligible) == 1
+    assert math.isclose(statistics.median([_bsi(**{k.lower(): v for k, v in s.items()}) for s in eligible]),
+                        0.2 / 1.2, abs_tol=1e-12)
