@@ -81,6 +81,13 @@ var YEARLY_EFFECT_MIN = 0.02; // per-year effect-size floor; test 0.01/0.02/0.03
 var PERSISTENCE_MIN = 2 / 3;
 var MIN_VALID_RECENT_YEARS = 2;
 var MIN_COMPONENT_PIXELS = 50;
+// maxSize argument to connectedPixelCount(): the count is CAPPED at this value, so a component
+// larger than this reports exactly this number, not its true size. Harmless for the current
+// MIN_COMPONENT_PIXELS = 50 test, because min(trueSize, 256) >= 50 whenever trueSize >= 50.
+// HAZARD: if MIN_COMPONENT_PIXELS is ever raised above this cap, the >= test becomes impossible to
+// satisfy and the gate silently returns no large components. Keep MAX_CONNECTED_PIXELS strictly
+// greater than MIN_COMPONENT_PIXELS; tools/validate_phase1.mjs enforces that.
+// The counts are also unusable as component SIZES above the cap; only the threshold test is valid.
 var MAX_CONNECTED_PIXELS = 256;
 
 // Primary gate, frozen before registered-site output is inspected:
