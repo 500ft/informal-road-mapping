@@ -56,6 +56,44 @@ def test_ground_span_shrinks_as_latitude_rises():
     assert spans == sorted(spans, reverse=True), spans
 
 
+NATIVE_GSD_M = {"B4": 10.0, "B8": 10.0, "B11": 20.0}   # Sentinel-2 MSI native sampling
+
+
+def test_grid_spacing_is_finer_than_native_band_sampling():
+    # A ~6.8 m grid is finer than the 10 m native sampling of B4/B8, so the bilinear reprojection
+    # changes the grid without adding measurements.
+    for site, lat in registered_latitudes().items():
+        span = ground_span_m(lat)
+        assert span < NATIVE_GSD_M["B4"], (site, span)
+        assert 1.4 < NATIVE_GSD_M["B4"] / span < 1.55, (site, NATIVE_GSD_M["B4"] / span)
+
+
+def test_fifty_pixel_component_area_in_native_pixel_area_equivalents():
+    """Area equivalents ONLY.
+
+    Dividing ground area by native pixel area gives an area equivalent. It establishes neither the
+    number of overlapping native pixels nor an effective sample size: footprint shape, grid
+    alignment, interpolation, sensor spatial response and spatial covariance all bear on that and
+    none is determined here. min_component_pixels is a geometric selection rule, not a statistical
+    sample-size requirement.
+    """
+    for site, lat in registered_latitudes().items():
+        area = MIN_COMPONENT_PIXELS * ground_span_m(lat) ** 2
+        assert 21 < area / NATIVE_GSD_M["B8"] ** 2 < 25, (site, area)
+        assert 5 < area / NATIVE_GSD_M["B11"] ** 2 < 7, (site, area)
+
+
+def test_overstatement_from_a_ten_metre_assumption_differs_by_dimension():
+    # One percentage does not apply to every metre figure.
+    lat = registered_latitudes()["dev-01-braided"]
+    span = ground_span_m(lat)
+    linear = NOMINAL_SCALE_M / span - 1
+    areal = NOMINAL_SCALE_M ** 2 / span ** 2 - 1
+    assert 0.46 < linear < 0.49, linear          # ~47% for a length
+    assert 1.14 < areal < 1.20, areal            # ~117% for an area
+    assert areal > 2 * linear
+
+
 def test_band_ratio_of_medians_differs_from_median_of_per_acquisition_ratios():
     # Hand-derived counterexample; both routes are legitimate estimators and they disagree.
     red = [0.10, 0.40, 0.30]

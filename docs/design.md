@@ -1,5 +1,37 @@
 # Design — Catan Roads
 
+## Amendment — 2026-09-24 — the analysis grid's units
+
+**Nothing about the frozen gate changes here. This corrects how two sentences in this document
+describe the grid; no threshold, site, window or setting is altered.**
+
+The screen runs on `EPSG:3857` at `ANALYSIS_SCALE_M = 10`. Web Mercator's linear scale factor is
+1/cos(latitude), so a nominal-10 pixel spans roughly **6.6–7.0 m of ground** across the registered
+site latitudes — not 10 m. This document previously called it "a fixed 10 m grid", which conflates
+nominal projected units with ground distance. Two consequences follow, both recorded as claim C19 in
+[the literature claim ledger](../literature/claim-ledger.md) and pinned by
+`analysis/tests/test_support_and_compositing.py`:
+
+- The `min_component_pixels = 50` threshold corresponds to about **2,300 m²** of ground, not the
+  5,000 m² a 10 m assumption implies. Overstatement differs by dimension: about **47% for linear
+  distance**, about **117% for area**.
+- Because the native sampling of B4 and B8 is 10 m, the analysis grid's **spacing is about 1.47×
+  finer than native 10 m sampling**. Reprojection here does not add measurements: an estimated
+  2,300 m² is about **23 native-10 m pixel areas**, or **5.75 native-20 m pixel areas** for the
+  shortwave band BSI uses. **These are area equivalents, not independent sample counts** — that
+  division establishes neither overlapping-pixel counts nor an effective sample size, and
+  `min_component_pixels` is a geometric selection rule, not a statistical sample-size requirement.
+
+**Which predictions have been seen: none.** No Earth Engine run has occurred, no site is verified,
+and no gate result exists. This amendment therefore cannot be a post-hoc adjustment to an observed
+outcome. It is a correction of a measurement description, made before any prediction, and the
+pre-registered gate stands exactly as frozen on 2026-08-23.
+
+These are independently calculated estimates under the spherical approximation, **not** measurements
+of an exported raster. The exact ellipsoidal geometry, the delivered affine transform, and whether
+the metre-specified 200–800 m control ring carries the same distortion as the pixel grid all remain
+untested and require Earth Engine access.
+
 ## Current implementation boundary — 2026-09-06
 
 The Phase-1 GEE mask selects positive disturbance, not signed recovery. A
@@ -24,7 +56,9 @@ are, so that results are never claimed beyond what the method supports.
 > is a **network-conditioned method for finding persistent surface-disturbance
 > corridors that may represent unmapped informal roads**, whose deliverable is a
 > **prioritized candidate list for higher-resolution confirmation**. That framing
-> matches Sentinel-2's limits (a 2.5–3 m track is sub-pixel at 10 m) and keeps the
+> matches Sentinel-2's limits (a 2.5–3 m track is below the 10 m native sampling of B4/B8; see the
+> [2026-09-24 amendment](#amendment--2026-09-24--the-analysis-grids-units) for why that is not the
+> same as the analysis grid's spacing) and keeps the
 > project scientifically defensible. The sections below record the original vision;
 > the **[Developed execution plan](#developed-execution-plan-phase-04)** at the end
 > supersedes the earlier "experiment structure" and is what the code is built to.
@@ -180,10 +214,18 @@ the project produces plausible maps, not defensible results.
 
 ## Design decisions (2026 review)
 
-1. **Target corridors, not single tracks.** A 2.5–3 m track is sub-pixel at 10 m
-   (and BSI pulls in a 20 m SWIR band). Detect braided corridors, parallel-track
-   clusters, and network-scale disturbance; prioritize candidates for high-res
-   inspection. This makes the *braided-corridor* idea the distinctive contribution.
+1. **Target corridors, not single tracks.** A 2.5–3 m track is below the 10 m native sampling of
+   B4/B8, and BSI additionally pulls in a 20 m SWIR band. Detect braided corridors, parallel-track
+   clusters, and network-scale disturbance; prioritize candidates for high-res inspection. This
+   makes the *braided-corridor* idea the distinctive contribution.
+
+   **Restated 2026-09-24, sharpened 2026-09-25.** Being below the native sampling does not by itself
+   make a feature undetectable — Welch 1982 separates detection from identification, and sub-pixel
+   mapping literature recovers narrow linear features in principle. The defensible claim is narrower
+   still: **this method has not demonstrated reliable single-track separation; corridors are its
+   present target.** An unmeasured limit is not an established impossibility. **Minimum detectable
+   width is unmeasured**, and no cited paper supplies it. See C1 in
+   [the claim ledger](../literature/claim-ledger.md).
 2. **Do not hard-mask cropland/built land.** That would erase real branches near
    settlements, and WorldCover is a static 2021 product ill-suited to a multi-year
    comparison. Hard-exclude only permanent water/snow; use temporal Dynamic World
@@ -224,7 +266,9 @@ the project produces plausible maps, not defensible results.
 ### Pre-registered Phase-1 gate (frozen 2026-08-23)
 
 The primary metric is **`large_component_fraction`**: the fraction of
-non-permanent-water pixels on a fixed 10 m grid that meet all of the following:
+non-permanent-water pixels on the fixed analysis grid (`EPSG:3857` at nominal scale 10 — see the
+[2026-09-24 amendment](#amendment--2026-09-24--the-analysis-grids-units); this is **not** 10 m of
+ground) that meet all of the following:
 
 1. annulus-normalized composite disturbance `z >= 1.0`;
 2. annual disturbance persistence `>= 2/3`;

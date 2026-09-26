@@ -1,0 +1,333 @@
+SAME-DAY CLOSEOUT: CRITIQUE AND REVISED EXECUTION PLAN
+500ft/informal-road-mapping | 2026-09-25 | Codex planning handoff to Claude
+
+OUTCOME FOR TODAY
+Finish the remaining owner-independent preparation, correct and resolve PR #37,
+and deliver one accurate closeout packet. Execute external work if its inputs
+arrive; otherwise give each remaining dependency a precise resumption contract.
+This closes the preparation work. It does not manufacture research completion.
+No further "say the word" or site-order question is needed to prepare this work.
+
+Review basis:
+- Local main is 3ecdb59, with no existing working-tree edits at review start.
+- PR #37 is OPEN, mergeable, targets main, head 968e5699d8a6e4bd306c088012a9bf3c53b5ef62.
+  Its reported analysis-tests, CodeQL and dependency-review checks are successful.
+- The 131-test result belongs to #37. Main's committed evidence reports 129.
+  These are recorded results, not a fresh test run performed for this critique.
+- Reviewed the weekly plan, task ledger, CR-08 packet, reconciliation document,
+  relevant GEE code, arithmetic tests, #37 diff and engineering-audit briefing.
+
+Codex is planning only. Claude implements the selected work. This document does
+not merge a PR, change a gate, inspect imagery, or authorize unrelated CAD work.
+
+WHAT TO CHANGE IN THE PROPOSED PLAN
+
+1. PR #37 is green but needs a small scientific wording correction before merge.
+   Dividing area by native pixel area gives an area equivalent, not a count of
+   statistically independent observations. Fix the newly introduced claim and
+   the test name/comments that assert it. See work item A below.
+2. Start Day 6's index now, finalize it LAST. A completed packet written before
+   today's corrections and diagnostics would immediately be stale. Record the
+   delayed completion date as September 25, not September 24.
+3. D establishes mathematical sensitivity, not real-world robustness. C's offline
+   work establishes a reproducible estimator contract, not a better compositor.
+4. Package E's DESIGN is unblocked. Use dev-01-braided then negative-01 as the
+   provisional preparation order already proposed in the packet. Changing the
+   inspection sequence changes no site, stratum, coordinate or gate threshold.
+   Do not describe this as an owner-approved scientific decision; the owner can
+   override the order when supplying evidence without holding up drafting.
+5. One dated image can advance intake but cannot close the full CR-08 requirement.
+   Its ledger asks for dev/control verification and Earth Engine access. A first
+   judgment, all required site judgments, runtime access and a real gate result
+   must remain separately visible.
+6. Unattended CAD is in another repository and is not a prerequisite for this
+   mapping closeout. Retain the CAD briefing's verification principles. Route the
+   host/session problem to engineering-audit's own backlog, with its own owner.
+7. Replace "dominant error is fabrication" with "synthetic cases demonstrate
+   linear non-road false positives; the dominant real-data error is unmeasured."
+   Keep topology, new filters, learned models and SAR outside today's scope.
+
+WORK ITEM A -- FINISH THE REVIEW OF #37
+Cap: 45 minutes, then submit the concrete revised diff for the existing review.
+
+Affected files on #37:
+  docs/design.md
+  docs/PHASE1_RUNBOOK.md
+  literature/claim-ledger.md
+  evidence/task-2026-09-19/README.md
+  analysis/tests/test_support_and_compositing.py
+Also update the PR description to describe the final result accurately.
+
+Required edits:
+- Replace "23 independent 10 m samples / 6 independent 20 m samples" with:
+  "An estimated 2,300 m2 is about 23 native-10 m pixel areas or 5.75 native-20 m
+  pixel areas. These are area equivalents, not independent sample counts."
+- Neither the number of overlapping native pixels nor effective sample size is
+  established by that division. Footprint shape, grid alignment, interpolation,
+  sensor response and spatial covariance matter. The component threshold is a
+  geometric selection rule, not a statistical sample-size requirement.
+- Say "grid spacing is about 1.47 times finer than native 10 m sampling" rather
+  than "finer than the data supports". Retain the oversampling caution.
+- Rename test_fifty_pixel_component_carries_about_twenty_three_independent_samples
+  to describe native-pixel-area equivalents. Retain correct arithmetic assertions;
+  do not add redundant tests to prove the new terminology.
+- Restrict "roughly 45% overstated" to LINEAR distances. At 47.3 degrees, using
+  10 instead of 6.78 overstates length by about 47%; using 5,000 instead of 2,300
+  overstates area by about 117%. Do not apply one percentage to all metre figures.
+- Replace "single tracks are not separable by this method" with "this method
+  has not demonstrated reliable single-track separation; corridors are its
+  present target". An unmeasured limit is not an established impossibility.
+
+Exit: narrow tests and relevant documentation checks pass on the new head;
+hosted checks are observed on THAT head before merge. No gate or record changes.
+Do not merge solely because the old head was green. Do not rebase merely for
+cosmetic history. Preserve review history, and record the eventual merge SHA.
+
+WORK ITEM B -- PACKAGE D: EXHAUSTIVE MISSINGNESS DIAGNOSTIC
+Cap: 90 minutes. Reuse tests/helpers where appropriate; no new dependency.
+
+Proposed artifact:
+  evidence/task-2026-09-25/missingness_sensitivity.json
+  A small colocated reproducible generator, plus a concise interpretation in
+  evidence/task-2026-09-25/README.md. Add only discriminating automated checks.
+
+Exact specification:
+1. A full history is four bits in year order 2023,2024,2025,2026. Enumerate 16.
+2. A retention mask is four bits; include all with 2, 3 or 4 retained years:
+   C(4,2)+C(4,3)+C(4,4)=11 masks. Enumerate 176 history/mask pairs, including
+   unchanged all-year controls. Some pairs share an observed history; these
+   are enumerated scenarios, not 176 independent samples.
+3. Let n be retained count and k retained disturbed count. Exact arithmetic oracle:
+   eligibility n>=2 and persistence pass when 3*k>=2*n. This yields 2/2, 2/3,
+   or 3/4 as the minimum passing counts. Keep n=0 and n=1 as separate rejection
+   edge cases; never impute masked observations as quiet observations.
+4. Compare each retained result with its full-four-year result. Report pass->fail,
+   fail->pass and unchanged totals, grouped by full disturbed count and n.
+   Include examples: [1,1,0,0] retaining only its first two years flips fail->pass;
+   [1,1,1,0] retaining [1,0,0,1] flips pass->fail.
+5. Label retention of quiet/disturbed years explicitly. Uniform enumeration is
+   NOT an empirical probability model for cloud-related missingness. Any percent
+   is a fraction of enumerated cases, not an estimated field failure probability.
+6. Pin boundary semantics from gee/ndvi_change.js: yearly effect is strictly >0.02;
+   persistence is >=2/3; recent support is >=2. Hold z and land eligibility true
+   when isolating persistence. Include effect exactly 0.02 and either side.
+
+Important implementation boundary:
+There is no local Python pixel-persistence helper in the reviewed tree. The real
+calculation lives in Earth Engine. tools/test_temporal_qa.mjs currently checks
+empty/nonempty schema branches; it does not execute pixel persistence. The
+phase1_gate.py CSV intake is not a substitute for that calculation either.
+Use a small local arithmetic model and static source-binding assertions for the
+operators/constants if that is the smallest honest check. Label it MODEL_CHECKED,
+not EARTH_ENGINE_VERIFIED. Do not build a general Earth Engine emulator or refactor
+production merely to claim an integration test. A source mismatch must invalidate
+the diagnostic or prompt review; it must not silently leave a stale model green.
+
+Exit: 176 unique pairs, counts reconcile, independent integer oracle agrees with
+the arithmetic model, edge cases recorded, and limitations explicit. Thresholds
+remain fixed. Earlier-year baseline sensitivity and actual clear-scene support
+remain real-data follow-ups, not implied completed by the four-bit enumeration.
+
+WORK ITEM C -- PACKAGE C: FREEZE ONE OFFLINE COMPOSITOR COMPARISON
+Cap: 90 minutes. Do not re-add the two counterexamples already on main.
+
+Proposed artifact:
+  docs/specs/compositor-ab/plan.md
+  Extend analysis/tests/test_support_and_compositing.py only for new behavior;
+  keep evidence in the same September 25 folder.
+
+Variant A: exactly the current band-median-then-index pipeline. Do not silently
+impose B's joint-validity mask on A, because then A would no longer be the baseline.
+
+Variant B, proposed and frozen BEFORE real outputs:
+- Align B2/B4/B8/B11 for a given acquisition on a declared common grid using an
+  explicit per-band resampling contract. Offline fixtures are already aligned;
+  they cannot validate that geospatial step.
+- A sample contributes only if all four bands are valid and finite and both
+  index denominators are positive. A valid zero reflectance remains a number;
+  missingness is a separate mask, never an encoded zero.
+- Compute NDVI=(B8-B4)/(B8+B4) and
+  BSI=((B11+B4)-(B8+B2))/((B11+B4)+(B8+B2)) per acquisition.
+- Within each July, take the median NDVI and median BSI using the SAME eligible
+  acquisition set. Specify even-count median as the mean of the two middle
+  values. Empty support remains masked and contributes no invented annual value.
+- Keep the existing across-year medians, change calculation, annual comparisons,
+  persistence rules and thresholds unchanged. This is not the alternative
+  "median of a per-acquisition combined disturbance index"; park that third
+  estimator to avoid uncontrolled scope expansion.
+
+New checks: hand-derived BSI values, B2/B11 missing while red/NIR are valid,
+zero denominator, all-invalid year, one valid acquisition and even-count median.
+Expected values must come from independent arithmetic, not the implementation
+being tested. Reuse the existing NDVI 0.25-versus-1/3 fixture and missing-band
+fixture as supporting evidence, not as proof B is superior.
+
+Predeclare what prompts scientific review:
+any eligibility or gate-verdict flip, altered component membership, sign reversal,
+or changed candidate-review outcome; also record continuous differences even if
+none of those occur. These are review triggers, not success criteria for B.
+Improvement requires independent imagery judgments and an agreed review burden.
+Since B changes both estimator order and common support, tabulate matched-support
+cases separately; otherwise do not attribute every difference to compositing order.
+
+Exit: complete protocol and new edge cases; production unchanged. Status is
+OFFLINE_COMPLETE / REAL_COMPARISON_PENDING, not "package C fully validated".
+
+WORK ITEM D -- PACKAGE B: A RUNNABLE PROBE, WITH AN HONEST EXECUTION STATE
+Cap: 90 minutes. Prepare without imagery; run only if authorized runtime access
+is available. A synthetic Earth Engine probe requires EE access, not verified roads.
+
+Proposed artifacts:
+  evidence/task-2026-09-25/grid_runtime_probe.js
+  evidence/task-2026-09-25/grid_runtime_expectations.json
+  Operator instructions and an unfilled observed-results table in the README.
+
+Measure: affine transform, projection and nominal scale; pixel-centre neighbour
+distances; pixelArea; a 50-pixel known-shape footprint; exact ring kernel support;
+and band/mask alignment on a non-square synthetic fixture. Include an off-equator
+point at a registered development latitude and an equatorial control. This need
+not inspect any registered imagery or the holdout.
+
+NEW probe requirement from official documentation:
+gee/ndvi_change.js::atAnalysisScale calls resample('bilinear') on derived images,
+including collection medians. Earth Engine documents that resample needs a
+meaningful default projection and warns against applying it to composites.
+Reproduce this exact call sequence in a minimal experiment; print source,
+composite and destination projections and compare it with explicitly resampling
+source images before compositing. Record an error as an observed failure, not a
+reason to replace the live helper during closeout. This is a runtime concern
+identified by source/documentation inspection, not a runtime failure observed here.
+
+Independent expectations: use inverse-projected corners and independent geodesic
+calculations, not values read back from the same EE operation. Distinguish spherical
+approximations from ellipsoidal expectations. Proposed predeclared tolerances:
+<=1% for comparing the spherical approximation with ground geometry; <=0.1% for
+two correctly matched ellipsoidal geometry calculations; <=1e-6 relative error
+for serialization of expected affine coefficients. Confirm the computational
+meaning of each comparison before execution. Do not silently widen a failed bound.
+No pre-assumed pass for ring geometry: compare competing interpretations and
+record which one the measured support matches, including its boundary convention.
+
+Exit without EE: locally syntax-checked script, expected values and instructions,
+status PREPARED_UNEXECUTED, and the exact task/export files needed to resume.
+Exit with EE: completed tasks, downloadable artifacts, hashes, expected/observed
+comparison and a conclusion. A launched export is not a completed probe.
+
+WORK ITEM E -- PACKAGE E: FINISH RESPONSE DESIGN TODAY
+Cap: 60 minutes. Amend the existing CR-08 packet or link a short addendum; do not
+make another competing worksheet. No owner input is needed to draft this design.
+
+Preparation order: dev-01-braided, then negative-01. The first tests whether the
+primary corridor example is interpretable; the negative needs adequate coverage
+of the full AOI. A positive chip cannot verify a whole negative-control area.
+Both are interpreted before screen predictions. Keep holdout-01 uninspected.
+
+Specify:
+- Required dated source, scene identifier, authorization/access reference,
+  inspected extent, obscuration, actual inspector and acquisition date.
+- Confirmed / rejected / uncertain judgments and an explicit unknown class.
+- A named recovery variable and paired dated evidence if recovery is claimed.
+- A later small fixed-budget candidate-review pilot, its fixed selection rule,
+  duplicate handling, reviewer minutes and confirmed/uncertain denominators.
+- Separate fully inspected areas without predictions for any eventual recall
+  assessment. Candidate-only review supports triage yield, not recall.
+
+Exit: RESPONSE_DESIGN_COMPLETE. Real judgments remain PENDING until actually
+received. A single accepted judgment updates only its evidence-supported fields
+through the established review path. It does not imply all sites verified or
+that the four-site screen can run. Rejected/uncertain input is still a recorded
+outcome; it is never rewritten to "verified" to meet today's deadline.
+
+WORK ITEM F -- DAY 6 PACKET AND INTEGRATION
+Initial index: 15 minutes. Final reconciliation/checks: up to 90 minutes.
+Total proposed offline work cap A-F: 8 hours, including the initial index.
+Use unused time for a measured failure, not a new feature. This replaces the
+larger proposed 20-hour diagnostic package for today's bounded offline scope.
+
+Reuse docs/REVIEW_READY.md as the concise landing page. Put detailed new evidence
+in evidence/task-2026-09-25/README.md. Link rather than copy historic transcripts.
+Update docs/SPRINT_TASKS.csv with separately scoped preparation/completion rows;
+leave CR-08's broader acceptance criteria intact. Record historical blocked dates
+and today's actual state in docs/SPRINT_PROGRESS.md and the weekly plan.
+
+Packet must include:
+- Main SHA, revised #37 head and eventual merge SHA; every new artifact linked.
+- Existing v4 record, v1/v3 archives, CR-09 evidence and five gallery figures.
+- D enumeration totals and limitations; C exact B contract; B execution state;
+  E completed response design; CR-08's actual input state.
+- Check command, source SHA, environment, exit and evidence location. Attribute
+  inherited checks to their original commit rather than claim they ran today.
+- One next focus: acquire the missing reference/runtime evidence and execute
+  the registered Phase-1 screen when eligible. Do not schedule topology merely
+  because data access takes longer; reassess access feasibility instead.
+
+Integration sequence:
+1. Revise #37, observe its new-head checks, then merge when the existing review
+   authority permits it. Do not infer merge permission from this critique alone.
+2. Prepare independent diagnostics without waiting on that review; keep their
+   eventual PR based on current main. Avoid another stacked PR that might merge
+   into an already-landed branch and strand work off main.
+3. Submit one cohesive closeout PR for diagnostics/protocol/evidence with clear
+   implemented-versus-prepared boundaries. If #37 is still open, keep overlapping
+   edits isolated and explicitly resolve the dependency before merging.
+4. Run focused checks after each substantive change and the repository's full CI
+   commands once on the final combined implementation. Re-run affected checks
+   after any fix. Check worksheet consistency and changed documentation links.
+5. Confirm intended files actually exist on merged main. If review is pending,
+   say READY_FOR_REVIEW, not MERGED or COMPLETED_ON_MAIN. Preserve archive hashes.
+
+No new test count is an acceptance target. Do not build production abstractions,
+a second gate, or duplicate fixtures just to make the closeout look substantial.
+
+EXTERNAL INPUTS: SINGLE RESUMPTION CONTRACT, NO REPEATED ORDER QUESTION
+
+Owner action 1: provide an authorized dated scene/access reference and actual
+judgment for dev-01-braided, or explicitly name the available registered control
+instead. Use the existing form; never request credentials in the repo.
+Owner action 2: provide access to an authorized EE project/operator, or run the
+prepared synthetic probe and return completed export artifacts. The full screen
+additionally requires the registered dev/control evidence to be eligible.
+Owner action 3: review the corrected #37 and the final closeout PR when ready.
+
+These inputs may arrive at any time. They do not pause A-E preparation. If absent
+at the end of today's work, record owner/input/resume-command/artifact needed for
+each; do not open another generic "waiting on you" task or mark research complete.
+
+CAD DISPOSITION
+Record as external to this repo's completion criteria. The quoted host failure is
+reported by the other session, not independently reproduced in this review.
+Do not copy SSH keys, change networking, or attempt CAD automation for this plan.
+No suppression instructions found in a briefing does not establish that no API or
+session-specific solution exists. That requires a bounded investigation in
+engineering-audit. Absence of a physical monitor alone also does not establish
+whether a Windows GUI session or remote display exists. Keep these as unverified
+conditions, with a named external owner, instead of importing them as mapping
+blockers. Do not create external issues or send messages without authorization.
+
+SAME-DAY ACCEPTANCE CHECKLIST
+[ ] #37's new scientific wording corrected; exact review/merge state recorded.
+[ ] D: 176-case report, boundary checks, source binding and interpretation complete.
+[ ] C: exact B definition and missing-band/denominator fixtures; real A/B pending.
+[ ] B: runnable synthetic probe, independent expectations, syntax check, execution
+    state; resampling-on-composites concern explicitly covered.
+[ ] E: response design complete; provisional order documented without repeated asks.
+[ ] Day 6: dated packet and ledger reconciled to actual commits/artifacts.
+[ ] CR-08: no unsupported verification or claim that one image closes the gate.
+[ ] CAD: external scope, no mapping dependency or unsupported resolution claim.
+[ ] Final combined checks observed; inherited results labelled; no threshold drift.
+
+SOURCES / REVIEW LIMITS
+PR reviewed: https://github.com/500ft/informal-road-mapping/pull/37
+Native band spacing:
+https://developers.google.com/earth-engine/datasets/catalog/COPERNICUS_S2_SR_HARMONIZED
+Resampling constraint:
+https://developers.google.com/earth-engine/apidocs/ee-image-resample
+Repo references: AGENTS.md; docs/WEEKLY_PLAN_2026-09-19.md;
+docs/COMPLETION_RECONCILIATION.md; docs/SPRINT_TASKS.csv;
+docs/LITERATURE_CRITIQUE_2026-09-24_CLAUDE_HANDOFF.txt;
+500ft/engineering-audit -> docs/cad_agent_briefing.md.
+
+This review verified #37's current status and inspected code/diffs. It did not
+re-run the analysis suite, execute EE, inspect imagery or test the CAD host.
+Only this planning handoff was added. Proposed paths are future artifacts unless
+explicitly identified above as existing; check for intervening work before adding.

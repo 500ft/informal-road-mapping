@@ -428,3 +428,64 @@ Sections 2 to 6 propose diagnostics needing Earth Engine access or owner time: t
 probe, the compositor A/B on real imagery, the missing-year sensitivity on real QA pixels, and the
 triage response design. The two arithmetic oracles are delivered above; the rest remain specified
 and unexecuted.
+
+---
+
+# 2026-09-24 (second pass) — propagating C19 into the documents it invalidated
+
+The literature corrections left three inconsistencies and surfaced one new consequence. All four are
+closed here. **No threshold, site, window, setting or committed record changed.**
+
+## What was inconsistent
+
+1. **`docs/design.md` described the screen as running on "a fixed 10 m grid".** After C19 that is
+   incorrect — it conflates nominal Web Mercator units with ground distance. The same document also
+   still carried the sub-pixel claim in the form the corrected ledger says to restate, so the two
+   documents disagreed about the same decision.
+2. **`docs/PHASE1_RUNBOOK.md` listed `min_component_pixels=50` with no ground-area caveat.** It is
+   the document an operator follows during a real run, so it was the worst remaining place for the
+   10 m assumption to survive unqualified.
+3. **The oversampling consequence was unrecorded.** C19 established the ground span but not what it
+   implies about independent support.
+
+## The new finding
+
+The native sampling of B4 and B8 is 10 m. A ~6.8 m analysis grid is therefore about **1.47x finer
+than the data supports**, and the bilinear reprojection creates no new information.
+
+| quantity | value |
+|---|---|
+| 50 analysis pixels | ~2,300 m² of ground |
+| native-10 m pixel **areas** in that footprint | ~23 |
+| native-20 m pixel **areas** (B11, used by BSI) | ~5.75 |
+| grid spacing versus native 10 m sampling | ~1.47x finer |
+
+**Corrected 2026-09-25: these are area equivalents, not independent sample counts.** An earlier
+draft of this entry said the threshold "counts roughly twice as many pixels as there are independent
+samples beneath it". Dividing ground area by native pixel area establishes neither the number of
+overlapping native pixels nor an effective sample size — footprint shape, grid alignment,
+interpolation, sensor spatial response and spatial covariance all bear on that and none is
+determined here. `min_component_pixels` is a **geometric selection rule, not a statistical
+sample-size requirement**. The oversampling caution stands; the statistical inference does not.
+
+Overstatement from a 10 m assumption also differs by dimension: about **47% for a linear distance**
+at 47.3° N, about **117% for an area**. One percentage does not apply to every metre figure.
+
+## How the design change was made
+
+As a **dated amendment at the top of `design.md`**, not a silent edit, per the critique's own rule
+that a necessary correction needs a dated amendment and a statement of which predictions have
+already been seen. That statement is: **none.** No Earth Engine run has occurred, no site is
+verified, and no gate result exists, so this cannot be a post-hoc adjustment to an observed outcome.
+The pre-registered gate stands exactly as frozen on 2026-08-23; only the description of the grid's
+units changed.
+
+## Deliberately not changed
+The critique handoff remains a raw `.txt`. The earlier weekly handoff was converted to a committed
+plan because it was a *plan* being superseded; this one is a dated audit record, which is the same
+kind of artifact as an evidence file, so it keeps its original form.
+
+## Checks observed
+`pytest analysis/tests -q` **131 passed** (129 + 2 new) · both Node checks · worksheet check ·
+presentation checks with 78 links and no issues · new in-document anchor resolves ·
+`git diff --check` clean · all six `verified` flags remain `false`; CR-08 unchanged.

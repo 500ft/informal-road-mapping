@@ -36,6 +36,14 @@ control_outer_m=800, min_control_pixels=500, z_min=1, yearly_effect_min=0.02,
 persistence_min=2/3, min_valid_recent_years=2, min_component_pixels=50.
 Extra Earth Engine CSV columns are ignored; missing required columns are not.
 
+`analysis_scale_m=10` is a **nominal Web Mercator scale, not a ground distance**. At the registered
+latitudes one pixel spans about 6.6–7.0 m of ground, so `min_component_pixels=50` is roughly
+2,300 m² rather than 5,000 m², and grid spacing is about 1.47x finer than the 10 m native sampling
+of B4/B8 — about 23 native-10 m pixel *areas*, which is an area equivalent and **not** a count of
+independent samples. Record the exported affine
+transform and `pixelArea` with the run; do not convert pixel counts or `path_length_px` to metres
+using an assumed 10. See the [2026-09-24 design amendment](design.md#amendment--2026-09-24--the-analysis-grids-units).
+
 Temporal QA (required since 2026-09-08): `s2_scene_count_2018`,
 `s2_scene_count_2019`, `s2_scene_count_2020`, `s2_scene_count_2021`,
 `s2_scene_count_2023`, `s2_scene_count_2024`, `s2_scene_count_2025`,
