@@ -84,6 +84,14 @@ assert.match(
   'AOI area must specify a non-zero Earth Engine error margin'
 );
 
+// connectedPixelCount() caps its count at MAX_CONNECTED_PIXELS, so a component-size threshold at
+// or above the cap can never be met. This coupling is invisible in either constant alone.
+assert(
+  numberConstant(gee, 'MAX_CONNECTED_PIXELS') > numberConstant(gee, 'MIN_COMPONENT_PIXELS'),
+  'MAX_CONNECTED_PIXELS must exceed MIN_COMPONENT_PIXELS: connectedPixelCount caps the count, so a '
+  + 'threshold at or above the cap silently yields no large components'
+);
+
 assert.equal(numberConstant(gee, 'GATE_RATIO_MIN'), 2.0);
 assert.equal(numberConstant(gee, 'GATE_ABSOLUTE_FLOOR'), 0.0001);
 assert.equal(numberConstant(gee, 'GATE_MIN_COVERAGE'), 0.90);

@@ -78,7 +78,7 @@ rather than rotting silently. Units are stated because several are not what thei
 | `PERSISTENCE_MIN` | 2/3 | fraction | selected design value | MODEL_CHECKED | decision behaviour enumerated over 176 cases |
 | `MIN_VALID_RECENT_YEARS` | 2 | years | selected design value | MODEL_CHECKED | minimum passing counts are 2/2, 2/3, 3/4 |
 | `MIN_COMPONENT_PIXELS` | 50 | pixels | selected design value | RETRO_ASSESSED | ≈2,300 m² ground, not the 5,000 implied by a 10 m assumption |
-| `MAX_CONNECTED_PIXELS` | 256 | pixels | selected design value | UNVERIFIED | no recorded basis |
+| `MAX_CONNECTED_PIXELS` | 256 | pixels | selected design value | RETRO_ASSESSED | `connectedPixelCount` **caps** the count here; harmless at `MIN_COMPONENT_PIXELS = 50`, but a threshold at or above this cap silently yields no components. Coupling now enforced by `tools/validate_phase1.mjs` |
 | `GATE_RATIO_MIN` | 2.0 | ratio | selected design value | FROZEN_UNDERIVED | the "2× rule"; why 2 and not 1.5 or 3 is unrecorded |
 | `GATE_ABSOLUTE_FLOOR` | 0.0001 | fraction | calculated result | **recorded rationale** | prevents a zero negative response giving an infinite ratio |
 | `GATE_MIN_DEVELOPMENT_SITES` | 2 | sites | requirement | FROZEN_UNDERIVED | two of three |
@@ -117,11 +117,38 @@ Ordered by consequence, not by how easy it is to fix.
 | 3 | **`Z_MIN` = 1.0** | none | a false-positive rate at this threshold on any real scene | one sigma over a local ring is permissive; commission may dominate | record commission on the negative control before interpreting any development site |
 | 4 | **`CONTROL_INNER_M` / `OUTER_M`** | none; kernel distortion untested | whether the metre-specified kernel matches the pixel grid's distortion | the normalisation ring may not be the size it claims | covered by the prepared grid probe |
 | 5 | **`MIN_CONTROL_PIXELS` = 500** | none | a basis for the number | too few samples makes the z-score unstable; too many rejects valid sites | derive from the ring area at the real ground scale |
-| 6 | **`MAX_CONNECTED_PIXELS` = 256** | none | its purpose is not stated anywhere | unclear whether it is an upper filter or a display cap | read the code path and record the intent, or remove it |
+| 6 | **`MAX_CONNECTED_PIXELS` = 256** | ~~none~~ **resolved 2026-09-26** | the value's *origin* is still unrecorded | a component threshold at or above the cap would silently yield nothing | **done**: it is `connectedPixelCount`'s `maxSize`; documented at its definition and the coupling to `MIN_COMPONENT_PIXELS` is now enforced by the static validator |
 | 7 | **`GATE_RATIO_MIN` = 2.0** | the floor companion is explained; the ratio is not | why 2 | the primary gate's strictness is unjustified | state the reasoning, or record it as a convention |
 | 8 | **`min_length_px`, `min_elongation`** | synthetic cases pin their effects | real-corridor equivalents | dashes and crossings are lost by construction | already recorded as known limits |
 | 9 | **`tol_px` = 2 as an L1 band** | Wiedemann family identified | any analysis of buffer width sensitivity, or of the redundancy the band permits | scores may be optimistic in a way the metric cannot see | literature found none; treat as open |
 | 10 | **July-only compositing** | none | why July, and what phenology it assumes | a seasonal choice acts as an uncontrolled variable | record the reasoning |
+
+## Resolved finding — `MAX_CONNECTED_PIXELS`, 2026-09-26
+
+Audit item 6 asked what this constant was for, because it appeared nowhere in the documentation.
+Reading the code path answers it: it is the `maxSize` argument to Earth Engine's
+`connectedPixelCount(maxSize, eightConnected)`, which **caps** the returned count. A component
+larger than 256 pixels reports exactly 256, not its true size.
+
+**Current effect: none.** The test is `connectedCount >= MIN_COMPONENT_PIXELS` with the threshold at
+50, and `min(trueSize, 256) >= 50` whenever `trueSize >= 50`. The planned sensitivity values are
+`{25, 50, 100}` pixels, all below the cap, so this would not have bitten on the registered plan
+either. **This is a latent hazard that was guarded before it could fire, not a bug that was about to.**
+
+**Why it still matters.** The coupling is invisible in either constant alone. Raise the component
+threshold to or above 256 — during a future sensitivity study, or by someone reasoning in ground
+area after C19 showed 50 pixels is only ~2,300 m² — and the gate silently returns *no* large
+components rather than erroring. A silent empty result on a screen whose whole purpose is detecting
+absence-versus-presence is the worst failure shape available.
+
+Two things are now true that were not: the constant explains itself where it is defined, and
+`tools/validate_phase1.mjs` asserts `MAX_CONNECTED_PIXELS > MIN_COMPONENT_PIXELS`. Verified by
+temporarily raising the threshold to 300 and confirming the validator fails.
+
+The counts are also unusable as component **sizes** above the cap. Only the threshold test is valid,
+which matters if anyone later reports component size as a result.
+
+**Still unrecorded:** why 256 specifically. That remains `FROZEN_UNDERIVED` like its neighbours.
 
 ## Traceability index
 
