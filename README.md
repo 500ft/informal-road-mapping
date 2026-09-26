@@ -52,6 +52,15 @@ No real-road precision/recall, active/abandoned classification or Mongolia
 detection result is claimed. The earlier NDVI rendering in `results/` is not
 a successful Phase-1 output.
 
+## Where the numbers come from
+
+[Parameter provenance and audit](docs/PARAMETER_PROVENANCE.md) classifies every consequential
+number as a requirement, measured input, sourced assumption, calculated result, selected design
+value, measured result or provisional estimate, and tracks evidence status separately. Its headline
+finding: most thresholds here are **pre-registered but underived** — frozen before any result was
+seen, which is a real strength, but with no recorded reason for the specific value. It also carries
+the traceability index from each decision to its rationale and its validation route.
+
 ## Literature
 
 A [literature review](literature/) added 2026-09-22 attaches evidence to the methodological claims
