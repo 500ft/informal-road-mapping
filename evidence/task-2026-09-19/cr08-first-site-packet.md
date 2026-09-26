@@ -146,3 +146,61 @@ missing inputs (no Earth Engine run):
 
 A SCREEN_PASS is the registered large-component positive-disturbance screen. It is not road
 precision or recall, not recovery detection, and not source authentication.
+
+---
+
+# Response design addendum — 2026-09-25
+
+**Status: RESPONSE_DESIGN_COMPLETE. Real judgments remain PENDING until actually received.**
+This completes the design. It verifies nothing, and no owner decision was required to draft it.
+
+## Preparation order (provisional, not an owner-approved scientific decision)
+
+**`dev-01-braided` first, then `negative-01`.** The first tests whether the primary corridor example
+is interpretable at all; the second needs adequate coverage of the *full* AOI, because a positive
+chip cannot verify a whole negative-control area. Both are interpreted **before** screen
+predictions. `holdout-01` stays uninspected.
+
+Changing this order changes no site, stratum, coordinate or gate threshold, so it is not held up
+waiting for confirmation. The owner can override it when supplying evidence.
+
+## What each judgment must carry
+
+| field | rule |
+|---|---|
+| dated source and scene identifier | the acquisition date, never an access or copyright year |
+| authorization / access reference | a reference, never a credential in this repository |
+| inspected extent, scale/resolution | plus the portion that could **not** be assessed |
+| obscuration | cloud, shadow, seasonal cover, mosaic seam |
+| actual inspector | a person; an AI-assisted read is labelled as such and is not independent |
+| judgment | confirmed / rejected / uncertain, **plus an explicit `unknown` class** |
+| confounds | the seven-item checklist above, each present / absent / cannot tell |
+
+`unknown` is distinct from `uncertain`: *uncertain* means the imagery was seen and did not settle
+the question; *unknown* means the question was not reached. Both are recorded outcomes. Neither is
+ever rewritten as `verified` to meet a deadline.
+
+## If recovery is claimed
+
+Name the **variable** judged — greenness, species composition, visible rutting or surface
+brightness — and supply **paired dated evidence**. A single contemporary image cannot establish
+historical change or abandonment. Carry the range from the four-study spread above rather than a
+point estimate.
+
+## Later candidate-review pilot (specified now, executed when eligible)
+
+- A **fixed inspection budget** and a **deterministic candidate selection rule**, both frozen before
+  any prediction is read.
+- Report **confirmed corridors / reviewed candidates**, with uncertain judgments counted separately,
+  duplicate reviews recorded, and reviewer minutes per confirmation.
+- This is **triage yield, not precision or recall**.
+- For any eventual recall estimate, separately inspect **fully covered areas containing no
+  predictions**. Reviewing candidates alone cannot estimate recall.
+- Retain a small **blind repeat / adjudication subset**.
+
+## What one image does and does not do
+
+A single accepted judgment updates **only its own evidence-supported fields** through the established
+review path. It does not imply the other sites are verified, and it does not make the four-site
+screen runnable. CR-08's ledger row asks for development and control verification **and** Earth
+Engine runtime access; those remain separately visible and separately unmet.

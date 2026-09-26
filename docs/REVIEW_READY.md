@@ -1,5 +1,35 @@
 # CatanRoads — partial handoff, local software ready for review
 
+## Closeout — 2026-09-25 (Day 6, completed 2026-09-25 not 2026-09-24)
+
+Preparation work for this repository is complete. **Research completion is not claimed.** No site is
+verified, no Earth Engine run has occurred, and the registered Phase-1 screen has never been
+executed on real data.
+
+| area | state | evidence |
+|---|---|---|
+| CR-09 path export | done | [evidence/task-2026-09-14](../evidence/task-2026-09-14/README.md) · [v4 record](../results/extractor_stress_cases.json) · v1/v3 archives in `results/` · [five gallery figures](../results/figures/) |
+| Literature review and its corrections | done | [literature/](../literature/) · [claim ledger](../literature/claim-ledger.md) · [gaps](../literature/gaps.md) |
+| Grid and support (C19) | recorded, runtime probe unexecuted | [design amendment](design.md#amendment--2026-09-24--the-analysis-grids-units) · [probe](../evidence/task-2026-09-25/grid_runtime_probe.js) |
+| Missingness sensitivity (D) | MODEL_CHECKED | [enumeration](../evidence/task-2026-09-25/missingness_sensitivity.json) |
+| Compositor comparison (C) | OFFLINE_COMPLETE / REAL_COMPARISON_PENDING | [protocol](specs/compositor-ab/plan.md) |
+| Grid probe (B) | PREPARED_UNEXECUTED | [expectations](../evidence/task-2026-09-25/grid_runtime_expectations.json) |
+| CR-08 response design (E) | RESPONSE_DESIGN_COMPLETE | [packet](../evidence/task-2026-09-19/cr08-first-site-packet.md) |
+| CR-08 itself | **blocked** | all six `verified` flags `false`; no runtime access |
+| Topology | deferred | [design note](specs/phase-2-topology-followup/plan.md) |
+
+Full closeout detail: [evidence/task-2026-09-25/README.md](../evidence/task-2026-09-25/README.md).
+
+**The one next focus:** acquire the missing reference and runtime evidence, then execute the
+registered Phase-1 screen when eligible. Topology is not scheduled merely because data access takes
+longer; if access stalls, reassess access feasibility rather than substituting algorithm work.
+
+**What is still required, and from whom.** One authorized dated scene reference and an actual
+judgment for `dev-01-braided`, or an explicit statement of which registered control is available
+instead. Access to an authorized Earth Engine project, or the completed export artifacts from the
+prepared probe. Review of the corrected #37 and of the closeout PR.
+
+
 ## Latest follow-up — 2026-09-16 (CR-R03 stack and CR-09)
 
 - **CR-R03 → R03c** (PRs #12–#14, merged 2026-09-13): ten fixed synthetic stress cases with

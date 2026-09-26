@@ -145,7 +145,7 @@ decision, exclusions, and the explicit statement that this is a disturbance scre
 ceiling exactly as the draft specifies, with Option C (defer topology) the standing recommendation.
 Design note only; nothing is implemented.
 
-### Day 6 — 2026-09-24 — review packet and next-week decision
+### Day 6 — 2026-09-24, completed 2026-09-25 — review packet and next-week decision — **done**
 Artifacts: a concise packet linking the merged commits, the v4 record and the v1/v3 archives, the
 CR-09 evidence, the five figures, the CR-08 outcome, every command and exit, and **the one** next
 decision. The week's focus for the following week is selected: real-data gate, bounded topology

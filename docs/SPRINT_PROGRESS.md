@@ -1,5 +1,17 @@
 # Sprint progress — CatanRoads
 
+## 2026-09-25 — preparation closeout
+
+Corrected PR #37's "independent samples" overclaim before merge (area equivalents are not sample
+counts). Completed the owner-independent packages: the 176-pair missingness enumeration
+(MODEL_CHECKED), the frozen compositor variant-B contract (OFFLINE_COMPLETE), the Earth Engine grid
+probe with independent expectations and the resample-on-composites experiment (PREPARED_UNEXECUTED),
+and the CR-08 response design (RESPONSE_DESIGN_COMPLETE). Day 6 packet assembled last so it reflects
+today's actual artifacts. New ledger row `CR-P01` scopes preparation separately; **CR-08 itself
+remains blocked** and its acceptance criteria are untouched. CAD is recorded as external to this
+repository. [Closeout evidence](../evidence/task-2026-09-25/README.md).
+
+
 ## 2026-09-12 → 2026-09-16 — stress cases, editing convention, CR-09
 
 - **2026-09-12/13, CR-R03 → R03c** (PRs #12, #13, #14; merged 2026-09-13): the extractor is

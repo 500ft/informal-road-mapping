@@ -1,0 +1,110 @@
+{
+ "status": "PREPARED_UNEXECUTED",
+ "purpose": "Independent expectations for evidence/task-2026-09-25/grid_runtime_probe.js. Computed here by inverse projection and geodesic formulae, NOT read back from the same Earth Engine operation being tested.",
+ "tolerances_predeclared": {
+  "spherical_vs_ground_geometry": "<= 1% relative",
+  "two_matched_ellipsoidal_calculations": "<= 0.1% relative",
+  "serialised_affine_coefficients": "<= 1e-6 relative",
+  "note": "A failed bound is recorded as a failure. Do not silently widen it."
+ },
+ "analysis_grid": {
+  "crs": "EPSG:3857",
+  "nominal_scale_m": 10,
+  "min_component_pixels": 50,
+  "control_ring_m": [
+   200,
+   800
+  ]
+ },
+ "expected": {
+  "confound-01": {
+   "latitude_deg": 48.6,
+   "spherical_ground_span_m": 6.6131,
+   "ellipsoidal_ground_span_m": 6.6256,
+   "spherical_vs_ellipsoidal_rel_diff": 0.001885,
+   "pixel_area_m2_spherical": 43.73,
+   "fifty_pixel_area_m2_spherical": 2186.7,
+   "native10m_pixel_AREA_equivalents": 21.87,
+   "native20m_pixel_AREA_equivalents": 5.47,
+   "note": "AREA equivalents only \u2014 not independent sample counts."
+  },
+  "dev-01-braided": {
+   "latitude_deg": 47.3,
+   "spherical_ground_span_m": 6.7816,
+   "ellipsoidal_ground_span_m": 6.7939,
+   "spherical_vs_ellipsoidal_rel_diff": 0.001809,
+   "pixel_area_m2_spherical": 45.99,
+   "fifty_pixel_area_m2_spherical": 2299.5,
+   "native10m_pixel_AREA_equivalents": 23.0,
+   "native20m_pixel_AREA_equivalents": 5.75,
+   "note": "AREA equivalents only \u2014 not independent sample counts."
+  },
+  "dev-02-recovering": {
+   "latitude_deg": 46.2,
+   "spherical_ground_span_m": 6.9214,
+   "ellipsoidal_ground_span_m": 6.9335,
+   "spherical_vs_ellipsoidal_rel_diff": 0.001745,
+   "pixel_area_m2_spherical": 47.91,
+   "fifty_pixel_area_m2_spherical": 2395.3,
+   "native10m_pixel_AREA_equivalents": 23.95,
+   "native20m_pixel_AREA_equivalents": 5.99,
+   "note": "AREA equivalents only \u2014 not independent sample counts."
+  },
+  "dev-03-gobi": {
+   "latitude_deg": 45.4,
+   "spherical_ground_span_m": 7.0215,
+   "ellipsoidal_ground_span_m": 7.0335,
+   "spherical_vs_ellipsoidal_rel_diff": 0.001698,
+   "pixel_area_m2_spherical": 49.3,
+   "fifty_pixel_area_m2_spherical": 2465.1,
+   "native10m_pixel_AREA_equivalents": 24.65,
+   "native20m_pixel_AREA_equivalents": 6.16,
+   "note": "AREA equivalents only \u2014 not independent sample counts."
+  },
+  "holdout-01": {
+   "latitude_deg": 48.1,
+   "spherical_ground_span_m": 6.6783,
+   "ellipsoidal_ground_span_m": 6.6907,
+   "spherical_vs_ellipsoidal_rel_diff": 0.001856,
+   "pixel_area_m2_spherical": 44.6,
+   "fifty_pixel_area_m2_spherical": 2230.0,
+   "native10m_pixel_AREA_equivalents": 22.3,
+   "native20m_pixel_AREA_equivalents": 5.58,
+   "note": "AREA equivalents only \u2014 not independent sample counts."
+  },
+  "negative-01": {
+   "latitude_deg": 46.8,
+   "spherical_ground_span_m": 6.8455,
+   "ellipsoidal_ground_span_m": 6.8577,
+   "spherical_vs_ellipsoidal_rel_diff": 0.00178,
+   "pixel_area_m2_spherical": 46.86,
+   "fifty_pixel_area_m2_spherical": 2343.0,
+   "native10m_pixel_AREA_equivalents": 23.43,
+   "native20m_pixel_AREA_equivalents": 5.86,
+   "note": "AREA equivalents only \u2014 not independent sample counts."
+  },
+  "equator-control": {
+   "latitude_deg": 0.0,
+   "spherical_ground_span_m": 10.0,
+   "ellipsoidal_ground_span_m": 10.0,
+   "note": "Web Mercator is ~1:1 at the equator; this isolates latitude distortion from other error."
+  }
+ },
+ "resample_order_experiment": {
+  "concern": "gee/ndvi_change.js::atAnalysisScale calls resample('bilinear') on derived images, including collection medians. Earth Engine documents that resample requires a meaningful default projection and warns against applying it to composites.",
+  "source": "https://developers.google.com/earth-engine/apidocs/ee-image-resample",
+  "expected_observation": "A composite has no meaningful default projection, so order-1 (composite -> resample) may resample against a default rather than the source grid. Order-2 (resample -> composite) resamples each source image on its own projection.",
+  "possible_outcomes": [
+   "identical values: the concern does not bite for this collection/AOI",
+   "differing values: compositing order changes the delivered grid; record magnitude",
+   "an Earth Engine error on order-1: record as an OBSERVED FAILURE, do not edit the live helper during closeout"
+  ],
+  "status": "UNEXECUTED \u2014 requires Earth Engine access"
+ },
+ "not_established_without_execution": [
+  "The delivered affine transform; these are predictions of it.",
+  "Whether the metre-specified 200-800 m ring kernel carries the same distortion as the pixel grid. Two interpretations compete (ground metres vs projected units); the probe records which the measured support matches, including its boundary convention.",
+  "Band alignment and the order of interpolation versus index formation.",
+  "Whether categorical masks/counts are inadvertently interpolated as signals."
+ ]
+}
