@@ -318,8 +318,22 @@ the equator. Under the spherical approximation:
 | negative-01 | 46.80 | 6.85 m | 2,343 m² |
 
 The `min_component_pixels = 50` threshold was therefore reasoned about as roughly 5,000 m² and is
-closer to **2,200–2,500 m²**. Every metre figure in this repository derived from a 10 m assumption —
-including this ledger's earlier ridge-scale arithmetic — was overstated by roughly 45%.
+closer to **2,200–2,500 m²**. Figures derived from a 10 m assumption were overstated, but **by
+different amounts depending on dimension** (corrected 2026-09-25): at 47.3° N, using 10 m instead of
+6.78 m overstates a **linear** distance by about **47%**, while using 5,000 m² instead of 2,300 m²
+overstates an **area** by about **117%**. Do not apply one percentage to every metre figure.
+
+**The grid is finer than the native sampling** (added 2026-09-24, corrected 2026-09-25). The native
+sampling of B4 and B8 is 10 m, so a ~6.8 m analysis grid has **grid spacing about 1.47x finer than
+native 10 m sampling**; the bilinear reprojection does not add measurements. An estimated 2,300 m²
+is about **23 native-10 m pixel areas** or **5.75 native-20 m pixel areas** (B11, used by BSI).
+
+**These are area equivalents, not independent sample counts.** An earlier version of this entry
+called them "independent samples", which was wrong: dividing area by native pixel area establishes
+neither the number of overlapping native pixels nor an effective sample size. Footprint shape, grid
+alignment, interpolation, sensor spatial response and spatial covariance all bear on that, and none
+is determined here. `min_component_pixels` is a **geometric selection rule, not a statistical
+sample-size requirement**. The oversampling caution stands; the statistical inference does not.
 
 Two further support questions, unresolved:
 
